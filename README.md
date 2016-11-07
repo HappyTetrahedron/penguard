@@ -14,18 +14,19 @@ monitoring them will be called “guardians”.
 Penguins can be guarded by several guardians at once, in which case it
 is sufficient for the penguin to be “seen” by one of them. Also,
 guardians can monitor several penguins at once. The guardians should
-know at all time which other guardians see which penguins.
+know at all times which other guardians see which penguins.
 
 We want to be able to use any kind of bluetooth device as a penguin. The
 only requirements should be that it supports bluetooth, and that it
 doesn’t automatically turn off bluetooth after a while of inactivity,
 even when no device is paired to it.
 
-Penguins should be able to detect when they are “lost” and act upon it.
-This obviously contradicts the goal to support any bluetooth device. We
-want to support both goals by adding an optional protocol through which
-penguins can communicate with the guardians. When the penguin supports
-the protocol, it can detect and act upon being lost, otherwise not.
+Penguins should be able to detect when they are “lost” and act upon it.  This
+obviously contradicts the goal to support any bluetooth device. We want to
+support both goals by adding an optional protocol (the Penguard Penguin
+Protocol) through which penguins can communicate with the guardians. When the
+penguin supports the protocol, it can detect and act upon being lost, otherwise
+not.
 
 The major challenges will be
 
@@ -59,14 +60,14 @@ broadcasting and receiving discovery packets over the local network. We
 want the Penguard Discovery server to be an optional component.
 
 The guardians can detect whether a penguin is in range by using
-Bluetooth RSSI. That means guardians are not required to pair with
+Bluetooth RSSI. This means that guardians are not required to pair with
 penguins.
 
 Penguins can optionally implement the Penguard Penguin protocol, which
 is a Bluetooth Low Energy protocol. The guardians act as clients to the
 Penguins. The guardians will ping the Penguins regularly, such that the
-penguin can detect when it’s lost using a timeout. The penguin should
-also advertize what kind of information it requires from the guardians,
+penguin can detect when it is lost by using a timeout. The penguin should
+also advertise what kind of information it requires from the guardians,
 which the guardians then must send to it. This information can include
 phone numbers, email addresses or similar information and should allow
 for the penguin to contact the guardians when it is lost.
@@ -116,6 +117,7 @@ Penguard Discovery Server
     server is present, guardians exchange the necessary information via
     broadcast packets on the local network.
 
+<!-- TODO: include calibration?-->
 Calibration
 -----------
 
@@ -135,12 +137,12 @@ guardians within the same group to communicate.
 Groups can be formed either via a Penguard Discovery Server or using
 broadcast packets on the local network. Every group has an unique ID.
 
-One guardian acts as the group’s creator. When a discovery server is
-used, the creator will register the group with the server. The server
-will then notify it whenever a new member registers with the group. When
-no server is used, the creator will act as the server. It will broadcast
-the group information on the local network. Other guardians can pick up
-that information and register with the group.
+One guardian acts as the group’s creator. When a discovery server is used, the
+creator will register the group with the server. The server will then notify it
+whenever a new member registers with the group. When no dedicated server is
+used, the creator will act as the server. It will broadcast the group
+information on the local network. Other guardians can pick up that information
+and register with the group.
 
 The guardians that do not act as creators will have to register with an
 existing group. When a discovery server is present, they ask that server
@@ -177,18 +179,18 @@ The Penguin protocol allows for penguins to detect when they are lost.
 
 It is a Bluetooth Low Energy protocol.
 
-The penguin should advertize that he supports the Penguin Protocol. It
+The penguin should advertise that he supports the Penguin Protocol. It
 can be activated and deactivated.
 
 Once activated, the penguin enters its active state. In this state, it
-will listen for Pings from the guardians and acknowledge them. The
+will listen for pings from the guardians and acknowledge them. The
 guardians must send these pings regularly. When the penguin does not
 receive a ping for long enough, it will consider itself lost and enter
-its lost state. Once it receives another Ping, it will transition back
+its lost state. Once it receives another ping, it will transition back
 to active state.
 
 When deactivated, the penguin will go in its inactive state. In that
-state, the penguin will reply to Pings saying that it is inactive.
+state, the penguin will reply to pings, saying that it is inactive.
 
 The penguin can also tell the guardians which information it would like
 to receive from the guardians. The guardians will poll for this
@@ -212,6 +214,8 @@ We will need the following software:
 
 -   Android Studio
 
+<!-- TODO: Python? I would maybe add it just in case-->
+
 Work Packages
 =============
 
@@ -230,7 +234,7 @@ Work Packages
 -   <span>**WP5**</span>: Implement calibration functionality for
     guardians
 
--   <span>**WP6**</span>: Extend the Penguard service that can also
+-   <span>**WP6**</span>: Extend the Penguard service so that it can also
     handle Penguins with Penguin Protocol support
 
 -   <span>**WP7**</span>: Write a Penguard Discovery Server supporting
