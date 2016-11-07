@@ -78,7 +78,7 @@
 \normalsize{Distributed Systems -- Project Proposal}}
 \subtitle{Tracking objects to prevent them from being lost}
 
-\numberofauthors{3}
+\numberofauthors{6}
 \author{
 \alignauthor {\normalsize Nils Leuzinger}\\
 	\affaddr{{\normalsize 14-939-896}}\\
@@ -89,6 +89,16 @@
 \alignauthor {\normalsize Aline Abler}\\
 	\affaddr{{\normalsize 14-920-979}}\\
 	\email{{\normalsize ablera@student.ethz.ch}}
+\and
+\alignauthor {\normalsize Sascha Tribelhorn}\\
+	\affaddr{{\normalsize XX-XXX-XXX}}\\
+	\email{{\normalsize tsascha@student.ethz.ch}}
+\alignauthor {\normalsize Luca Wolf}\\
+	\affaddr{{\normalsize 12-913-539}}\\
+	\email{{\normalsize lwolf@student.ethz.ch}}
+\alignauthor {\normalsize Andris Suter-D\"orig}\\
+	\affaddr{{\normalsize XX-XXX-XXX}}\\
+	\email{{\normalsize sandris@student.ethz.ch}}
 }
 
 \begin{document}
@@ -111,14 +121,14 @@ Penguins can be guarded by several guardians at once, in which case it is suffic
 
 We want to be able to use any kind of bluetooth device as a penguin. The only requirements should be that it supports bluetooth, and that it doesn't automatically turn off bluetooth after a while of inactivity, even when no device is paired to it.
 
-Penguins should be able to detect when they are ``lost'' and act upon it. This obviously contradicts the goal to support any bluetooth device. We want to support both goals by adding an optional protocol through which penguins can communicate with the guardians. When the penguin supports the protocol, it can detect and act upon being lost, otherwise not.
+As an extension, penguins should be able to detect when they are ``lost'' and act upon it. This obviously contradicts the goal to support any bluetooth device. We could support both options by adding an optional protocol through which penguins can communicate with the guardians. When the penguin supports the protocol, it can detect and act upon being lost, otherwise not. We want to keep this option in mind and implement it if we have enough time.
 
 The major challenges will be
 
 \begin{itemize}
     \item Implementing a peer-to-peer protocol for the guardians
     \item Detecting bluetooth devices and ``tracking'' them without making more assumptions on them
-    \item Implementing a protocol for the penguins to talk to the guardians
+    \item (optional) Implementing a protocol for the penguins to talk to the guardians
 \end{itemize}
 
 \section{System Overview}
@@ -175,7 +185,7 @@ When a guardian notices that its IP address changes, it will immediately notify 
 
 Guardians should also relay information to other guardians to provide some redundancy. When a link between two guardians fails but both can still reach a third guardian, the third guardian should act as a relay between the two.
 
-\subsection{Penguard Penguin Protocol}
+\subsection{Penguard Penguin Protocol (optional)}
 
 The Penguin protocol allows for penguins to detect when they are lost.
 
@@ -187,9 +197,9 @@ Once activated, the penguin enters its active state. In this state, it will list
 
 When deactivated, the penguin will go in its inactive state. In that state, the penguin will reply to Pings saying that it is inactive.
 
-The penguin can also tell the guardians which information it would like to receive from the guardians. The guardians will poll for this information once. They will then send the required information to the penguin.
+The penguin can also tell the guardians which information it would like to receive from the guardians. The guardians will poll for this information once. They will then send the required information to the penguin. The required information should not change.
 
-The required information should not change.
+The Penguard Penguin Protocol and all components using it are considered optional, meaning that this will be the first thing we strip of the project when time is not sufficient.
 
 \section{Requirements}
 
@@ -200,6 +210,8 @@ During this project, we will need the following hardware:
     \item Several Bluetooth devices
     \item A server (kindly provided by VSOS)
 \end{itemize}
+
+We will rely on Java for development of the Android app and the Discovery server.
 
 We will need the following software:
 
@@ -214,12 +226,12 @@ We will need the following software:
         \item {\bf WP1}: Implement the Penguard Guardian Protocol - communication part
         \item {\bf WP2}: Implement the Penguard Guardian Protocol - group finding part (no discovery server)
         \item {\bf WP3}: Write a Penguard service that can handle numerous Penguins without Penguin Protocol support
-        \item {\bf WP4}: Write a Penguard Penguin service that implements the Penguard Penguin protocol (as a penguin)
-        \item {\bf WP5}: Implement calibration functionality for guardians
-        \item {\bf WP6}: Extend the Penguard service that can also handle Penguins with Penguin Protocol support
-        \item {\bf WP7}: Write a Penguard Discovery Server supporting the Penguard Guardian protocol
-        \item {\bf WP8}: Implement the Penguard Guardian Protocol - group finding part (using discovery server)
-        \item {\bf WP9}: Design a functional graphical user interface for the Penguard app
+        \item {\bf WP4}: Implement calibration functionality for guardians
+        \item {\bf WP5}: Write a Penguard Discovery Server supporting the Penguard Guardian protocol
+        \item {\bf WP6}: Implement the Penguard Guardian Protocol - group finding part (using discovery server)
+        \item {\bf WP7}: Design a functional graphical user interface for the Penguard app
+        \item {\bf WP8}: (optional) Write a Penguard Penguin service that implements the Penguard Penguin protocol (as a penguin)
+        \item {\bf WP9}: (optional) Extend the Penguard service that can also handle Penguins with Penguin Protocol support
 \end{itemize}
  
 
@@ -241,13 +253,9 @@ Guardians can create and join groups via a discovery server. The server correctl
 
 A guardian monitors one penguin and can detect when it is lost. 
 
-\subsection{Monitoring multiple penguins not supporting the Penguin Protocol}
+\subsection{Monitoring multiple penguins}
 
 A guardian monitors multiple penguins and can detect when either of them is lost. 
-
-\subsection{Monitoring multiple penguins supporting the Penguin Protocol}
-
-A guardian correctly uses the Penguard Penguin protocol to detect whether penguins support the protocol, activate them, detect what information they require, send it to them, and ping them.
 
 \subsection{Calibration}
 
@@ -256,6 +264,10 @@ Guardians have the option to calibrate. Calibration is stored locally.
 \subsection{User interface}
 
 The user interface is functional, understandable and polished.
+
+\subsection{(optional) Monitoring multiple penguins supporting the Penguin Protocol}
+
+A guardian correctly uses the Penguard Penguin protocol to detect whether penguins support the protocol, activate them, detect what information they require, send it to them, and ping them.
 
 % The following two commands are all you need in the
 % initial runs of your .tex file to
@@ -273,8 +285,8 @@ We expect to deliver the following:
 \begin{itemize}
     \item Code for the Penguard Android application
     \item Code for the Penguard Discovery Server
-    \item Documentation for the Penguard Penguin Protocol
     \item Documentation for the Penguard Guardian Protocol
+    \item (optional) Documentation for the Penguard Penguin Protocol
 \end{itemize}
 
 \end{document}

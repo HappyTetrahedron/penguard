@@ -21,11 +21,13 @@ only requirements should be that it supports bluetooth, and that it
 doesn’t automatically turn off bluetooth after a while of inactivity,
 even when no device is paired to it.
 
-Penguins should be able to detect when they are “lost” and act upon it.
-This obviously contradicts the goal to support any bluetooth device. We
-want to support both goals by adding an optional protocol through which
-penguins can communicate with the guardians. When the penguin supports
-the protocol, it can detect and act upon being lost, otherwise not.
+As an extension, penguins should be able to detect when they are “lost”
+and act upon it. This obviously contradicts the goal to support any
+bluetooth device. We could support both options by adding an optional
+protocol through which penguins can communicate with the guardians. When
+the penguin supports the protocol, it can detect and act upon being
+lost, otherwise not. We want to keep this option in mind and implement
+it if we have enough time.
 
 The major challenges will be
 
@@ -34,7 +36,8 @@ The major challenges will be
 -   Detecting bluetooth devices and “tracking” them without making more
     assumptions on them
 
--   Implementing a protocol for the penguins to talk to the guardians
+-   (optional) Implementing a protocol for the penguins to talk to the
+    guardians
 
 System Overview
 ===============
@@ -170,8 +173,8 @@ some redundancy. When a link between two guardians fails but both can
 still reach a third guardian, the third guardian should act as a relay
 between the two.
 
-Penguard Penguin Protocol
--------------------------
+Penguard Penguin Protocol (optional)
+------------------------------------
 
 The Penguin protocol allows for penguins to detect when they are lost.
 
@@ -193,9 +196,11 @@ state, the penguin will reply to Pings saying that it is inactive.
 The penguin can also tell the guardians which information it would like
 to receive from the guardians. The guardians will poll for this
 information once. They will then send the required information to the
-penguin.
+penguin. The required information should not change.
 
-The required information should not change.
+The Penguard Penguin Protocol and all components using it are considered
+optional, meaning that this will be the first thing we strip of the
+project when time is not sufficient.
 
 Requirements
 ============
@@ -207,6 +212,9 @@ During this project, we will need the following hardware:
 -   Several Bluetooth devices
 
 -   A server (kindly provided by VSOS)
+
+We will rely on Java for development of the Android app and the
+Discovery server.
 
 We will need the following software:
 
@@ -224,23 +232,23 @@ Work Packages
 -   <span>**WP3**</span>: Write a Penguard service that can handle
     numerous Penguins without Penguin Protocol support
 
--   <span>**WP4**</span>: Write a Penguard Penguin service that
-    implements the Penguard Penguin protocol (as a penguin)
-
--   <span>**WP5**</span>: Implement calibration functionality for
+-   <span>**WP4**</span>: Implement calibration functionality for
     guardians
 
--   <span>**WP6**</span>: Extend the Penguard service that can also
-    handle Penguins with Penguin Protocol support
-
--   <span>**WP7**</span>: Write a Penguard Discovery Server supporting
+-   <span>**WP5**</span>: Write a Penguard Discovery Server supporting
     the Penguard Guardian protocol
 
--   <span>**WP8**</span>: Implement the Penguard Guardian Protocol -
+-   <span>**WP6**</span>: Implement the Penguard Guardian Protocol -
     group finding part (using discovery server)
 
--   <span>**WP9**</span>: Design a functional graphical user interface
+-   <span>**WP7**</span>: Design a functional graphical user interface
     for the Penguard app
+
+-   <span>**WP8**</span>: (optional) Write a Penguard Penguin service
+    that implements the Penguard Penguin protocol (as a penguin)
+
+-   <span>**WP9**</span>: (optional) Extend the Penguard service that
+    can also handle Penguins with Penguin Protocol support
 
 Milestones
 ==========
@@ -267,18 +275,11 @@ Monitoring a single penguin not supporting the Penguin Protocol
 
 A guardian monitors one penguin and can detect when it is lost.
 
-Monitoring multiple penguins not supporting the Penguin Protocol
-----------------------------------------------------------------
+Monitoring multiple penguins
+----------------------------
 
 A guardian monitors multiple penguins and can detect when either of them
 is lost.
-
-Monitoring multiple penguins supporting the Penguin Protocol
-------------------------------------------------------------
-
-A guardian correctly uses the Penguard Penguin protocol to detect
-whether penguins support the protocol, activate them, detect what
-information they require, send it to them, and ping them.
 
 Calibration
 -----------
@@ -290,6 +291,13 @@ User interface
 
 The user interface is functional, understandable and polished.
 
+(optional) Monitoring multiple penguins supporting the Penguin Protocol
+-----------------------------------------------------------------------
+
+A guardian correctly uses the Penguard Penguin protocol to detect
+whether penguins support the protocol, activate them, detect what
+information they require, send it to them, and ping them.
+
 Deliveries
 ==========
 
@@ -299,8 +307,8 @@ We expect to deliver the following:
 
 -   Code for the Penguard Discovery Server
 
--   Documentation for the Penguard Penguin Protocol
-
 -   Documentation for the Penguard Guardian Protocol
+
+-   (optional) Documentation for the Penguard Penguin Protocol
 
 
