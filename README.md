@@ -49,14 +49,14 @@ A Penguard group consists of
 -   One or more guardians guarding the penguins
 
 Guardians can be part of at most one group at once. Penguins not
-supporting the Penguard Penguin protocol can be part of more than one
+supporting the Penguard Penguin Protocol can be part of more than one
 group–this cannot be prevented. Penguins supporting the Penguard Penguin
-protocol can only be part of one group. It is theoretically possible for
+Protocol can only be part of one group. It is theoretically possible for
 a second group to add it as a penguin not supporting the protocol,
 though.
 
 The guardians communicate with each other via Internet using a
-peer-to-peer protocol (the Penguard Guardian protocol). They can
+peer-to-peer protocol (the Penguard Guardian Protocol). They can
 discover each other by using a Penguard Discovery server. The Discovery
 server stores the guardians’ IP addresses and ports and is used to poke
 holes when the guardians are behind a NAT.
@@ -65,9 +65,9 @@ The guardians can detect whether a penguin is in range by using
 Bluetooth RSSI. This means that guardians are not required to pair with
 penguins.
 
-Penguins can optionally implement the Penguard Penguin protocol, which
+Penguins can optionally implement the Penguard Penguin Protocol, which
 is a Bluetooth Low Energy protocol. The guardians act as clients to the
-Penguins. The guardians will ping the Penguins regularly, such that the
+penguins. The guardians will ping the penguins regularly, such that the
 penguin can detect when it is lost by using a timeout. The penguin should
 also advertise what kind of information it requires from the guardians,
 which the guardians then must send to it. This information can include
@@ -75,7 +75,7 @@ phone numbers, email addresses or similar information and should allow
 for the penguin to contact the guardians when it is lost.
 
 The guardians should be able to find out whether any given penguin
-supports the Penguard Penguin protocol.
+supports the Penguard Penguin Protocol.
 
 System components
 -----------------
@@ -84,7 +84,7 @@ Penguard Android Application
 
 :   is an Android app required to use Penguard. The app can act as a
     guardian or as a penguin (guardian mode or penguin mode). When
-    acting as a penguin, it does support the Penguard Penguin protocol.
+    acting as a penguin, it does support the Penguard Penguin Protocol.
     The user should be able to select what the app should do when the
     penguin is lost. Options include sounding an alarm and sending GPS
     coordinates to the guardians via SMS. When acting as a guardian, it
@@ -95,14 +95,14 @@ Penguard Android Application
 
 Guardians
 
-:   monitor the penguins using the Penguard app in Guardian mode. The
-    term “Guardian” refers to the Penguard app in guardian mode.
+:   monitor the penguins using the Penguard app in guardian mode. The
+    term “guardian” refers to the Penguard app in guardian mode.
 
 Penguins
 
 :   are bluetooth devices. They are registered with the guardians and
     then monitored. They optionally support the Penguard Penguin
-    protocol, allowing them to take actions when they are lost.
+    Protocol, allowing them to take actions when they are lost.
 
 Penguard Discovery Server
 
@@ -131,7 +131,7 @@ then slowly carried away.
 Penguard Guardian Protocol
 --------------------------
 
-The Guardian Protocol allows guardians to form groups, and it allows
+The Penguard Guardian Protocol allows guardians to form groups, and it allows
 guardians within the same group to communicate.
 
 ### Forming groups
@@ -177,11 +177,11 @@ between the two.
 Penguard Penguin Protocol (optional)
 ------------------------------------
 
-The Penguin protocol allows for penguins to detect when they are lost.
+The Penguard Penguin Protocol allows for penguins to detect when they are lost.
 
 It is a Bluetooth Low Energy protocol.
 
-The penguin should advertise that he supports the Penguin Protocol. It
+The penguin should advertise that he supports the Penguard Penguin Protocol. It
 can be activated and deactivated.
 
 Once activated, the penguin enters its active state. In this state, it
@@ -244,10 +244,10 @@ Work Packages
     guardians
 
 -   <span>**WP7**</span>: (optional) Write a Penguard Penguin service
-    that implements the Penguard Penguin protocol (as a penguin)
+    that implements the Penguard Penguin Protocol (as a penguin)
 
 -   <span>**WP8**</span>: (optional) Extend the Penguard service that
-    can also handle Penguins with Penguin Protocol support
+    can also handle Penguins with Penguard Penguin Protocol support
 
 Milestones
 ==========
