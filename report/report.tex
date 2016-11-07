@@ -76,32 +76,27 @@
 
 \title{Penguard\\
 \normalsize{Distributed Systems -- Project Proposal}}
-\subtitle{monitoring objects and detecting when they're stolen or lost}
+\subtitle{Tracking objects to prevent them from being lost}
 
-% Use the \alignauthor commands to handle the names
-% and affiliations for an 'aesthetic maximum' of six authors.
-
-\numberofauthors{1} %  in this sample file, there are a *total*
-% of EIGHT authors. SIX appear on the 'first-page' (for formatting
-% reasons) and the remaining two appear in the \additionalauthors section.
-%
+\numberofauthors{5}
 \author{
-% You can go ahead and credit any number of authors here,
-% e.g. one 'row of three' or two rows (consisting of one row of three
-% and a second row of one, two or three).
-%
-% The command \alignauthor (no curly braces needed) should
-% precede each author name, affiliation/snail-mail address and
-% e-mail address. Additionally, tag each line of
-% affiliation/address with \affaddr, and tag the
-% e-mail address with \email.
-%
-% 1st. author
-\alignauthor \normalsize{Nils Leuzinger,  Nicole Thurnherr, Aline Abler}\\
-	\affaddr{\normalsize{ETH ID-1 14-939-896, ETH ID-2 11-925-328, ETH ID-3 14-920-979}}\\
-	\email{\normalsize{nilsl@student.ethz.ch, nicoleth@student.ethz.ch, ablera@student.ethz.ch}}
+\alignauthor {\normalsize Nils Leuzinger}\\
+	\affaddr{{\normalsize 14-939-896}}\\
+	\email{{\normalsize nilsl@student.ethz.ch}}
+\alignauthor {\normalsize Nicole Thurnherr}\\
+	\affaddr{{\normalsize 11-925-328}}\\
+	\email{{\normalsize nicoleth@student.ethz.ch}}
+\alignauthor {\normalsize Aline Abler}\\
+	\affaddr{{\normalsize 14-920-979}}\\
+	\email{{\normalsize ablera@student.ethz.ch}}
+\and
+\alignauthor {\normalsize Sascha Tribelhorn}\\
+	\affaddr{{\normalsize 13-914-692}}\\
+	\email{{\normalsize tsascha@student.ethz.ch}}
+\alignauthor {\normalsize Luca Wolf}\\
+	\affaddr{{\normalsize 12-913-539}}\\
+	\email{{\normalsize lwolf@student.ethz.ch}}
 }
-
 
 \begin{document}
 
@@ -123,14 +118,14 @@ Penguins can be guarded by several guardians at once, in which case it is suffic
 
 We want to be able to use any kind of bluetooth device as a penguin. The only requirements should be that it supports bluetooth, and that it doesn't automatically turn off bluetooth after a while of inactivity, even when no device is paired to it.
 
-Penguins should be able to detect when they are ``lost'' and act upon it. This obviously contradicts the goal to support any bluetooth device. We want to support both goals by adding an optional protocol through which penguins can communicate with the guardians. When the penguin supports the protocol, it can detect and act upon being lost, otherwise not.
+As an extension, penguins should be able to detect when they are ``lost'' and act upon it. This obviously contradicts the goal to support any bluetooth device. We could support both options by adding an optional protocol through which penguins can communicate with the guardians. When the penguin supports the protocol, it can detect and act upon being lost, otherwise not. We want to keep this option in mind and implement it if we have enough time.
 
 The major challenges will be
 
 \begin{itemize}
     \item Implementing a peer-to-peer protocol for the guardians
     \item Detecting bluetooth devices and ``tracking'' them without making more assumptions on them
-    \item Implementing a protocol for the penguins to talk to the guardians
+    \item (optional) Implementing a protocol for the penguins to talk to the guardians
 \end{itemize}
 
 \section{System Overview}
@@ -144,7 +139,7 @@ A Penguard group consists of
 
 Guardians can be part of at most one group at once. Penguins not supporting the Penguard Penguin protocol can be part of more than one group--this cannot be prevented. Penguins supporting the Penguard Penguin protocol can only be part of one group. It is theoretically possible for a second group to add it as a penguin not supporting the protocol, though.
 
-The guardians communicate with each other via Internet using a peer-to-peer protocol (the Penguard Guardian protocol). They can discover each other by either using a Penguard Discovery server, or by broadcasting and receiving discovery packets over the local network. We want the Penguard Discovery server to be an optional component.
+The guardians communicate with each other via Internet using a peer-to-peer protocol (the Penguard Guardian protocol). They can discover each other by using a Penguard Discovery server. The Discovery server stores the guardians' IP addresses and ports and is used to poke holes when the guardians are behind a NAT.
 
 The guardians can detect whether a penguin is in range by using Bluetooth RSSI. That means guardians are not required to pair with penguins. 
 
@@ -158,7 +153,7 @@ The guardians should be able to find out whether any given penguin supports the 
     \item [Penguard Android Application] is an Android app required to use Penguard. The app can act as a guardian or as a penguin (guardian mode or penguin mode). When acting as a penguin, it does support the Penguard Penguin protocol. The user should be able to select what the app should do when the penguin is lost. Options include sounding an alarm and sending GPS coordinates to the guardians via SMS. When acting as a guardian, it provides an user interface that displays the status of each monitored penguin. The status includes the signal strength (RSSI), which of the other guardians see that specific penguin, and whether the penguin supports the Penguard Penguin Protocol.
     \item [Guardians] monitor the penguins using the Penguard app in Guardian mode. The term ``Guardian'' refers to the Penguard app in guardian mode.
     \item [Penguins] are bluetooth devices. They are registered with the guardians and then monitored. They optionally support the Penguard Penguin protocol, allowing them to take actions when they are lost.
-    \item [Penguard Discovery Server] allows guardians to find each other more easily. Guardians can register with the Discovery Server. The server keeps a list of all Penguard groups. Guardians can request information on a specific group. The server will reply with all IP addresses of all guardians within that group, such that the new guardian can communicate with the other group members. Furthermore, guardians can register new groups on the server. When a guardian stops the Penguard service, it is deregistered at the server and removed from its group. The server will automatically purge empty groups. The Penguard Discovery Server should be an optional component. When no server is present, guardians exchange the necessary information via broadcast packets on the local network.
+    \item [Penguard Discovery Server] allows guardians to find each other easily. Guardians register with the Discovery Server. The server keeps a list of all currently active Penguard groups, including information on the group's guardians and penguins. Guardians can request information on a specific group. The server will reply with all IP addresses and ports of all guardians within that group, such that the new guardian can communicate with the other group members. Furthermore, the server will send information on the penguins being guarded by the group. Guardians can register new groups on the server. When a guardian stops the Penguard service, it is deregistered at the server and removed from its group. The server will automatically purge empty groups. 
 \end{description}
 
 \subsection{Calibration}
@@ -187,7 +182,7 @@ When a guardian notices that its IP address changes, it will immediately notify 
 
 Guardians should also relay information to other guardians to provide some redundancy. When a link between two guardians fails but both can still reach a third guardian, the third guardian should act as a relay between the two.
 
-\subsection{Penguard Penguin Protocol}
+\subsection{Penguard Penguin Protocol (optional)}
 
 The Penguin protocol allows for penguins to detect when they are lost.
 
@@ -199,9 +194,9 @@ Once activated, the penguin enters its active state. In this state, it will list
 
 When deactivated, the penguin will go in its inactive state. In that state, the penguin will reply to Pings saying that it is inactive.
 
-The penguin can also tell the guardians which information it would like to receive from the guardians. The guardians will poll for this information once. They will then send the required information to the penguin.
+The penguin can also tell the guardians which information it would like to receive from the guardians. The guardians will poll for this information once. They will then send the required information to the penguin. The required information should not change.
 
-The required information should not change.
+The Penguard Penguin Protocol and all components using it are considered optional, meaning that this will be the first thing we strip of the project when time is not sufficient.
 
 \section{Requirements}
 
@@ -213,6 +208,8 @@ During this project, we will need the following hardware:
     \item A server (kindly provided by VSOS)
 \end{itemize}
 
+We will rely on Java for development of the Android app and the Discovery server.
+
 We will need the following software:
 
 \begin{itemize}
@@ -223,51 +220,27 @@ We will need the following software:
 \section{Work Packages}
 
 \begin{itemize}
-        \item {\bf WP1}: Implement the Penguard Guardian Protocol - communication part
-        \item {\bf WP2}: Implement the Penguard Guardian Protocol - group finding part (no discovery server)
-        \item {\bf WP3}: Write a Penguard service that can handle numerous Penguins without Penguin Protocol support
-        \item {\bf WP4}: Write a Penguard Penguin service that implements the Penguard Penguin protocol (as a penguin)
-        \item {\bf WP5}: Implement calibration functionality for guardians
-        \item {\bf WP6}: Extend the Penguard service that can also handle Penguins with Penguin Protocol support
-        \item {\bf WP7}: Write a Penguard Discovery Server supporting the Penguard Guardian protocol
-        \item {\bf WP8}: Implement the Penguard Guardian Protocol - group finding part (using discovery server)
-        \item {\bf WP9}: Design a functional graphical user interface for the Penguard app
+        \item {\bf WP1}: Penguard Guardian Protocol - communication part
+        \item {\bf WP2}: Penguard Guardian Protocol - group finding part
+        \item {\bf WP3}: Penguard service (part of the application that acts as guardian)
+        \item {\bf WP4}: Penguard Discovery Server
+        \item {\bf WP5}: Functional graphical user interface for the Penguard app
+        \item {\bf WP6}: (optional) calibration functionality for guardians
+        \item {\bf WP7}: (optional) Write a Penguard Penguin service that implements the Penguard Penguin protocol (as a penguin)
+        \item {\bf WP8}: (optional) Extend the Penguard service that can also handle Penguins with Penguin Protocol support
 \end{itemize}
  
 
 \section{Milestones}
 
-\subsection{Penguard Guardian Protocol - communication}
-
-Guardians can communicate with each other, given that their IP addresses are provided beforehand. Status updates work.
-
-\subsection{Penguard Guardian Protocol - group finding (local)}
-
-Guardians can create and join groups via discovery on the local network.
-
-\subsection{Discovery server}
-
-Guardians can create and join groups via a discovery server. The server correctly handles the groups.
-
-\subsection{Monitoring a single penguin not supporting the Penguin Protocol}
-
-A guardian monitors one penguin and can detect when it is lost. 
-
-\subsection{Monitoring multiple penguins not supporting the Penguin Protocol}
-
-A guardian monitors multiple penguins and can detect when either of them is lost. 
-
-\subsection{Monitoring multiple penguins supporting the Penguin Protocol}
-
-A guardian correctly uses the Penguard Penguin protocol to detect whether penguins support the protocol, activate them, detect what information they require, send it to them, and ping them.
-
-\subsection{Calibration}
-
-Guardians have the option to calibrate. Calibration is stored locally.
-
-\subsection{User interface}
-
-The user interface is functional, understandable and polished.
+\begin{itemize}
+    \item \textbf{Phase 1}: Define goals and work plan
+    \item \textbf{Phase 2}: Finish design, discuss scenarios and use cases to identify weaknesses
+    \item \textbf{Phase 3}: Create work, distribute work groups
+    \item \textbf{Phase 4}: Implement work packages
+    \item \textbf{Phase 5}: Implement application as a whole
+    \item \textbf{Phase 6}: Test application
+\end{itemize}
 
 % The following two commands are all you need in the
 % initial runs of your .tex file to
@@ -285,8 +258,8 @@ We expect to deliver the following:
 \begin{itemize}
     \item Code for the Penguard Android application
     \item Code for the Penguard Discovery Server
-    \item Documentation for the Penguard Penguin Protocol
     \item Documentation for the Penguard Guardian Protocol
+    \item (optional) Documentation for the Penguard Penguin Protocol
 \end{itemize}
 
 \end{document}
