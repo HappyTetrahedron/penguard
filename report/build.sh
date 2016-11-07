@@ -1,5 +1,5 @@
 #!/bin/bash
 
-pandoc penguard.tex -o penguard.pdf
+texi2pdf report.tex > /dev/null
 
-pandoc penguard.tex -o ../README.md
+pandoc report.tex -o ../README.md
