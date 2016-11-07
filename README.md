@@ -57,9 +57,9 @@ though.
 
 The guardians communicate with each other via Internet using a
 peer-to-peer protocol (the Penguard Guardian protocol). They can
-discover each other by either using a Penguard Discovery server, or by
-broadcasting and receiving discovery packets over the local network. We
-want the Penguard Discovery server to be an optional component.
+discover each other by using a Penguard Discovery server. The Discovery
+server stores the guardians’ IP addresses and ports and is used to poke
+holes when the guardians are behind a NAT.
 
 The guardians can detect whether a penguin is in range by using
 Bluetooth RSSI. That means guardians are not required to pair with
@@ -106,18 +106,18 @@ Penguins
 
 Penguard Discovery Server
 
-:   allows guardians to find each other more easily. Guardians can
-    register with the Discovery Server. The server keeps a list of all
-    Penguard groups. Guardians can request information on a
-    specific group. The server will reply with all IP addresses of all
-    guardians within that group, such that the new guardian can
-    communicate with the other group members. Furthermore, guardians can
-    register new groups on the server. When a guardian stops the
-    Penguard service, it is deregistered at the server and removed from
-    its group. The server will automatically purge empty groups. The
-    Penguard Discovery Server should be an optional component. When no
-    server is present, guardians exchange the necessary information via
-    broadcast packets on the local network.
+:   allows guardians to find each other easily. Guardians register with
+    the Discovery Server. The server keeps a list of all currently
+    active Penguard groups, including information on the group’s
+    guardians and penguins. Guardians can request information on a
+    specific group. The server will reply with all IP addresses and
+    ports of all guardians within that group, such that the new guardian
+    can communicate with the other group members. Furthermore, the
+    server will send information on the penguins being guarded by
+    the group. Guardians can register new groups on the server. When a
+    guardian stops the Penguard service, it is deregistered at the
+    server and removed from its group. The server will automatically
+    purge empty groups.
 
 Calibration
 -----------
@@ -223,80 +223,44 @@ We will need the following software:
 Work Packages
 =============
 
--   <span>**WP1**</span>: Implement the Penguard Guardian Protocol -
-    communication part
+-   <span>**WP1**</span>: Penguard Guardian Protocol - communication
+    part
 
--   <span>**WP2**</span>: Implement the Penguard Guardian Protocol -
-    group finding part (no discovery server)
+-   <span>**WP2**</span>: Penguard Guardian Protocol - group finding
+    part
 
--   <span>**WP3**</span>: Write a Penguard service that can handle
-    numerous Penguins without Penguin Protocol support
+-   <span>**WP3**</span>: Penguard service (part of the application that
+    acts as guardian)
 
--   <span>**WP4**</span>: Implement calibration functionality for
+-   <span>**WP4**</span>: Penguard Discovery Server
+
+-   <span>**WP5**</span>: Functional graphical user interface for the
+    Penguard app
+
+-   <span>**WP6**</span>: (optional) calibration functionality for
     guardians
 
--   <span>**WP5**</span>: Write a Penguard Discovery Server supporting
-    the Penguard Guardian protocol
-
--   <span>**WP6**</span>: Implement the Penguard Guardian Protocol -
-    group finding part (using discovery server)
-
--   <span>**WP7**</span>: Design a functional graphical user interface
-    for the Penguard app
-
--   <span>**WP8**</span>: (optional) Write a Penguard Penguin service
+-   <span>**WP7**</span>: (optional) Write a Penguard Penguin service
     that implements the Penguard Penguin protocol (as a penguin)
 
--   <span>**WP9**</span>: (optional) Extend the Penguard service that
+-   <span>**WP8**</span>: (optional) Extend the Penguard service that
     can also handle Penguins with Penguin Protocol support
 
 Milestones
 ==========
 
-Penguard Guardian Protocol - communication
-------------------------------------------
+-   **Phase 1**: Define goals and work plan
 
-Guardians can communicate with each other, given that their IP addresses
-are provided beforehand. Status updates work.
+-   **Phase 2**: Finish design, discuss scenarios and use cases to
+    identify weaknesses
 
-Penguard Guardian Protocol - group finding (local)
---------------------------------------------------
+-   **Phase 3**: Create work, distribute work groups
 
-Guardians can create and join groups via discovery on the local network.
+-   **Phase 4**: Implement work packages
 
-Discovery server
-----------------
+-   **Phase 5**: Implement application as a whole
 
-Guardians can create and join groups via a discovery server. The server
-correctly handles the groups.
-
-Monitoring a single penguin not supporting the Penguin Protocol
----------------------------------------------------------------
-
-A guardian monitors one penguin and can detect when it is lost.
-
-Monitoring multiple penguins
-----------------------------
-
-A guardian monitors multiple penguins and can detect when either of them
-is lost.
-
-Calibration
------------
-
-Guardians have the option to calibrate. Calibration is stored locally.
-
-User interface
---------------
-
-The user interface is functional, understandable and polished.
-
-(optional) Monitoring multiple penguins supporting the Penguin Protocol
------------------------------------------------------------------------
-
-A guardian correctly uses the Penguard Penguin protocol to detect
-whether penguins support the protocol, activate them, detect what
-information they require, send it to them, and ping them.
+-   **Phase 6**: Test application
 
 Deliveries
 ==========
