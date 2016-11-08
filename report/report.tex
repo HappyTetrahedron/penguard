@@ -166,21 +166,15 @@ The Guardian Protocol allows guardians to form groups, and it allows guardians w
 
 \subsubsection{Forming groups}
 
-Groups can be formed either via a Penguard Discovery Server or using broadcast packets on the local network. Every group has an unique ID.
+Groups can be formed via a Penguard Discovery Server.
 
-One guardian acts as the group's creator. When a discovery server is used, the creator will register the group with the server. The server will then notify it whenever a new member registers with the group. When no server is used, the creator will act as the server. It will broadcast the group information on the local network. Other guardians can pick up that information and register with the group.
+One guardian acts as the group's creator. The creator will register the group with the server and add information on the penguins guarded by that group. The server will then notify it whenever a new member registers with the group.
 
-The guardians that do not act as creators will have to register with an existing group. When a discovery server is present, they ask that server for information on that specific group by sending the group's ID. That ID must hence be known beforehand by the guardian. The server will find the according group and send the IPs of all registered guardians to the new guardian.
-
-When no server is present, the guardian will listen for Penguard discovery packets on the local network. These packets contain the group ID. When the guardian decides to register with a certain group, it will ask the group's creator for the group information, and receive all group member's IP addresses from the creator.
+The guardians that do not act as creators will have to register with an existing group. They ask the Discovery server for information on a specific group by sending the group's ID. That ID must hence be known beforehand by the guardian. The server will find the according group and send the IPs of all registered guardians to the new guardian, as well as information on the penguins being guarded.
 
 \subsubsection{Communicating}
 
 When a guardian is registered with a group, it will immediately start sending its status to the other group members. The status includes information about which of the penguins currently guarded it sees. It will also receive similar status updates from other group members.
-
-When a guardian notices that its IP address changes, it will immediately notify all other guardians.
-
-Guardians should also relay information to other guardians to provide some redundancy. When a link between two guardians fails but both can still reach a third guardian, the third guardian should act as a relay between the two.
 
 \subsection{Penguard Penguin Protocol (optional)}
 
