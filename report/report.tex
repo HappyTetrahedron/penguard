@@ -153,7 +153,7 @@ The guardians should be able to find out whether any given penguin supports the 
     \item [Penguard Android Application] is an Android app required to use Penguard. The app can act as a guardian or as a penguin (guardian mode or penguin mode). When acting as a penguin, it does support the Penguard Penguin Protocol. The user should be able to select what the app should do when the penguin is lost. Options include sounding an alarm and sending GPS coordinates to the guardians via SMS. When acting as a guardian, it provides an user interface that displays the status of each monitored penguin. The status includes the signal strength (RSSI), which of the other guardians see that specific penguin, and whether the penguin supports the Penguard Penguin Protocol.
     \item [Guardians] monitor the penguins using the Penguard app in guardian mode. The term ``guardian'' refers to the Penguard app in guardian mode.
     \item [Penguins] are bluetooth devices. They are registered with the guardians and then monitored. They optionally support the Penguard Penguin Protocol, allowing them to take actions when they are lost.
-    \item [Penguard Discovery Server] allows guardians to find each other easily. Guardians register with the Discovery Server. The server keeps a list of all currently active Penguard groups, including information on the group's guardians and penguins. Guardians can request information on a specific group. The server will reply with all IP addresses and ports of all guardians within that group, such that the new guardian can communicate with the other group members. Furthermore, the server will send information on the penguins being guarded by the group. Guardians can register new groups on the server. When a guardian stops the Penguard service, it is deregistered at the server and removed from its group. The server will automatically purge empty groups. 
+    \item [Penguard Discovery Server] allows guardians to find each other easily. Guardians register with the Penguard Discovery Server (henceforth referred to as PDS). The server keeps a list of all currently active Penguard groups, including information on the group's guardians and penguins. Guardians can request information on a specific group. The server will reply with all IP addresses and ports of all guardians within that group, such that the new guardian can communicate with the other group members. Furthermore, the server will send information on the penguins being guarded by the group. Guardians can register new groups on the server. When a guardian stops the Penguard service, it is deregistered at the server and removed from its group. The server will automatically purge empty groups. 
 \end{description}
 
 \subsection{Calibration}
@@ -162,11 +162,11 @@ The range of RSSI values varies between devices, so it should be possible for a 
 
 \subsection{Penguard Guardian Protocol}
 
-The Penguard Guardian Protocol allows guardians to form groups, and it allows guardians within the same group to communicate.
+The Penguard Guardian Protocol (henceforth referred to as PGP) allows guardians to form groups, and it allows guardians within the same group to communicate.
 
 \subsubsection{Forming groups}
 
-Groups can be formed via a Penguard Discovery Server.
+Groups can be formed via a PDS.
 
 One guardian acts as the group's creator. The creator will register the group with the server and add information on the penguins guarded by that group. The server will then notify it whenever a new member registers with the group.
 
@@ -178,11 +178,11 @@ When a guardian is registered with a group, it will immediately start sending it
 
 \subsection{Penguard Penguin Protocol (optional)}
 
-The Penguard Penguin Protocol allows for penguins to detect when they are lost.
+The Penguard Penguin Protocol (henceforth referred to as PPP) allows for penguins to detect when they are lost.
 
 It is a Bluetooth Low Energy protocol.
 
-The penguin should advertise that he supports the Penguard Penguin Protocol. It can be activated and deactivated.
+The penguin should advertise that he supports the PPP. It can be activated and deactivated.
 
 Once activated, the penguin enters its active state. In this state, it will listen for pings from the guardians and acknowledge them. The guardians must send these pings regularly. When the penguin does not receive a ping for long enough, it will consider itself lost and enter its lost state. Once it receives another ping, it will transition back to active state.
 
@@ -190,7 +190,7 @@ When deactivated, the penguin will go in its inactive state. In that state, the 
 
 The penguin can also tell the guardians which information it would like to receive from the guardians. The guardians will poll for this information once. They will then send the required information to the penguin. The required information should not change.
 
-The Penguard Penguin Protocol and all components using it are considered optional, meaning that this will be the first thing we strip of the project when time is not sufficient.
+The PPP and all components using it are considered optional, meaning that this will be the first thing we strip of the project when time is not sufficient.
 
 \section{Requirements}
 
@@ -214,14 +214,14 @@ We will need the following software:
 \section{Work Packages}
 
 \begin{itemize}
-        \item {\bf WP1}: Penguard Guardian Protocol - communication part
-        \item {\bf WP2}: Penguard Guardian Protocol - group finding part
+        \item {\bf WP1}: PGP - communication part
+        \item {\bf WP2}: PGP - group finding part
         \item {\bf WP3}: Penguard service (part of the application that acts as guardian)
-        \item {\bf WP4}: Penguard Discovery Server
+        \item {\bf WP4}: PDS
         \item {\bf WP5}: Functional graphical user interface for the Penguard app
         \item {\bf WP6}: (optional) calibration functionality for guardians
-        \item {\bf WP7}: (optional) Write a Penguard Penguin service that implements the Penguard Penguin Protocol (as a penguin)
-        \item {\bf WP8}: (optional) Extend the Penguard service that can also handle Penguins with Penguard Penguin Protocol support
+        \item {\bf WP7}: (optional) Write a Penguard Penguin service that implements the PPP (as a penguin)
+        \item {\bf WP8}: (optional) Extend the Penguard service so that it can also handle Penguins with PPP support
 \end{itemize}
  
 
@@ -251,9 +251,9 @@ We expect to deliver the following:
 
 \begin{itemize}
     \item Code for the Penguard Android application
-    \item Code for the Penguard Discovery Server
-    \item Documentation for the Penguard Guardian Protocol
-    \item (optional) Documentation for the Penguard Penguin Protocol
+    \item Code for the PDS
+    \item Documentation for the PGP
+    \item (optional) Documentation for the PPP
 \end{itemize}
 
 \end{document}
