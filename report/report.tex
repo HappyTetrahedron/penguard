@@ -139,11 +139,11 @@ A Penguard group consists of
 
 Guardians can be part of at most one group at once. Penguins not supporting the Penguard Penguin Protocol can be part of more than one group--this cannot be prevented. Penguins supporting the Penguard Penguin Protocol can only be part of one group. It is theoretically possible for a second group to add it as a penguin not supporting the protocol, though.
 
-The guardians communicate with each other via Internet using a peer-to-peer protocol (the Penguard Guardian Protocol). They can discover each other by using a Penguard Discovery server. The Discovery server stores the guardians' IP addresses and ports and is used to poke holes when the guardians are behind a NAT.
+The guardians communicate with each other via Internet using a peer-to-peer protocol (the Penguard Guardian Protocol). They can discover each other by using a Penguard Liaison server. The Liaison server stores the guardians' IP addresses and ports and is used to poke holes when the guardians are behind a NAT.
 
 The guardians can detect whether a penguin is in range by using Bluetooth RSSI. That means that guardians are not required to pair with penguins.
 
-Penguins can optionally implement the Penguard Penguin Protocol, which is a Bluetooth Low Energy protocol. The guardians act as clients to the Penguins. The guardians will ping the Penguins regularly, such that the penguin can detect when it is by lost using a timeout. The penguin should also advertise what kind of information it requires from the guardians, which the guardians then must send to it. This information can include phone numbers, email addresses or similar information and should allow for the penguin to contact the guardians when it is lost.
+Penguins can optionally implement the Penguard Penguin Protocol, which is a Bluetooth Low Energy protocol. The guardians act as clients to the Penguins. The guardians will ping the Penguins regularly, such that the penguin can detect when it is lost by using a timeout. The penguin should also advertise what kind of information it requires from the guardians, which the guardians then must send to it. This information can include phone numbers, email addresses or similar information and should allow for the penguin to contact the guardians when it is lost.
 
 The guardians should be able to find out whether any given penguin supports the Penguard Penguin Protocol.
 
@@ -153,7 +153,7 @@ The guardians should be able to find out whether any given penguin supports the 
     \item [Penguard Android Application] is an Android app required to use Penguard. The app can act as a guardian or as a penguin (guardian mode or penguin mode). When acting as a penguin, it does support the Penguard Penguin Protocol. The user should be able to select what the app should do when the penguin is lost. Options include sounding an alarm and sending GPS coordinates to the guardians via SMS. When acting as a guardian, it provides an user interface that displays the status of each monitored penguin. The status includes the signal strength (RSSI), which of the other guardians see that specific penguin, and whether the penguin supports the Penguard Penguin Protocol.
     \item [Guardians] monitor the penguins using the Penguard app in guardian mode. The term ``guardian'' refers to the Penguard app in guardian mode.
     \item [Penguins] are bluetooth devices. They are registered with the guardians and then monitored. They optionally support the Penguard Penguin Protocol, allowing them to take actions when they are lost.
-    \item [Penguard Discovery Server] allows guardians to find each other easily. Guardians register with the Penguard Discovery Server (henceforth referred to as PDS). The server keeps a list of all currently active Penguard groups, including information on the group's guardians and penguins. Guardians can request information on a specific group. The server will reply with all IP addresses and ports of all guardians within that group, such that the new guardian can communicate with the other group members. Furthermore, the server will send information on the penguins being guarded by the group. Guardians can register new groups on the server. When a guardian stops the Penguard service, it is deregistered at the server and removed from its group. The server will automatically purge empty groups. 
+    \item [Penguard Liaison Server] allows guardians to find each other easily. Guardians register with the Penguard Liaison Server (henceforth referred to as PLS). The server keeps a list of all currently active Penguard groups, including information on the group's guardians and penguins. Guardians can request information on a specific group. The server will reply with all IP addresses and ports of all guardians within that group, such that the new guardian can communicate with the other group members. Furthermore, the server will send information on the penguins being guarded by the group. Guardians can register new groups on the server. When a guardian stops the Penguard service, it is deregistered at the server and removed from its group. The server will automatically purge empty groups. 
 \end{description}
 
 \subsection{Calibration}
@@ -166,11 +166,11 @@ The Penguard Guardian Protocol (henceforth referred to as PGP) allows guardians 
 
 \subsubsection{Forming groups}
 
-Groups can be formed via a PDS.
+Groups can be formed via a PLS.
 
 One guardian acts as the group's creator. The creator will register the group with the server and add information on the penguins guarded by that group. The server will then notify it whenever a new member registers with the group.
 
-The guardians that do not act as creators will have to register with an existing group. They ask the Discovery server for information on a specific group by sending the group's ID. That ID must hence be known beforehand by the guardian. The server will find the according group and send the IPs of all registered guardians to the new guardian, as well as information on the penguins being guarded.
+The guardians that do not act as creators will have to register with an existing group. They ask the Liaison server for information on a specific group by sending the group's ID. That ID must hence be known beforehand by the guardian. The server will find the according group and send the IPs of all registered guardians to the new guardian, as well as information on the penguins being guarded.
 
 \subsubsection{Communicating}
 
@@ -202,7 +202,7 @@ During this project, we will need the following hardware:
     \item A server (kindly provided by VSOS)
 \end{itemize}
 
-We will rely on Java for development of the Android app and the Discovery Server.
+We will rely on Java for development of the Android app and the Liaison Server.
 
 We will need the following software:
 
@@ -217,7 +217,7 @@ We will need the following software:
         \item {\bf WP1}: PGP - communication part
         \item {\bf WP2}: PGP - group finding part
         \item {\bf WP3}: Penguard service (part of the application that acts as guardian)
-        \item {\bf WP4}: PDS
+        \item {\bf WP4}: PLS
         \item {\bf WP5}: Functional graphical user interface for the Penguard app
         \item {\bf WP6}: (optional) calibration functionality for guardians
         \item {\bf WP7}: (optional) Write a Penguard Penguin service that implements the PPP (as a penguin)
@@ -251,7 +251,7 @@ We expect to deliver the following:
 
 \begin{itemize}
     \item Code for the Penguard Android application
-    \item Code for the PDS
+    \item Code for the PLS
     \item Documentation for the PGP
     \item (optional) Documentation for the PPP
 \end{itemize}
