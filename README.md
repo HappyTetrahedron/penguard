@@ -57,7 +57,7 @@ though.
 
 The guardians communicate with each other via Internet using a
 peer-to-peer protocol (the Penguard Guardian Protocol). They can
-discover each other by using a Penguard Discovery server. The Discovery
+discover each other by using a Penguard Liaison server. The Liaison
 server stores the guardians’ IP addresses and ports and is used to poke
 holes when the guardians are behind a NAT.
 
@@ -68,7 +68,7 @@ penguins.
 Penguins can optionally implement the Penguard Penguin Protocol, which
 is a Bluetooth Low Energy protocol. The guardians act as clients to the
 Penguins. The guardians will ping the Penguins regularly, such that the
-penguin can detect when it is by lost using a timeout. The penguin
+penguin can detect when it is lost by using a timeout. The penguin
 should also advertise what kind of information it requires from the
 guardians, which the guardians then must send to it. This information
 can include phone numbers, email addresses or similar information and
@@ -104,10 +104,10 @@ Penguins
     then monitored. They optionally support the Penguard Penguin
     Protocol, allowing them to take actions when they are lost.
 
-Penguard Discovery Server
+Penguard Liaison Server
 
 :   allows guardians to find each other easily. Guardians register with
-    the Penguard Discovery Server (henceforth referred to as PDS). The
+    the Penguard Liaison Server (henceforth referred to as PLS). The
     server keeps a list of all currently active Penguard groups,
     including information on the group’s guardians and penguins.
     Guardians can request information on a specific group. The server
@@ -136,7 +136,7 @@ to communicate.
 
 ### Forming groups
 
-Groups can be formed via a PDS.
+Groups can be formed via a PLS.
 
 One guardian acts as the group’s creator. The creator will register the
 group with the server and add information on the penguins guarded by
@@ -144,7 +144,7 @@ that group. The server will then notify it whenever a new member
 registers with the group.
 
 The guardians that do not act as creators will have to register with an
-existing group. They ask the Discovery server for information on a
+existing group. They ask the Liaison server for information on a
 specific group by sending the group’s ID. That ID must hence be known
 beforehand by the guardian. The server will find the according group and
 send the IPs of all registered guardians to the new guardian, as well as
@@ -198,8 +198,8 @@ During this project, we will need the following hardware:
 
 -   A server (kindly provided by VSOS)
 
-We will rely on Java for development of the Android app and the
-Discovery Server.
+We will rely on Java for development of the Android app and the Liaison
+Server.
 
 We will need the following software:
 
@@ -215,7 +215,7 @@ Work Packages
 -   <span>**WP3**</span>: Penguard service (part of the application that
     acts as guardian)
 
--   <span>**WP4**</span>: PDS
+-   <span>**WP4**</span>: PLS
 
 -   <span>**WP5**</span>: Functional graphical user interface for the
     Penguard app
@@ -252,7 +252,7 @@ We expect to deliver the following:
 
 -   Code for the Penguard Android application
 
--   Code for the PDS
+-   Code for the PLS
 
 -   Documentation for the PGP
 
