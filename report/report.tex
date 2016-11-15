@@ -150,14 +150,14 @@ The guardians should be able to find out whether any given penguin supports the 
 \subsection{System components}
 
 \begin{description}
-    \item [Penguard Android Application] is an Android app required to use Penguard. The app can act as a guardian or as a penguin (guardian mode or penguin mode). When acting as a penguin, it does support the Penguard Penguin Protocol. The user should be able to select what the app should do when the penguin is lost. Options include sounding an alarm and sending GPS coordinates to the guardians via SMS. When acting as a guardian, it provides an user interface that displays the status of each monitored penguin. The status includes the signal strength (RSSI), which of the other guardians see that specific penguin, and whether the penguin supports the Penguard Penguin Protocol.
+    \item [Penguard Android Application] is an Android app required to use Penguard. The app can act as a guardian or as a penguin (guardian mode or penguin mode). When acting as a penguin, it optionally supports the Penguard Penguin Protocol. If it does, the user should be able to select what the app should do when the penguin is lost. Options include sounding an alarm and sending GPS coordinates to the guardians via SMS. When acting as a guardian, the application provides an user interface that displays the status of each monitored penguin. The status includes the signal strength (RSSI) and which of the other guardians see that specific penguin.
     \item [Penguard Guardian service] is part of the Penguard Android Application. It is a service that runs in the background. It handles all Guardian tasks, i.e. monitoring penguins and communicating with other guardians.
     \item [Guardians] monitor the penguins using the Penguard app in guardian mode. The term ``guardian'' refers to the Penguard Guardian service or the user using the Penguard Android application
     \item [Penguins] are bluetooth devices. They are registered with the guardians and then monitored. They optionally support the Penguard Penguin Protocol, allowing them to take actions when they are lost.
     \item [Penguard Liaison Server] allows guardians to find each other easily. Guardians register with the Penguard Liaison Server (henceforth referred to as PLS). The server keeps a list of all currently active Penguard users. When starting the Penguard app, guardians will register with the PLS which stores their username, unique UUID and IP address/port. When a guardian wishes to contact another, he asks the PLS to establish a connection. The PLS will look up the other guardian and send him a connection request plus the first guardian's IP/port. The second guardian can then choose to contact the first or not. From that point on, the PLS is no longer involved in communication.
 \end{description}
 
-\subsection{Calibration}
+\subsection{Calibration (optional)}
 
 The range of RSSI values varies between devices, so it should be possible for a guardian to calibrate itself. That is done in a guided process where the penguin is first brought close to the guardian and then slowly carried away.
 

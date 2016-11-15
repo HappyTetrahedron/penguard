@@ -84,14 +84,14 @@ Penguard Android Application
 
 :   is an Android app required to use Penguard. The app can act as a
     guardian or as a penguin (guardian mode or penguin mode). When
-    acting as a penguin, it does support the Penguard Penguin Protocol.
-    The user should be able to select what the app should do when the
-    penguin is lost. Options include sounding an alarm and sending GPS
-    coordinates to the guardians via SMS. When acting as a guardian, it
-    provides an user interface that displays the status of each
-    monitored penguin. The status includes the signal strength (RSSI),
-    which of the other guardians see that specific penguin, and whether
-    the penguin supports the Penguard Penguin Protocol.
+    acting as a penguin, it optionally supports the Penguard
+    Penguin Protocol. If it does, the user should be able to select what
+    the app should do when the penguin is lost. Options include sounding
+    an alarm and sending GPS coordinates to the guardians via SMS. When
+    acting as a guardian, the application provides an user interface
+    that displays the status of each monitored penguin. The status
+    includes the signal strength (RSSI) and which of the other guardians
+    see that specific penguin.
 
 Penguard Guardian service
 
@@ -124,8 +124,8 @@ Penguard Liaison Server
     guardian can then choose to contact the first or not. From that
     point on, the PLS is no longer involved in communication.
 
-Calibration
------------
+Calibration (optional)
+----------------------
 
 The range of RSSI values varies between devices, so it should be
 possible for a guardian to calibrate itself. That is done in a guided
