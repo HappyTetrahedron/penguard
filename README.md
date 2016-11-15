@@ -102,8 +102,8 @@ Penguard Guardian service
 Guardians
 
 :   monitor the penguins using the Penguard app in guardian mode. The
-    term “guardian” usually refers to the Penguard Guardian service or
-    the user using the Penguard Android application
+    term “guardian” refers to the Penguard Guardian service or the user
+    using the Penguard Android application
 
 Penguins
 
