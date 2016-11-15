@@ -118,7 +118,7 @@ Penguins can be guarded by several guardians at once, in which case it is suffic
 
 We want to be able to use any kind of bluetooth device as a penguin. The only requirements should be that it supports bluetooth, and that it doesn't automatically turn off bluetooth after a while of inactivity, even when no device is paired to it.
 
-As an extension, penguins should be able to detect when they are ``lost'' and act upon it. This obviously contradicts the goal to support any bluetooth device. We could support both options by adding an optional protocol, the Penguard Penguin Protocol through which penguins can communicate with the guardians. When the penguin supports the protocol, it can detect and act upon being lost, otherwise not. We want to keep this option in mind and implement it if we have enough time.
+As an extension, penguins should be able to detect when they are ``lost'' and act upon it. This obviously contradicts the goal to support any bluetooth device. We could support both options by adding an optional protocol, the Penguard Penguin Protocol, through which penguins can communicate with the guardians. When the penguin supports the protocol, it can detect and act upon being lost, otherwise not. We want to keep this option in mind and implement it if we have enough time.
 
 The major challenges will be
 
@@ -133,8 +133,8 @@ The major challenges will be
 A Penguard group consists of
 
 \begin{itemize}
-    \item One or more penguins being guarded
     \item One or more guardians guarding the penguins
+    \item Zero or more penguins being guarded
 \end{itemize}
 
 Guardians can be part of at most one group at once. Penguins not supporting the Penguard Penguin Protocol can be part of more than one group--this cannot be prevented. Penguins supporting the Penguard Penguin Protocol can only be part of one group. It is theoretically possible for a second group to add it as a penguin not supporting the protocol, though.
@@ -151,9 +151,10 @@ The guardians should be able to find out whether any given penguin supports the 
 
 \begin{description}
     \item [Penguard Android Application] is an Android app required to use Penguard. The app can act as a guardian or as a penguin (guardian mode or penguin mode). When acting as a penguin, it does support the Penguard Penguin Protocol. The user should be able to select what the app should do when the penguin is lost. Options include sounding an alarm and sending GPS coordinates to the guardians via SMS. When acting as a guardian, it provides an user interface that displays the status of each monitored penguin. The status includes the signal strength (RSSI), which of the other guardians see that specific penguin, and whether the penguin supports the Penguard Penguin Protocol.
-    \item [Guardians] monitor the penguins using the Penguard app in guardian mode. The term ``guardian'' refers to the Penguard app in guardian mode.
+    \item [Penguard Guardian service] is part of the Penguard Android Application. It is a service that runs in the background. It handles all Guardian tasks, i.e. monitoring penguins and communicating with other guardians.
+    \item [Guardians] monitor the penguins using the Penguard app in guardian mode. The term ``guardian'' usually refers to the Penguard Guardian service or the user using the Penguard Android application
     \item [Penguins] are bluetooth devices. They are registered with the guardians and then monitored. They optionally support the Penguard Penguin Protocol, allowing them to take actions when they are lost.
-    \item [Penguard Liaison Server] allows guardians to find each other easily. Guardians register with the Penguard Liaison Server (henceforth referred to as PLS). The server keeps a list of all currently active Penguard groups, including information on the group's guardians and penguins. Guardians can request information on a specific group. The server will reply with all IP addresses and ports of all guardians within that group, such that the new guardian can communicate with the other group members. Furthermore, the server will send information on the penguins being guarded by the group. Guardians can register new groups on the server. When a guardian stops the Penguard service, it is deregistered at the server and removed from its group. The server will automatically purge empty groups. 
+    \item [Penguard Liaison Server] allows guardians to find each other easily. Guardians register with the Penguard Liaison Server (henceforth referred to as PLS). The server keeps a list of all currently active Penguard users. When starting the Penguard app, guardians will register with the PLS which stores their username, unique UUID and IP address/port. When a guardian wishes to contact another, he asks the PLS to establish a connection. The PLS will look up the other guardian and send him a connection request plus the first guardian's IP/port. The second guardian can then choose to contact the first or not. From that point on, the PLS is no longer involved in communication.
 \end{description}
 
 \subsection{Calibration}
@@ -166,15 +167,15 @@ The Penguard Guardian Protocol (henceforth referred to as PGP) allows guardians 
 
 \subsubsection{Forming groups}
 
-Groups can be formed via a PLS.
+Every guardian is automatically in a group, even when he is alone and not guarding penguins.
 
-One guardian acts as the group's creator. The creator will register the group with the server and add information on the penguins guarded by that group. The server will then notify it whenever a new member registers with the group.
-
-The guardians that do not act as creators will have to register with an existing group. They ask the Liaison server for information on a specific group by sending the group's ID. That ID must hence be known beforehand by the guardian. The server will find the according group and send the IPs of all registered guardians to the new guardian, as well as information on the penguins being guarded.
+Larger groups are formed by merging two existing groups. To do that, one guardian from group A contacts one guardian from group B. The second guardian can confirm or deny the group merge. Once confirmed, the guardian from group B sends all information on group B to the guardian from group A. The latter now knows all the information of the new, merged group, and broadcasts that to every member of the new merged group. All participants then update their status.
 
 \subsubsection{Communicating}
 
-When a guardian is registered with a group, it will immediately start sending its status to the other group members. The status includes information about which of the penguins currently guarded it sees. It will also receive similar status updates from other group members.
+When a guardian is registered with a group, it will immediately start sending its status to the other group members. The status includes information about which of the penguins currently guarded it sees. It will also receive similar status updates from other group members. These status updates are rather frequent and it won't hurt when some are lost.
+
+Other messages (for example a group merge or addition of a penguin) are more important and it needs to be ensured that every guardian within the group gets them. To ensure this, we plan to implement an atomic commitment protocol. If the transaction aborts, the user initiating it will get an error message and the option to try again.
 
 \subsection{Penguard Penguin Protocol (optional)}
 
@@ -202,7 +203,7 @@ During this project, we will need the following hardware:
     \item A server (kindly provided by VSOS)
 \end{itemize}
 
-We will rely on Java for development of the Android app and the Liaison Server.
+We will rely on Java for development of the Android app and Python for the Liaison Server.
 
 We will need the following software:
 
@@ -214,14 +215,16 @@ We will need the following software:
 \section{Work Packages}
 
 \begin{itemize}
-        \item {\bf WP1}: PGP - communication part
-        \item {\bf WP2}: PGP - group finding part
-        \item {\bf WP3}: Penguard service (part of the application that acts as guardian)
-        \item {\bf WP4}: PLS
-        \item {\bf WP5}: Functional graphical user interface for the Penguard app
-        \item {\bf WP6}: (optional) calibration functionality for guardians
-        \item {\bf WP7}: (optional) Write a Penguard Penguin service that implements the PPP (as a penguin)
-        \item {\bf WP8}: (optional) Extend the Penguard service so that it can also handle Penguins with PPP support
+        \item {\bf WP1}: Local penguin tracking
+        \item {\bf WP2}: Low-level networking
+        \item {\bf WP3}: PGP - protocol design
+        \item {\bf WP4}: Penguard guardian service implementation
+        \item {\bf WP5}: PLS implementation
+        \item {\bf WP6}: Functional graphical user interface for the Penguard app
+        \item {\bf WP7}: (optional) calibration functionality for guardians
+        \item {\bf WP8}: (optional) PPP - protocol design and implementation
+        \item {\bf WP9}: Field testing
+        \item {\bf WP10}: Presentation
 \end{itemize}
  
 
@@ -229,11 +232,11 @@ We will need the following software:
 
 \begin{itemize}
     \item \textbf{Phase 1}: Define goals and work plan
-    \item \textbf{Phase 2}: Finish design, discuss scenarios and use cases to identify weaknesses
-    \item \textbf{Phase 3}: Create work, distribute work groups
-    \item \textbf{Phase 4}: Implement work packages
-    \item \textbf{Phase 5}: Implement application as a whole
-    \item \textbf{Phase 6}: Test application
+    \item \textbf{Phase 2}: WP1, WP2, WP3--Protocol design (PGP), Intent flow design (Android app), implement penguin scan and discovery routines, implement simple networking routines in Android app (packet dispatcher and listener).
+    \item \textbf{Phase 3}: WP4, WP5--Implement Penguard Guardian service (routines for sending status messages, atomic commitment protocol), implement PLS
+    \item \textbf{Phase 4}: WP4, WP6, WP7--Implement various events (group merge, penguin add...), refine UI, implement calibration routine
+    \item \textbf{Phase 5} (optional): WP8--Design and implement PPP
+    \item \textbf{Phase 6}: WP9, WP10--Extensive field testing, prepare presentation
 \end{itemize}
 
 % The following two commands are all you need in the
@@ -254,6 +257,7 @@ We expect to deliver the following:
     \item Code for the PLS
     \item Documentation for the PGP
     \item (optional) Documentation for the PPP
+    \item Slides for the one-minute presentation
 \end{itemize}
 
 \end{document}

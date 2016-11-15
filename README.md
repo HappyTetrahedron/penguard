@@ -24,7 +24,7 @@ even when no device is paired to it.
 As an extension, penguins should be able to detect when they are “lost”
 and act upon it. This obviously contradicts the goal to support any
 bluetooth device. We could support both options by adding an optional
-protocol, the Penguard Penguin Protocol through which penguins can
+protocol, the Penguard Penguin Protocol, through which penguins can
 communicate with the guardians. When the penguin supports the protocol,
 it can detect and act upon being lost, otherwise not. We want to keep
 this option in mind and implement it if we have enough time.
@@ -44,9 +44,9 @@ System Overview
 
 A Penguard group consists of
 
--   One or more penguins being guarded
-
 -   One or more guardians guarding the penguins
+
+-   Zero or more penguins being guarded
 
 Guardians can be part of at most one group at once. Penguins not
 supporting the Penguard Penguin Protocol can be part of more than one
@@ -93,10 +93,17 @@ Penguard Android Application
     which of the other guardians see that specific penguin, and whether
     the penguin supports the Penguard Penguin Protocol.
 
+Penguard Guardian service
+
+:   is part of the Penguard Android Application. It is a service that
+    runs in the background. It handles all Guardian tasks, i.e.
+    monitoring penguins and communicating with other guardians.
+
 Guardians
 
 :   monitor the penguins using the Penguard app in guardian mode. The
-    term “guardian” refers to the Penguard app in guardian mode.
+    term “guardian” usually refers to the Penguard Guardian service or
+    the user using the Penguard Android application
 
 Penguins
 
@@ -108,16 +115,14 @@ Penguard Liaison Server
 
 :   allows guardians to find each other easily. Guardians register with
     the Penguard Liaison Server (henceforth referred to as PLS). The
-    server keeps a list of all currently active Penguard groups,
-    including information on the group’s guardians and penguins.
-    Guardians can request information on a specific group. The server
-    will reply with all IP addresses and ports of all guardians within
-    that group, such that the new guardian can communicate with the
-    other group members. Furthermore, the server will send information
-    on the penguins being guarded by the group. Guardians can register
-    new groups on the server. When a guardian stops the Penguard
-    service, it is deregistered at the server and removed from
-    its group. The server will automatically purge empty groups.
+    server keeps a list of all currently active Penguard users. When
+    starting the Penguard app, guardians will register with the PLS
+    which stores their username, unique UUID and IP address/port. When a
+    guardian wishes to contact another, he asks the PLS to establish
+    a connection. The PLS will look up the other guardian and send him a
+    connection request plus the first guardian’s IP/port. The second
+    guardian can then choose to contact the first or not. From that
+    point on, the PLS is no longer involved in communication.
 
 Calibration
 -----------
@@ -136,26 +141,30 @@ to communicate.
 
 ### Forming groups
 
-Groups can be formed via a PLS.
+Every guardian is automatically in a group, even when he is alone and
+not guarding penguins.
 
-One guardian acts as the group’s creator. The creator will register the
-group with the server and add information on the penguins guarded by
-that group. The server will then notify it whenever a new member
-registers with the group.
-
-The guardians that do not act as creators will have to register with an
-existing group. They ask the Liaison server for information on a
-specific group by sending the group’s ID. That ID must hence be known
-beforehand by the guardian. The server will find the according group and
-send the IPs of all registered guardians to the new guardian, as well as
-information on the penguins being guarded.
+Larger groups are formed by merging two existing groups. To do that, one
+guardian from group A contacts one guardian from group B. The second
+guardian can confirm or deny the group merge. Once confirmed, the
+guardian from group B sends all information on group B to the guardian
+from group A. The latter now knows all the information of the new,
+merged group, and broadcasts that to every member of the new merged
+group. All participants then update their status.
 
 ### Communicating
 
 When a guardian is registered with a group, it will immediately start
 sending its status to the other group members. The status includes
 information about which of the penguins currently guarded it sees. It
-will also receive similar status updates from other group members.
+will also receive similar status updates from other group members. These
+status updates are rather frequent and it won’t hurt when some are lost.
+
+Other messages (for example a group merge or addition of a penguin) are
+more important and it needs to be ensured that every guardian within the
+group gets them. To ensure this, we plan to implement an atomic
+commitment protocol. If the transaction aborts, the user initiating it
+will get an error message and the option to try again.
 
 Penguard Penguin Protocol (optional)
 ------------------------------------
@@ -198,8 +207,8 @@ During this project, we will need the following hardware:
 
 -   A server (kindly provided by VSOS)
 
-We will rely on Java for development of the Android app and the Liaison
-Server.
+We will rely on Java for development of the Android app and Python for
+the Liaison Server.
 
 We will need the following software:
 
@@ -208,42 +217,49 @@ We will need the following software:
 Work Packages
 =============
 
--   <span>**WP1**</span>: PGP - communication part
+-   <span>**WP1**</span>: Local penguin tracking
 
--   <span>**WP2**</span>: PGP - group finding part
+-   <span>**WP2**</span>: Low-level networking
 
--   <span>**WP3**</span>: Penguard service (part of the application that
-    acts as guardian)
+-   <span>**WP3**</span>: PGP - protocol design
 
--   <span>**WP4**</span>: PLS
+-   <span>**WP4**</span>: Penguard guardian service implementation
 
--   <span>**WP5**</span>: Functional graphical user interface for the
+-   <span>**WP5**</span>: PLS implementation
+
+-   <span>**WP6**</span>: Functional graphical user interface for the
     Penguard app
 
--   <span>**WP6**</span>: (optional) calibration functionality for
+-   <span>**WP7**</span>: (optional) calibration functionality for
     guardians
 
--   <span>**WP7**</span>: (optional) Write a Penguard Penguin service
-    that implements the PPP (as a penguin)
+-   <span>**WP8**</span>: (optional) PPP - protocol design and
+    implementation
 
--   <span>**WP8**</span>: (optional) Extend the Penguard service so that
-    it can also handle Penguins with PPP support
+-   <span>**WP9**</span>: Field testing
+
+-   <span>**WP10**</span>: Presentation
 
 Milestones
 ==========
 
 -   **Phase 1**: Define goals and work plan
 
--   **Phase 2**: Finish design, discuss scenarios and use cases to
-    identify weaknesses
+-   **Phase 2**: WP1, WP2, WP3–Protocol design (PGP), Intent flow design
+    (Android app), implement penguin scan and discovery routines,
+    implement simple networking routines in Android app (packet
+    dispatcher and listener).
 
--   **Phase 3**: Create work, distribute work groups
+-   **Phase 3**: WP4, WP5–Implement Penguard Guardian service (routines
+    for sending status messages, atomic commitment protocol), implement
+    PLS
 
--   **Phase 4**: Implement work packages
+-   **Phase 4**: WP4, WP6, WP7–Implement various events (group merge,
+    penguin add...), refine UI, implement calibration routine
 
--   **Phase 5**: Implement application as a whole
+-   **Phase 5** (optional): WP8–Design and implement PPP
 
--   **Phase 6**: Test application
+-   **Phase 6**: WP9, WP10–Extensive field testing, prepare presentation
 
 Deliveries
 ==========
@@ -257,5 +273,7 @@ We expect to deliver the following:
 -   Documentation for the PGP
 
 -   (optional) Documentation for the PPP
+
+-   Slides for the one-minute presentation
 
 
