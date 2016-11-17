@@ -127,10 +127,14 @@ Penguard Liaison Server
 Calibration (optional)
 ----------------------
 
-The range of RSSI values varies between devices, so it should be
-possible for a guardian to calibrate itself. That is done in a guided
-process where the penguin is first brought close to the guardian and
-then slowly carried away.
+According to Wikipedia, “There is no standardized relationship of any
+particular physical parameter to the RSSI reading.” [@rssi_varies_wiki].
+See also [@rssi_varies_article]. Since the range of RSSI values varies
+between devices, it should be possible for guardians to calibrate
+themselves. That is done in a guided process where the penguin is first
+brought close to the guardian and then slowly carried away. We can then
+take measurements of the bluetooth signal strength at certain time
+intervals and calibrate the guardian that way.
 
 Penguard Guardian Protocol
 --------------------------
@@ -239,6 +243,34 @@ Work Packages
 -   <span>**WP9**</span>: Field testing
 
 -   <span>**WP10**</span>: Presentation
+
+Distribution of work
+====================
+
+In this section we will list the distribution of work packages on our
+group members. This distribution is not definitive, but should serve as
+a guideline for who works on which parts, and, most importantly, how
+many people will need to work on the individual work packages.
+Generally, we have assigned people according to their interests. We have
+tried to give everyone an equal share of work. The optional work
+packages are not listed, since those will be used to even out the amount
+of work everyone has.
+
+-   **WP1**: Nicole
+
+-   **WP2**: Nils
+
+-   **WP3**: Aline, Sascha, Luca
+
+-   **WP4**: Aline, Sascha
+
+-   **WP5**: Luca
+
+-   **WP6**: Nicole, Nils
+
+-   **WP9**: Everyone
+
+-   **WP10**: Everyone
 
 Milestones
 ==========
