@@ -62,8 +62,8 @@ server stores the guardians’ IP addresses and ports and is used to poke
 holes when the guardians are behind a NAT.
 
 The guardians can detect whether a penguin is in range by using
-Bluetooth RSSI. That means that guardians are not required to pair with
-penguins.
+Bluetooth RSSI. When detection is done this way, there is no need for
+bluetooth pairing [@raspi_RSSI].
 
 Penguins can optionally implement the Penguard Penguin Protocol, which
 is a Bluetooth Low Energy protocol. The guardians act as clients to the
@@ -74,7 +74,7 @@ guardians, which the guardians then must send to it. This information
 can include phone numbers, email addresses or similar information and
 should allow for the penguin to contact the guardians when it is lost.
 
-The guardians should be able to find out whether any given penguin
+he guardians should be able to find out whether any given penguin
 supports the Penguard Penguin Protocol.
 
 System components

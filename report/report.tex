@@ -142,11 +142,11 @@ Guardians can be part of at most one group at once. Penguins not supporting the 
 
 The guardians communicate with each other via Internet using a peer-to-peer protocol (the Penguard Guardian Protocol). They can discover each other by using a Penguard Liaison server. The Liaison server stores the guardians' IP addresses and ports and is used to poke holes when the guardians are behind a NAT.
 
-The guardians can detect whether a penguin is in range by using Bluetooth RSSI. That means that guardians are not required to pair with penguins.
+The guardians can detect whether a penguin is in range by using Bluetooth RSSI. When detection is done this way, there is no need for bluetooth pairing \cite{raspi_RSSI}.
 
 Penguins can optionally implement the Penguard Penguin Protocol, which is a Bluetooth Low Energy protocol. The guardians act as clients to the Penguins. The guardians will ping the Penguins regularly, such that the penguin can detect when it is lost by using a timeout. The penguin should also advertise what kind of information it requires from the guardians, which the guardians then must send to it. This information can include phone numbers, email addresses or similar information and should allow for the penguin to contact the guardians when it is lost.
 
-The guardians should be able to find out whether any given penguin supports the Penguard Penguin Protocol.
+he guardians should be able to find out whether any given penguin supports the Penguard Penguin Protocol.
 
 \subsection{System components}
 
