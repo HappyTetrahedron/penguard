@@ -17,5 +17,7 @@
 *.nav
 *.snm
 *.out
+*.bbl
+*.blg
 *.pdf
 *.synctex.gz
