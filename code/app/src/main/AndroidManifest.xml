@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="verteiltesysteme.penguard">
 
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -19,7 +23,12 @@
         <activity android:name=".GJoinActivity" />
         <activity android:name=".GGroupJoinActivity" />
         <activity android:name=".GPenguinSearchActivity" />
-        <activity android:name=".GGuardActivity"></activity>
+        <activity android:name=".GGuardActivity" />
+
+        <service
+            android:name=".GuardService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
