@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Penguard</string>
+    <string name="join">Join</string>
+    <string name="username">username</string>
+    <string name="scanP">Scan for available Penguins</string>
+    <string name="joinGroup">Join an already existing group</string>
 </resources>

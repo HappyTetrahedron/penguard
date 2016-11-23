@@ -15,13 +15,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        b1 = (Button)findViewById(R.id.button); //UDP
-        b2 = (Button)findViewById(R.id.button2); //bluetooth
+        b1 = (Button)findViewById(R.id.button); //UDP will later be called the i'm a guard
+        b2 = (Button)findViewById(R.id.button2); //bluetooth //will later be called i'm a penguin
 
         b2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(), BluetoothTesting.class);
+                Intent intent = new Intent(view.getContext(), GLoginActivity.class);
                 startActivity(intent);
 
             }

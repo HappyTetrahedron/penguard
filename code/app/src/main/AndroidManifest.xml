@@ -15,7 +15,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".BluetoothTesting"></activity>
+        <activity android:name=".GLoginActivity" />
+        <activity android:name=".GJoinActivity" />
+        <activity android:name=".GGroupJoinActivity" />
+        <activity android:name=".GPenguinSearchActivity" />
+        <activity android:name=".GGuardActivity"></activity>
     </application>
 
 </manifest>
