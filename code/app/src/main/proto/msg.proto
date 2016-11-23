@@ -1,0 +1,80 @@
+package penguard;
+
+option java_package = "verteiltesysteme.penguard.protobuf";
+option java_outer_classname = "PenguardProto";
+
+message Message {
+    enum Type {
+        SERVER_ACK = 0;
+        SERVER_ERR = 1;
+        SERVER_MERGE_REQ = 2;
+
+        G_REGISTER = 3;
+        G_DEREGISTER = 4;
+        G_PING = 5;
+        G_GROUP_REQ = 6;
+
+        G_STATUS_UPDATE = 7;
+        G_ACK = 8;
+        G_GRP_CHANGE = 9;
+        G_COMMIT_REQ = 10;
+        G_COMMIT = 11;
+        G_ABORT = 12;
+        G_VOTE_YES = 13;
+        G_VOTE_NO = 14;
+    }
+
+    required Type type = 1;
+    optional string name = 2;
+
+    oneof content {
+        Ack ack = 3;
+        Error error = 4;
+        Ping ping = 5;
+        MergeReq mergeReq = 6;
+        GroupReq groupReq = 7;
+        Group group = 8;
+    }
+        
+}
+
+message Ack {
+    required string uuid = 1;
+    optional string name = 2;
+}
+
+message Error {
+    required string error = 1;
+}
+
+message Ping {
+    required string uuid = 1;
+}
+
+message MergeReq {
+    required string name = 1;
+    required string ip = 2;
+    required int32 port = 3;
+}
+
+message GroupReq {
+    required string name = 1;
+}
+
+message Penguin {
+    required string name = 1;
+    required string mac = 2;
+    optional bool seen = 3;
+}
+
+message Guardian {
+    optional string name = 1;
+    optional string ip = 2;
+    optional int32 port = 3;
+}
+
+message Group {
+    required int32 seq_no = 1;
+    repeated Guardian guardians = 2;
+    repeated Penguin penguins = 3;
+}

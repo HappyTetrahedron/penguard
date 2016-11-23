@@ -6,9 +6,17 @@ before_script:
 
 stages:
  - build
+ - test
 
 build:
  stage: build
  script:
   - cd code
   - ./gradlew assembleDebug
+
+test:
+ stage: test
+ script:
+  - cd code
+  - ./gradlew test
+  - lynx -dump app/build/reports/tests/debug/index.html
