@@ -18,6 +18,10 @@ public abstract class ListenerCallback extends Thread {
         return parsedMessage;
     }
 
+    public abstract void onReceive();
+
     @Override
-    public abstract void run();
+    public void run() {
+        onReceive();
+    }
 }
