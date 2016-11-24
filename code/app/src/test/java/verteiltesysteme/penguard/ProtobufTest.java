@@ -8,9 +8,9 @@ public class ProtobufTest {
 
     @Test
     public void CreateMessageTest() {
-        PenguardProto.Message message = PenguardProto.Message.newBuilder()
+        PenguardProto.PGPMessage message = PenguardProto.PGPMessage.newBuilder()
                 .setName("Anneliese")
-                .setType(PenguardProto.Message.Type.G_ACK)
+                .setType(PenguardProto.PGPMessage.Type.SG_ACK)
                 .setAck(PenguardProto.Ack.newBuilder()
                         .setUuid("beef")
                         .build())
