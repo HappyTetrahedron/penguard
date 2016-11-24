@@ -21,17 +21,19 @@ public class UDPTesting extends AppCompatActivity {
             }
         };
 
-        UDPDispatcher dispatcher = new UDPDispatcher("Ping from dispatcher", "10.0.2.15", 65535, dispatchAction);
-        ListenerCallback listenerAction = new ListenerCallback() {
+        UDPDispatcher dispatcher = new UDPDispatcher("Ping from dispatcher", "10.0.2.15", 65535);
+        dispatcher.registerCallback(dispatchAction);
+        ListenerCallback listenAction = new ListenerCallback() {
             @Override
-            public void onReceive() {
-                debug("Received message: \"" + getParsedMessage().getContent() + "\"");
+            public void onReceive(Message message) {
+                debug("Received message: \"" + message.getContent() + "\"");
             }
         };
-        UDPListener listener = new UDPListener(65535, listenerAction);
+        UDPListener listener = new UDPListener(65535);
+        listener.registerCallback(listenAction);
 
         listener.start();
-        dispatcher.execute();
+        dispatcher.execute(new Message("Ping from dispatcher"));
 
     }
 

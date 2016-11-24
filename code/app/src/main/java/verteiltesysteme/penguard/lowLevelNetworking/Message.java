@@ -6,7 +6,7 @@ package verteiltesysteme.penguard.lowLevelNetworking;
 public class Message {
     private String content;
 
-    public Message(String content){
+    public Message(String content) {
         this.content = content;
     }
 
@@ -17,5 +17,11 @@ public class Message {
     @Override
     public String toString(){
         return content;
+    }
+
+    // Uses protobuf to convert the message object to an array of bytes.
+    public byte[] getBytes(){
+        //TODO
+        return content.getBytes();
     }
 }

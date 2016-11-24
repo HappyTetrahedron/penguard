@@ -1,6 +1,10 @@
 package verteiltesysteme.penguard.lowLevelNetworking;
 
-public abstract class DispatcherCallback extends Thread {
+/* This class provides a Callback for the UDPDispatcher. It's not strictly necessary for this class to implement Runnable, but has the advantage
+ * that the class can easily be threaded for intensive computations (unlikely to ever be necessary) and that the class itself can use the run() method
+ * to do some precomputation if necessary.
+ */
+public abstract class DispatcherCallback {
     private boolean success;
 
     // Used by the UDPDispatcher to set success status.
@@ -14,7 +18,6 @@ public abstract class DispatcherCallback extends Thread {
 
     public abstract void onFailure();
 
-    @Override
     public void run(){
         if(success){
             onSuccess();
