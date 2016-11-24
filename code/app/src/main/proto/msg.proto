@@ -41,6 +41,8 @@ message PGPMessage {
 message Ack {
     required string uuid = 1;
     optional string name = 2;
+    required string ip = 3;
+    required int32 port = 4;
 }
 
 message Error {
@@ -49,6 +51,10 @@ message Error {
 
 message Ping {
     required string uuid = 1;
+}
+
+message SeqNo {
+    required int32 seqno = 1;
 }
 
 message MergeReq {
@@ -61,13 +67,13 @@ message GroupReq {
     required string name = 1;
 }
 
-message Penguin {
+message PGPPenguin {
     required string name = 1;
     required string mac = 2;
     optional bool seen = 3;
 }
 
-message Guardian {
+message PGPGuardian {
     optional string name = 1;
     optional string ip = 2;
     optional int32 port = 3;
@@ -75,6 +81,6 @@ message Guardian {
 
 message Group {
     required int32 seq_no = 1;
-    repeated Guardian guardians = 2;
-    repeated Penguin penguins = 3;
+    repeated PGPGuardian guardians = 2;
+    repeated PGPPenguin penguins = 3;
 }
