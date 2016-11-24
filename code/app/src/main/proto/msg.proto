@@ -3,25 +3,25 @@ package penguard;
 option java_package = "verteiltesysteme.penguard.protobuf";
 option java_outer_classname = "PenguardProto";
 
-message Message {
+message PGPMessage {
     enum Type {
-        SERVER_ACK = 0;
-        SERVER_ERR = 1;
-        SERVER_MERGE_REQ = 2;
+        SG_ACK = 0;
+        SG_ERR = 1;
+        SG_MERGE_REQ = 2;
 
-        G_REGISTER = 3;
-        G_DEREGISTER = 4;
-        G_PING = 5;
-        G_GROUP_REQ = 6;
+        GS_REGISTER = 3;
+        GS_DEREGISTER = 4;
+        GS_PING = 5;
+        GS_GROUP_REQ = 6;
 
-        G_STATUS_UPDATE = 7;
-        G_ACK = 8;
-        G_GRP_CHANGE = 9;
-        G_COMMIT_REQ = 10;
-        G_COMMIT = 11;
-        G_ABORT = 12;
-        G_VOTE_YES = 13;
-        G_VOTE_NO = 14;
+        GG_STATUS_UPDATE = 7;
+        GG_ACK = 8;
+        GG_GRP_CHANGE = 9;
+        GG_COMMIT = 10;
+        GG_ABORT = 11;
+        GG_VOTE_YES = 12;
+        GG_VOTE_NO = 13;
+        GG_GRP_INFO = 14;
     }
 
     required Type type = 1;
