@@ -2,20 +2,20 @@ package verteiltesysteme.penguard.lowLevelNetworking;
 
 import android.provider.ContactsContract;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
-import static android.R.id.message;
+import verteiltesysteme.penguard.protobuf.PenguardProto;
 
 public class UDPListener extends Thread {
     private ListenerCallback onReceiveAction;
-    private int port;
     private DatagramSocket socket = null;
 
     public UDPListener(int port){
-        this.port = port;
         try {
             socket = new DatagramSocket(port);
         } catch (SocketException e) {
@@ -50,9 +50,13 @@ public class UDPListener extends Thread {
         }
     }
 
-    // Do some low-level parsing.
-    private Message parseMessage(byte[] data){
-        //TODO: Protobuf parsing
-        return null;
+    private PenguardProto.Message parseMessage(byte[] data){
+        PenguardProto.Message message = null;
+        try {
+            message = PenguardProto.Message.parseFrom(data);
+        } catch (InvalidProtocolBufferException e) {
+            e.printStackTrace();
+        }
+        return message;
     }
 }

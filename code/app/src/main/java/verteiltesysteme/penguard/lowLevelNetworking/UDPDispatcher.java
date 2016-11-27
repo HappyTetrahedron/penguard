@@ -6,17 +6,17 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-public class UDPDispatcher extends AsyncTask<Message, Void, Boolean> {
+import verteiltesysteme.penguard.protobuf.PenguardProto;
+
+public class UDPDispatcher extends AsyncTask<PenguardProto.Message, Void, Boolean> {
     private int port;
     private String ip;
-    private String message;
     private DispatcherCallback onPostAction;
     private DatagramSocket socket;
 
-    public UDPDispatcher(String message, String ip, int port) {
+    public UDPDispatcher(String ip, int port) {
         this.port = port;
         this.ip = ip;
-        this.message = message;
         try{
             socket = new DatagramSocket(port);
         }
@@ -30,10 +30,10 @@ public class UDPDispatcher extends AsyncTask<Message, Void, Boolean> {
     }
 
     @Override
-    public Boolean doInBackground(Message... params){
-        for(Message message : params){
+    public Boolean doInBackground(PenguardProto.Message... params){
+        for(PenguardProto.Message message : params){
             try {
-                byte[] outData = message.getBytes();
+                byte[] outData = message.toByteArray();
                 InetAddress receiverIP = InetAddress.getByName(ip);
                 DatagramPacket outPacket = new DatagramPacket(outData, outData.length, receiverIP, port);
                 socket.send(outPacket);
