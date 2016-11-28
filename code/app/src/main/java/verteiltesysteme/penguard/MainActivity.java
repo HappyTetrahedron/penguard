@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import verteiltesysteme.penguard.guardianservice.GuardService;
+
 public class MainActivity extends AppCompatActivity {
 
     Button b1, b2;
@@ -22,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
         b2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent serviceIntent = new Intent(view.getContext(), GuardService.class);
+                startService(serviceIntent);
                 Intent intent = new Intent(view.getContext(), GLoginActivity.class);
                 startActivity(intent);
 

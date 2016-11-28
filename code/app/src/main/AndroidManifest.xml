@@ -26,7 +26,7 @@
         <activity android:name=".GGuardActivity" />
 
         <service
-            android:name=".GuardService"
+            android:name=".guardianservice.GuardService"
             android:enabled="true"
             android:exported="true"></service>
     </application>

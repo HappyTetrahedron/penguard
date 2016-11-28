@@ -29,6 +29,9 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import verteiltesysteme.penguard.guardianservice.GuardService;
+import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
+
 import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
 
 //here we search for bluetooth devices and the guard can pick a penguin to guard and then go on to the GGuardActivity
@@ -50,6 +53,8 @@ public class GPenguinSearchActivity extends AppCompatActivity {
     ScanSettings scanSettings;
     List<ScanFilter> scanFilters;
 
+    GuardianServiceConnection serviceConnection = new GuardianServiceConnection();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +69,11 @@ public class GPenguinSearchActivity extends AppCompatActivity {
         ScanFilter filter = scanFilterBuilder.build();
         scanFilters = new ArrayList<>();
         //scanFilters.add(filter);
+
+        //bind the service
+        Intent intent = new Intent(this, GuardService.class);
+
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 
         handler = new Handler();
         restartScanButton = (Button) findViewById(R.id.restartScanButton);
@@ -133,9 +143,9 @@ public class GPenguinSearchActivity extends AppCompatActivity {
         scanResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                serviceConnection.addPenguin((BluetoothDevice)parent.getItemAtPosition(position));
                 bluetoothScan(false); //stop ongoing scan
                 Intent intent = new Intent(parent.getContext(), GGuardActivity.class);
-                intent.putExtra(EXTRA_DEVICE, (BluetoothDevice)parent.getItemAtPosition(position));
                 startActivity(intent);
             }
         });
@@ -153,6 +163,7 @@ public class GPenguinSearchActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(bcr);
+        unbindService(serviceConnection);
     }
 
     @Override
@@ -215,6 +226,7 @@ public class GPenguinSearchActivity extends AppCompatActivity {
         else {
             debug("Could not get LeScanner");
         }
+        startBtScan();
     }
 
     private void stopBluetoothScan() {
@@ -232,13 +244,18 @@ public class GPenguinSearchActivity extends AppCompatActivity {
             toast(getString(R.string.noResultBTScan));
         }
 
-        startBtScan();
+        stopBtScan();
 
     }
 
     private void startBtScan() {
         debug("starting bt scan");
         bluetoothAdapter.startDiscovery();
+    }
+
+    private void stopBtScan() {
+        debug("stopping bt scan");
+        bluetoothAdapter.cancelDiscovery();
     }
 
     public void scanButtonClicked (View view) {
