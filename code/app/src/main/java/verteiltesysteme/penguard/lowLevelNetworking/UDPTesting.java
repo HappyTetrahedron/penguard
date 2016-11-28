@@ -3,19 +3,27 @@ package verteiltesysteme.penguard.lowLevelNetworking;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
+import verteiltesysteme.penguard.R;
 import verteiltesysteme.penguard.protobuf.PenguardProto;
 
 public class UDPTesting extends AppCompatActivity {
 
     DatagramSocket socket;
+    PenguardProto.PGPMessage message;
+    UDPDispatcher dispatcher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_udptest);
+
+        ((Button) findViewById(R.id.testbutton)).setText("TEST");
 
         // Create the socket used for dispatching and listening.
         socket = null;
@@ -41,7 +49,7 @@ public class UDPTesting extends AppCompatActivity {
         };
 
         // Create dispatcher.
-        UDPDispatcher dispatcher = new UDPDispatcher(socket);
+        dispatcher = new UDPDispatcher(socket);
         dispatcher.registerCallback(dispatchAction);
 
 
@@ -59,7 +67,7 @@ public class UDPTesting extends AppCompatActivity {
         listener.start();
 
         // Dispatch some test package.
-        PenguardProto.PGPMessage message = PenguardProto.PGPMessage.newBuilder()
+        message = PenguardProto.PGPMessage.newBuilder()
                 .setName("Anneliese")
                 .setType(PenguardProto.PGPMessage.Type.SG_ACK)
                 .setAck(PenguardProto.Ack.newBuilder()
@@ -69,6 +77,11 @@ public class UDPTesting extends AppCompatActivity {
                         .setPort(5500)
                         .build())
                 .build();
+        dispatcher.sendPacket(message, "127.0.0.1", 65535);
+
+    }
+
+    public void onClick(View view) {
         dispatcher.sendPacket(message, "127.0.0.1", 65535);
 
     }
