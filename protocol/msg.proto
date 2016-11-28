@@ -34,6 +34,7 @@ message PGPMessage {
         MergeReq mergeReq = 6;
         GroupReq groupReq = 7;
         Group group = 8;
+        SeqNo seqNo = 9;
     }
         
 }
