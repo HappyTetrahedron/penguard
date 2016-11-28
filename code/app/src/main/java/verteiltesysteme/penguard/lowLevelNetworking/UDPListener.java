@@ -11,16 +11,14 @@ import java.net.SocketException;
 
 import verteiltesysteme.penguard.protobuf.PenguardProto;
 
+import static android.R.attr.port;
+
 public class UDPListener extends Thread {
     private ListenerCallback onReceiveAction;
     private DatagramSocket socket = null;
 
-    public UDPListener(int port){
-        try {
-            socket = new DatagramSocket(port);
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
+    public UDPListener(DatagramSocket datagramSocket){
+        socket = datagramSocket;
     }
 
     public void registerCallback(ListenerCallback onReceiveAction){
@@ -50,10 +48,10 @@ public class UDPListener extends Thread {
         }
     }
 
-    private PenguardProto.Message parseMessage(byte[] data){
-        PenguardProto.Message message = null;
+    private PenguardProto.PGPMessage parseMessage(byte[] data){
+        PenguardProto.PGPMessage message = null;
         try {
-            message = PenguardProto.Message.parseFrom(data);
+            message = PenguardProto.PGPMessage.parseFrom(data);
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
         }

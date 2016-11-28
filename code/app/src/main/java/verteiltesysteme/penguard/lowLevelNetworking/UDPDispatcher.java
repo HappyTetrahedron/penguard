@@ -8,21 +8,12 @@ import java.net.InetAddress;
 
 import verteiltesysteme.penguard.protobuf.PenguardProto;
 
-public class UDPDispatcher extends AsyncTask<PenguardProto.Message, Void, Boolean> {
-    private int port;
-    private String ip;
+public class UDPDispatcher extends AsyncTask<PGPPacket, Void, Boolean> {
     private DispatcherCallback onPostAction;
     private DatagramSocket socket;
 
-    public UDPDispatcher(String ip, int port) {
-        this.port = port;
-        this.ip = ip;
-        try{
-            socket = new DatagramSocket(port);
-        }
-        catch(java.net.SocketException e){
-            e.printStackTrace();
-        }
+    public UDPDispatcher(DatagramSocket datagramSocket) {
+        socket = datagramSocket;
     }
 
     public void registerCallback(DispatcherCallback onPostAction) {
@@ -30,12 +21,14 @@ public class UDPDispatcher extends AsyncTask<PenguardProto.Message, Void, Boolea
     }
 
     @Override
-    public Boolean doInBackground(PenguardProto.Message... params){
-        for(PenguardProto.Message message : params){
+    public Boolean doInBackground(PGPPacket... params){
+        for(PGPPacket packet : params){
             try {
+                PenguardProto.PGPMessage message = packet.message;
                 byte[] outData = message.toByteArray();
-                InetAddress receiverIP = InetAddress.getByName(ip);
-                DatagramPacket outPacket = new DatagramPacket(outData, outData.length, receiverIP, port);
+                InetAddress receiverIP = packet.ipAddr;
+                // TODO: Probably get rid of PGPPacket actually. Port and Ip can be read from PGPMessage.
+                DatagramPacket outPacket = new DatagramPacket(outData, outData.length, receiverIP, socket.getPort());
                 socket.send(outPacket);
                 socket.close();
             }
@@ -44,7 +37,6 @@ public class UDPDispatcher extends AsyncTask<PenguardProto.Message, Void, Boolea
             }
         }
         return true;
-
     }
 
     @Override
