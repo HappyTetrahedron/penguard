@@ -6,18 +6,19 @@ import android.util.Log;
 
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 
 import verteiltesysteme.penguard.protobuf.PenguardProto;
 
 public class UDPTesting extends AppCompatActivity {
+
+    DatagramSocket socket;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Create the socket used for dispatching and listening.
-        DatagramSocket socket = null;
+        socket = null;
         try {
             socket = new DatagramSocket(65535);
         } catch (SocketException e) {
@@ -34,12 +35,12 @@ public class UDPTesting extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure() {
-                debug("Failed to dispatch a message");
+            public void onFailure(int error) {
+                debug("Failed to dispatch a message: " + error);
             }
         };
 
-        // Create dispatcher. Dispatcher will send to ip 10.0.2.14
+        // Create dispatcher.
         UDPDispatcher dispatcher = new UDPDispatcher(socket);
         dispatcher.registerCallback(dispatchAction);
 
@@ -68,12 +69,14 @@ public class UDPTesting extends AppCompatActivity {
                         .setPort(5500)
                         .build())
                 .build();
-        try {
-            dispatcher.execute(new PGPPacket("10.0.2.15", message));
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
+        dispatcher.sendPacket(message, "127.0.0.1", 65535);
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        socket.close();
     }
 
     private void debug(String message){
