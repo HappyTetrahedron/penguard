@@ -1,0 +1,22 @@
+before_script:
+ - export ANDROID_HOME="/home/gitlab-runner/android-sdk-linux"
+ - export JAVA_HOME="/usr/lib/jvm/java-8-oracle"
+ - export JRE_HOME="/usr/lib/jvm/java-8-oracle/jre"
+ - export PATH="$PATH:JAVA_HOME:JRE_HOME"
+
+stages:
+ - build
+ - test
+
+build:
+ stage: build
+ script:
+  - cd code
+  - ./gradlew assembleDebug
+
+test:
+ stage: test
+ script:
+  - cd code
+  - ./gradlew test
+  - lynx -dump app/build/reports/tests/debug/index.html

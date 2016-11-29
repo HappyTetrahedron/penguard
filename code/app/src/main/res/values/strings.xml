@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Penguard</string>
+    <string name="join">Join</string>
+    <string name="username">username</string>
+    <string name="scanP">Scan for available Penguins</string>
+    <string name="joinGroup">Join an already existing group</string>
+    <string name="failBTScan">Scan Failed pls retry</string>
+    <string name="stopBTScan">Scan stopped please select a penguin</string>
+    <string name="noResultBTScan">No bluetooth device found</string>
+    <string name="scanningBTScan">Scanning please wait</string>
+    <string name="permissionDeniedBTScan">Location permissions are needed in order to track your penguin</string>
+    <string name="scan">scan</string>
+</resources>
