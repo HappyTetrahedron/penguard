@@ -1,5 +1,8 @@
 package verteiltesysteme.penguard.lowLevelNetworking;
 
-public abstract class ListenerCallback {
-    public abstract void onReceive(Message parsedMessage);
+import verteiltesysteme.penguard.protobuf.PenguardProto;
+
+public interface ListenerCallback {
+
+    void onReceive(PenguardProto.PGPMessage parsedMessage);
 }

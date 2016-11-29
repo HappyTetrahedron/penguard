@@ -1,58 +1,85 @@
 package verteiltesysteme.penguard.lowLevelNetworking;
 
-import android.provider.ContactsContract;
+import android.support.annotation.Nullable;
+import android.util.Log;
+
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
-import static android.R.id.message;
+import verteiltesysteme.penguard.protobuf.PenguardProto;
+
 
 public class UDPListener extends Thread {
-    private ListenerCallback onReceiveAction;
-    private int port;
+    private ArrayList<ListenerCallback> callbacks;
     private DatagramSocket socket = null;
 
-    public UDPListener(int port){
-        this.port = port;
-        try {
-            socket = new DatagramSocket(port);
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
+    public UDPListener(DatagramSocket datagramSocket){
+        callbacks = new ArrayList<ListenerCallback>();
+        socket = datagramSocket;
     }
 
     public void registerCallback(ListenerCallback onReceiveAction){
-        this.onReceiveAction = onReceiveAction;
+        callbacks.add(onReceiveAction);
+    }
+
+    public void unregisterCallback(DispatcherCallback deregisteredCallback) {
+        callbacks.remove(deregisteredCallback);
     }
 
     @Override
     public void run(){
-        while(true){
-            try{
+        byte[] inData = new byte[64];
+        DatagramPacket in = new DatagramPacket(inData, inData.length);
+        while(!interrupted() && !socket.isClosed()){
+            for(ListenerCallback callback : callbacks) {
                 try {
-                    byte[] inData = new byte[64];
-                    DatagramPacket in = new DatagramPacket(inData, inData.length);
                     socket.receive(in);
                     inData = in.getData();
-                    onReceiveAction.onReceive(parseMessage(inData));
+                    PenguardProto.PGPMessage message = parseMessage(inData);
+                    if (message != null) { //null messages that couldn't be parsed are ignored
+                        callback.onReceive(message);
+                    }
                 }
                 catch (IOException e) {
-                    e.printStackTrace();
+                    // fail silently
+                    debug("IOException when receiving packet: " + e.getMessage());
                 }
-
-                Thread.sleep(50);
-            }
-            catch(java.lang.InterruptedException e){
-                e.printStackTrace();
             }
         }
     }
 
-    // Do some low-level parsing.
-    private Message parseMessage(byte[] data){
-        //TODO: Protobuf parsing
-        return null;
+    private int getStartOfTrailingZeros(byte[] data){
+        int i;
+        for(i = data.length; i > 0; i--) {
+            if (data[i-1] != 0) break;
+        }
+        return i;
+    }
+
+    @Nullable
+    private PenguardProto.PGPMessage parseMessage(byte[] data){
+        PenguardProto.PGPMessage message;
+        // Find length in order to truncate trailing zeros
+        int length = getStartOfTrailingZeros(data);
+
+        // create truncated array
+        byte[] truncated = Arrays.copyOfRange(data, 0, length);
+        //TODO truncating might be bad if the message actually HAS a 0 at the end. Not sure how to deal with that.
+        try {
+            message = PenguardProto.PGPMessage.parseFrom(truncated);
+        } catch (InvalidProtocolBufferException e) {
+            // fail silently
+            return null;
+        }
+        return message;
+    }
+
+    private void debug(String msg) {
+        Log.d("UDPListener", msg);
     }
 }
