@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 
 import verteiltesysteme.penguard.guardianservice.GuardService;
+import verteiltesysteme.penguard.lowLevelNetworking.UDPTesting;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,8 +22,19 @@ public class MainActivity extends AppCompatActivity {
         b1 = (Button)findViewById(R.id.button); //UDP will later be called the i'm a guard
         b2 = (Button)findViewById(R.id.button2); //bluetooth //will later be called i'm a penguin
 
-        b2.setOnClickListener(new View.OnClickListener() {
-            @Override
+        /* Not sure if I'm supposed to but, put I put my UDPTesting activity here, so that when I click the
+         * button I can test whether my UDP implementation works. If anyone needs the button for something else,
+         * feel free to just remove it. --Nils
+         */
+        b1.setOnClickListener(new View.OnClickListener() { @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(view.getContext(), UDPTesting.class);
+            startActivity(intent);
+
+        }
+        });
+
+        b2.setOnClickListener(new View.OnClickListener() { @Override
             public void onClick(View view) {
                 Intent serviceIntent = new Intent(view.getContext(), GuardService.class);
                 startService(serviceIntent);
