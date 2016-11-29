@@ -1,6 +1,5 @@
 package verteiltesysteme.penguard.lowLevelNetworking;
 
-import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -9,14 +8,11 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import verteiltesysteme.penguard.protobuf.PenguardProto;
 
-import static android.R.attr.port;
 
 public class UDPListener extends Thread {
     private ArrayList<ListenerCallback> callbacks;

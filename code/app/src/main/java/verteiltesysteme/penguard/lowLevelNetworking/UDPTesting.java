@@ -77,6 +77,7 @@ public class UDPTesting extends AppCompatActivity {
                         .setPort(5500)
                         .build())
                 .build();
+
         dispatcher.sendPacket(message, "127.0.0.1", 65535);
 
     }

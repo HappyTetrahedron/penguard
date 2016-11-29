@@ -20,7 +20,6 @@ public class MainActivity extends AppCompatActivity {
         b1 = (Button)findViewById(R.id.button); //UDP will later be called the i'm a guard
         b2 = (Button)findViewById(R.id.button2); //bluetooth //will later be called i'm a penguin
 
-
         /* Not sure if I'm supposed to but, put I put my UDPTesting activity here, so that when I click the
          * button I can test whether my UDP implementation works. If anyone needs the button for something else,
          * feel free to just remove it. --Nils
