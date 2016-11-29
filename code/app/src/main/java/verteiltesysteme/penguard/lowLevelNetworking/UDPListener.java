@@ -23,6 +23,7 @@ public class UDPListener extends Thread {
     private DatagramSocket socket = null;
 
     public UDPListener(DatagramSocket datagramSocket){
+        callbacks = new ArrayList<ListenerCallback>();
         socket = datagramSocket;
     }
 

@@ -19,6 +19,7 @@ public class UDPDispatcher{
 
     //TODO We might need to send our package over multiple sockets, e.g. wifi and gsm
     public UDPDispatcher(DatagramSocket datagramSocket) {
+        callbacks = new ArrayList<DispatcherCallback>();
         socket = datagramSocket;
     }
 
