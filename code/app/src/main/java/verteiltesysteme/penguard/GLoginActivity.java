@@ -3,9 +3,12 @@ package verteiltesysteme.penguard;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+
+import verteiltesysteme.penguard.guardianservice.GuardService;
 
 //this activity is used for login in the guard. It is called by the main activity. It recieves an empty intent
 
@@ -19,6 +22,8 @@ public class GLoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_glogin);
 
+        //TODO bind to service
+
         //get the UI elements
         joinB = (Button)findViewById(R.id.button3);
         usernameET = (EditText)findViewById(R.id.editText);
@@ -30,7 +35,12 @@ public class GLoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), GJoinActivity.class);
                 startActivity(intent);
+                //TODO send login info to service and trigger login
             }
         });
+    }
+
+    private void debug(String msg) {
+        Log.d("GLogin", msg);
     }
 }

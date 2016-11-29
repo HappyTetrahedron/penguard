@@ -5,6 +5,9 @@
     <!-- <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/> -->
     <!-- <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/> -->
 
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:allowBackup="true"
@@ -33,7 +36,12 @@
         <activity android:name=".GJoinActivity" />
         <activity android:name=".GGroupJoinActivity" />
         <activity android:name=".GPenguinSearchActivity" />
-        <activity android:name=".GGuardActivity"></activity>
+        <activity android:name=".GGuardActivity" />
+
+        <service
+            android:name=".guardianservice.GuardService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
