@@ -56,6 +56,14 @@ public class Penguin {
         // TODO also report 'false' if RSSI is under threshold
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Penguin){
+            return this.address.equals(((Penguin) obj).address);
+        }
+        return false;
+    }
+
     public String getName() {
         return name;
     }

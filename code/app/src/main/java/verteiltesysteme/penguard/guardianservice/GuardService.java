@@ -37,8 +37,11 @@ public class GuardService extends Service {
 
     public void addPenguin(BluetoothDevice device){
         Penguin penguin = new Penguin(device, "Penguin " + device.getName());
-        penguins.add(penguin);
-        debug("Penguin added.");
+        if (!penguins.contains(penguin)) {
+            penguins.add(penguin);
+            debug("Penguin added.");
+        }
+        debug("penguin already there");
     }
 
     // Binder used for communication with the service. Do not use directly. Use GuardianServiceConnection instead.
