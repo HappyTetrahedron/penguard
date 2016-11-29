@@ -88,10 +88,9 @@ public class GPenguinSearchActivity extends AppCompatActivity {
                 if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                     // Get the BluetoothDevice object from the Intent
                     debug("Found a device");
-                    BluetoothDevice device = intent.getParcelableExtra(EXTRA_DEVICE);
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     // Add the name and address to an array adapter to show in a ListView
-                    scanResultsList.add(device);
-                    scanResultsAdapter.notifyDataSetChanged();
+                    addDevice(device);
                 }
             }
         };
@@ -107,20 +106,13 @@ public class GPenguinSearchActivity extends AppCompatActivity {
                 super.onScanResult(callbackType, result);
                 debug("Device found: " + result.getDevice().getName());
                 if (result.getDevice() == null) return;
-                for (BluetoothDevice d : scanResultsList) {
-                    if (d == null) continue;
-                    if (d.getAddress().equals(result.getDevice().getAddress())) return;
-                }
-                scanResultsList.add(result.getDevice());
-                scanResultsAdapter.notifyDataSetChanged();
+                addDevice(result.getDevice());
             }
 
             @Override
             public void onBatchScanResults(List<ScanResult> results) {
                 for (ScanResult res : results) {
-                    scanResultsList.add(res.getDevice());
-                    debug("Devices found");
-                    scanResultsAdapter.notifyDataSetChanged();
+                    addDevice(res.getDevice());
                 }
             }
 
@@ -217,6 +209,7 @@ public class GPenguinSearchActivity extends AppCompatActivity {
 
     private void startBluetoothScan() {
         debug("Started scan");
+        //this does the LE scan
         if (bluetoothAdapter.getBluetoothLeScanner() != null) {
             bluetoothAdapter.getBluetoothLeScanner().startScan(scanFilters,scanSettings,scanCallback);
             restartScanButton.setEnabled(false); //Cannot rescan while scan is running
@@ -226,11 +219,14 @@ public class GPenguinSearchActivity extends AppCompatActivity {
         else {
             debug("Could not get LeScanner");
         }
-        startBtScan();
+
+        //this does the regular bt scan
+        bluetoothAdapter.startDiscovery();
     }
 
     private void stopBluetoothScan() {
         debug("Stopped scan");
+        //stop LE scan
         if (bluetoothAdapter.getBluetoothLeScanner() != null){
             bluetoothAdapter.getBluetoothLeScanner().stopScan(scanCallback);
         }
@@ -244,19 +240,11 @@ public class GPenguinSearchActivity extends AppCompatActivity {
             toast(getString(R.string.noResultBTScan));
         }
 
-        stopBtScan();
-
-    }
-
-    private void startBtScan() {
-        debug("starting bt scan");
-        bluetoothAdapter.startDiscovery();
-    }
-
-    private void stopBtScan() {
-        debug("stopping bt scan");
+        //stopping normal bt scan
         bluetoothAdapter.cancelDiscovery();
+
     }
+
 
     public void scanButtonClicked (View view) {
         if (view == restartScanButton) {
@@ -264,6 +252,13 @@ public class GPenguinSearchActivity extends AppCompatActivity {
             scanResultsList.clear();
             scanResultsAdapter.notifyDataSetChanged();
             turnOnBluetoothAndScan();
+        }
+    }
+
+    private void addDevice(BluetoothDevice device){
+        if (!scanResultsList.contains(device)){
+            scanResultsList.add(device);
+            scanResultsAdapter.notifyDataSetChanged();
         }
     }
 
