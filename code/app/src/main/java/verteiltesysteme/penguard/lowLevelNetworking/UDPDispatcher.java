@@ -6,11 +6,12 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 import verteiltesysteme.penguard.protobuf.PenguardProto;
 
 public class UDPDispatcher{
-    private DispatcherCallback callback;
+    private ArrayList<DispatcherCallback> callbacks;
     private DatagramSocket socket;
 
     public static final int ERROR_SENDING_PACKET = 1;
@@ -21,15 +22,19 @@ public class UDPDispatcher{
         socket = datagramSocket;
     }
 
-    //TODO it should be possible to register multiple callbacks and also deregister them again
     public void registerCallback(DispatcherCallback onPostAction) {
-        this.callback = onPostAction;
+        callbacks.add(onPostAction);
     }
 
+    public void unregisterCallback(DispatcherCallback deregisteredCallback) {
+        callbacks.remove(deregisteredCallback);
+    }
 
     // Sends a PGPMessage to the given IP and port.
     public void sendPacket(PenguardProto.PGPMessage message, String ip, int port){
-        new Thread(new NetworkingTask(message, ip, port, callback)).start();
+        for(DispatcherCallback callback : callbacks) {
+            new Thread(new NetworkingTask(message, ip, port, callback)).start();
+        }
     }
 
     // internal class that can be used to send a single packet

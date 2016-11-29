@@ -10,23 +10,28 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import verteiltesysteme.penguard.protobuf.PenguardProto;
 
 import static android.R.attr.port;
 
 public class UDPListener extends Thread {
-    private ListenerCallback onReceiveAction;
+    private ArrayList<ListenerCallback> callbacks;
     private DatagramSocket socket = null;
 
     public UDPListener(DatagramSocket datagramSocket){
         socket = datagramSocket;
     }
 
-    // TODO we should allow for multiple callbacks to be registered, and for them to deregister as well.
     public void registerCallback(ListenerCallback onReceiveAction){
-        this.onReceiveAction = onReceiveAction;
+        callbacks.add(onReceiveAction);
+    }
+
+    public void unregisterCallback(DispatcherCallback deregisteredCallback) {
+        callbacks.remove(deregisteredCallback);
     }
 
     @Override
@@ -34,24 +39,26 @@ public class UDPListener extends Thread {
         byte[] inData = new byte[64];
         DatagramPacket in = new DatagramPacket(inData, inData.length);
         while(!interrupted() && !socket.isClosed()){
-            try {
-                socket.receive(in);
-                inData = in.getData();
-                PenguardProto.PGPMessage message = parseMessage(inData);
-                if (message != null) { //null messages that couldn't be parsed are ignored
-                    onReceiveAction.onReceive(message);
+            for(ListenerCallback callback : callbacks) {
+                try {
+                    socket.receive(in);
+                    inData = in.getData();
+                    PenguardProto.PGPMessage message = parseMessage(inData);
+                    if (message != null) { //null messages that couldn't be parsed are ignored
+                        callback.onReceive(message);
+                    }
                 }
-            }
-            catch (IOException e) {
-                // fail silently
-                debug("IOException when receiving packet: " + e.getMessage());
+                catch (IOException e) {
+                    // fail silently
+                    debug("IOException when receiving packet: " + e.getMessage());
+                }
             }
         }
     }
 
     private int getStartOfTrailingZeros(byte[] data){
         int i;
-        for(i=data.length; i > 0; i--) {
+        for(i = data.length; i > 0; i--) {
             if (data[i-1] != 0) break;
         }
         return i;
