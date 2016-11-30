@@ -9,8 +9,13 @@ public class GuardianServiceConnection implements ServiceConnection {
 
     private GuardService service = null;
 
-    public void addPenguin(BluetoothDevice device) {
-        service.addPenguin(device);
+    /**
+     * Adds a new penguin to the connected GuardService iff that penguin isn't already
+     * being tracked.
+     * @param penguin Penguin to be added
+     */
+    public void addPenguin(Penguin penguin) {
+        service.addPenguin(penguin); //
     }
 
     public boolean isConnected() {

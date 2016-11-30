@@ -1,17 +1,38 @@
 package verteiltesysteme.penguard.guardianservice;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
-import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.Vector;
 
-public class GuardService extends Service {
+import verteiltesysteme.penguard.GGuardActivity;
+import verteiltesysteme.penguard.MainActivity;
+import verteiltesysteme.penguard.R;
+import verteiltesysteme.penguard.lowLevelNetworking.ListenerCallback;
+import verteiltesysteme.penguard.lowLevelNetworking.UDPDispatcher;
+import verteiltesysteme.penguard.lowLevelNetworking.UDPListener;
+import verteiltesysteme.penguard.protobuf.PenguardProto;
 
-    private final Vector<Penguin> penguins = new Vector<>(); //a vector is the same as an arraylist only that it can grow and shrink
+public class GuardService extends Service implements ListenerCallback{
+
+    private final Vector<Penguin> penguins = new Vector<>();
+
+    private UDPDispatcher dispatcher;
+    private UDPListener listener;
+    private DatagramSocket sock;
+
+    private final static int PORT = 6789;
+
+    private final static int NOTIFICATION_ID = 1;
 
     BluetoothThread bluetoothThread;
 
@@ -19,6 +40,44 @@ public class GuardService extends Service {
     public void onCreate() {
         super.onCreate();
         bluetoothThread = new BluetoothThread(penguins, this);
+
+        // create ongoing notification needed to be able to make this a foreground service
+        Context appContext = getApplicationContext();
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(appContext)
+                .setContentTitle(getString(R.string.penguard_active))
+                .setSmallIcon(R.drawable.icon)
+                .setOngoing(true)
+                .setContentIntent(PendingIntent.getActivity(appContext, 0,
+                        new Intent(appContext, GGuardActivity.class), 0));
+
+        // make this service a foreground service, supplying the notification
+        startForeground(NOTIFICATION_ID, builder.build());
+
+        // create networking infrastructure
+        try {
+            sock = new DatagramSocket(PORT);
+            listener = new UDPListener(sock);
+            dispatcher = new UDPDispatcher(sock);
+        } catch (SocketException e) {
+            debug("Error creating socket: " + e.getMessage());
+            //TODO how do we properly handle this?
+        }
+        listener.registerCallback(this);
+        listener.start();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        // kill our networking structure
+        sock.close();
+        try {
+            listener.join();
+        } catch (InterruptedException e) {
+            // do nothing? TODO how do we handle this?
+        }
+
     }
 
     @Override
@@ -35,13 +94,22 @@ public class GuardService extends Service {
         return new PenguinGuardBinder();
     }
 
-    public void addPenguin(BluetoothDevice device){
-        Penguin penguin = new Penguin(device, "Penguin " + device.getName());
+    /**
+     * Adds a new penguin to the list of tracked penguins. If a penguin with the same HW address is already
+     * in the list, the list is not changed.
+     * @param penguin Penguin to be added
+     */
+    void addPenguin(Penguin penguin){
         if (!penguins.contains(penguin)) {
             penguins.add(penguin);
             debug("Penguin added.");
         }
         debug("penguin already there");
+    }
+
+    @Override
+    public void onReceive(PenguardProto.PGPMessage parsedMessage) {
+        debug(parsedMessage.toString());
     }
 
     // Binder used for communication with the service. Do not use directly. Use GuardianServiceConnection instead.
