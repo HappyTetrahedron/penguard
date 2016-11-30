@@ -18,6 +18,15 @@ public class GuardianServiceConnection implements ServiceConnection {
         service.addPenguin(penguin); //
     }
 
+    /**
+     * Registers this guardian at the PLS using the given username. Does nothing if this guardian is already registered.
+     * @param username The name to be used
+     * @return True if registration request was sent, false if this guardian is already registered.
+     */
+    public boolean register(String username) {
+        return service.register(username);
+    }
+
     public boolean isConnected() {
         return service != null;
     }
