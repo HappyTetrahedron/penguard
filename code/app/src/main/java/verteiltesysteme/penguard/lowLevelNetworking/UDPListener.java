@@ -36,20 +36,20 @@ public class UDPListener extends Thread {
         byte[] inData = new byte[64];
         DatagramPacket in = new DatagramPacket(inData, inData.length);
         while(!interrupted() && !socket.isClosed()){
-            for(ListenerCallback callback : callbacks) {
                 try {
                     socket.receive(in);
                     inData = in.getData();
                     PenguardProto.PGPMessage message = parseMessage(inData);
                     if (message != null) { //null messages that couldn't be parsed are ignored
-                        callback.onReceive(message);
+                        for(ListenerCallback callback : callbacks) {
+                            callback.onReceive(message);
+                        }
                     }
                 }
                 catch (IOException e) {
                     // fail silently
                     debug("IOException when receiving packet: " + e.getMessage());
                 }
-            }
         }
     }
 
