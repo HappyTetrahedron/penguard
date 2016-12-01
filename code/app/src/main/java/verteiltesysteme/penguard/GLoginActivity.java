@@ -37,7 +37,7 @@ public class GLoginActivity extends AppCompatActivity {
 
             @Override
             public void onClick(final View view) {
-                // TODO I can imagine that bad things happen when the user mashes this button. We'll need some means of disabling it. See issue #19
+                joinB.setEnabled(false);
 
                 // Display loading circle.
                 findViewById(R.id.loadingCircle).setVisibility(View.VISIBLE);
@@ -49,12 +49,14 @@ public class GLoginActivity extends AppCompatActivity {
                         findViewById(R.id.loadingCircle).setVisibility(View.GONE);
                         Intent intent = new Intent(view.getContext(), GPenguinSearchActivity.class);
                         startActivity(intent);
+                        joinB.setEnabled(true);
                     }
 
                     @Override
                     public void registrationFailure() {
                         findViewById(R.id.loadingCircle).setVisibility(View.GONE);
                         displayToast("Contacting server failed.");
+                        joinB.setEnabled(true);
                     }
                 };
 
