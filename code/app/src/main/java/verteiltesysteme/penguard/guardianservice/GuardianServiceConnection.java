@@ -17,13 +17,13 @@ public class GuardianServiceConnection implements ServiceConnection {
      * @param penguin Penguin to be added
      */
     public void addPenguin(Penguin penguin) {
-        service.addPenguin(penguin); //
+        service.addPenguin(penguin);
     }
 
     /**
      * Registers this guardian at the PLS using the given username. Does nothing if this guardian is already registered.
      * @param username The name to be used.
-     * @param callback The callback executed when the ser
+     * @param callback The callback executed when we get a decision whether the user was registered or not.
      * @return True if registration request was sent, false if this guardian is already registered.
      */
     public boolean register(String username, GLoginCallback callback) {

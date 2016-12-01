@@ -1,7 +1,9 @@
 package verteiltesysteme.penguard;
 
-public interface GLoginCallback {
-    public void registrationSuccess();
+import verteiltesysteme.penguard.guardianservice.GuardServiceError;
 
-    public void registrationFailure();
+public interface GLoginCallback {
+    void registrationSuccess();
+
+    void registrationFailure(GuardServiceError errorType);
 }

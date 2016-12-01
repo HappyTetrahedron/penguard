@@ -37,6 +37,7 @@ public class GuardService extends Service implements ListenerCallback{
     //TODO this is super ugly. The loginCallback is only used once (upon receipt of the Server ACK/ERR packet), so having it as a member variable is kind of overkill. See issue #28
     private GLoginCallback loginCallback;
 
+    private final static int SOCKETS_TO_TRY = 5;
     private final static int PORT = 6789; //TODO put this in settings? See issue #14
 
     private String plsIp = "10.0.2.15"; //TODO just for debugging. Put these in settings and read from there. See issue #14
@@ -71,13 +72,22 @@ public class GuardService extends Service implements ListenerCallback{
         startForeground(NOTIFICATION_ID, builder.build());
 
         // create networking infrastructure
-        try {
-            sock = new DatagramSocket(PORT);
-            listener = new UDPListener(sock);
-            dispatcher = new UDPDispatcher(sock);
-        } catch (SocketException e) {
-            debug("Error creating socket: " + e.getMessage());
-            //TODO how do we properly handle this? See issue #24
+        int i = 0;
+        boolean creationSuccess = false;
+        while (i < SOCKETS_TO_TRY && !creationSuccess){
+            try {
+                sock = new DatagramSocket(PORT);
+                listener = new UDPListener(sock);
+                dispatcher = new UDPDispatcher(sock);
+                creationSuccess = true;
+            } catch (SocketException e) {
+                // TODO how do we properly handle this? See issue #24
+                debug("Error creating socket: " + e.getMessage());
+            }
+            i++;
+        }
+        if (!creationSuccess){
+            throw new IllegalStateException("Socket creation failed. Probably too many ports are in use. Ask your local sysadmin for help.");
         }
         listener.registerCallback(this);
         listener.start();
@@ -159,7 +169,7 @@ public class GuardService extends Service implements ListenerCallback{
         switch(parsedMessage.getType()){
             case SG_ERR:
                 if (loginCallback != null) {
-                    loginCallback.registrationFailure();
+                    loginCallback.registrationFailure(GuardServiceError.SERVER_DENIED);
                     /* Probably best if we just get rid of the callback in here. Otherwise we'd need another setter method just for
                      * the callback which would make the code a bit too spaghetti imo.
                      */
@@ -168,7 +178,7 @@ public class GuardService extends Service implements ListenerCallback{
                 break;
             case SG_ACK:
                 if (loginCallback != null) {
-                    loginCallback.registrationFailure();
+                    loginCallback.registrationSuccess();
                     loginCallback = null;
                 }
                 break;

@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import verteiltesysteme.penguard.guardianservice.GuardService;
+import verteiltesysteme.penguard.guardianservice.GuardServiceError;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 
 //this activity is used for login in the guard. It is called by the main activity. It receives an empty intent
@@ -53,9 +54,19 @@ public class GLoginActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void registrationFailure() {
+                    public void registrationFailure(GuardServiceError error) {
                         findViewById(R.id.loadingCircle).setVisibility(View.GONE);
-                        displayToast("Contacting server failed.");
+                        switch(error){
+                            case CREATE_SOCKET_FAIL:
+                                displayToast("Socket for communication with server could not be created.");
+                                break;
+                            case SERVER_DENIED:
+                                displayToast("Contacting server failed.");
+                                break;
+                            default:
+                                displayToast("An unknown error occurred");
+                                break;
+                        }
                         joinB.setEnabled(true);
                     }
                 };
