@@ -32,7 +32,6 @@
         </activity>
         <activity android:name=".GLoginActivity" />
         <activity android:name=".lowLevelNetworking.UDPTesting" />
-        <activity android:name=".GJoinActivity" />
         <activity android:name=".GGroupJoinActivity" />
         <activity android:name=".GPenguinSearchActivity" />
         <activity android:name=".GGuardActivity" />

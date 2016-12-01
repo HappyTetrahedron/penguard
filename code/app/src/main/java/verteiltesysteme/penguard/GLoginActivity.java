@@ -47,7 +47,7 @@ public class GLoginActivity extends AppCompatActivity {
                     @Override
                     public void registrationSuccess() {
                         findViewById(R.id.loadingCircle).setVisibility(View.GONE);
-                        Intent intent = new Intent(view.getContext(), GJoinActivity.class);
+                        Intent intent = new Intent(view.getContext(), GPenguinSearchActivity.class);
                         startActivity(intent);
                     }
 
