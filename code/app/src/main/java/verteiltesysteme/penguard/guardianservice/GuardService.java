@@ -22,10 +22,6 @@ import verteiltesysteme.penguard.lowLevelNetworking.UDPDispatcher;
 import verteiltesysteme.penguard.lowLevelNetworking.UDPListener;
 import verteiltesysteme.penguard.protobuf.PenguardProto;
 
-import static android.R.string.no;
-import static verteiltesysteme.penguard.protobuf.PenguardProto.PGPMessage.Type.SG_ACK;
-import static verteiltesysteme.penguard.protobuf.PenguardProto.PGPMessage.Type.SG_ERR;
-
 public class GuardService extends Service implements ListenerCallback{
 
     private final Vector<Penguin> penguins = new Vector<>();
@@ -34,23 +30,17 @@ public class GuardService extends Service implements ListenerCallback{
     private UDPListener listener;
     private DatagramSocket sock;
 
-    //TODO this is super ugly. The loginCallback is only used once (upon receipt of the Server ACK/ERR packet), so having it as a member variable is kind of overkill. See issue #28
-    private GLoginCallback loginCallback;
-
     private final static int PORT = 6789; //TODO put this in settings? See issue #14
 
-    private String plsIp = "10.0.2.15"; //TODO just for debugging. Put these in settings and read from there. See issue #14
+    private String plsIp = "10.2.129.106"; //TODO just for debugging. Put these in settings and read from there. See issue #14
     private int plsPort = 6789;
 
     private final static int NOTIFICATION_ID = 1;
 
+    private RegistrationState regState = new RegistrationState();
+
     BluetoothThread bluetoothThread;
 
-    private int registrationState = 1;
-    private final static int REG_STATE_UNREGISTERED = 1;
-    private final static int REG_STATE_REGISTERED = 2;
-    private String username = "";
-    private UUID uuid = null;
 
 
     @Override
@@ -114,11 +104,9 @@ public class GuardService extends Service implements ListenerCallback{
 
     boolean register(String username, GLoginCallback callback) {
 
-        if (registrationState != REG_STATE_UNREGISTERED) return false;
+        if (regState.state != regState.STATE_UNREGISTERED) return false;
         debug("Registering " + username);
-
-        this.username = username;
-        loginCallback = callback;
+        regState.registrationProcessStarted(username, callback);
 
         // create registration message
         PenguardProto.PGPMessage regMessage = PenguardProto.PGPMessage.newBuilder()
@@ -127,7 +115,6 @@ public class GuardService extends Service implements ListenerCallback{
                 .build();
 
         // send it to PLS
-
         dispatcher.sendPacket(regMessage, plsIp, plsPort);
 
         //TODO detect timeout, see issue #27
@@ -158,19 +145,11 @@ public class GuardService extends Service implements ListenerCallback{
 
         switch(parsedMessage.getType()){
             case SG_ERR:
-                if (loginCallback != null) {
-                    loginCallback.registrationFailure();
-                    /* Probably best if we just get rid of the callback in here. Otherwise we'd need another setter method just for
-                     * the callback which would make the code a bit too spaghetti imo.
-                     */
-                    loginCallback = null;
-                }
+                regState.registrationFailed();
                 break;
             case SG_ACK:
-                if (loginCallback != null) {
-                    loginCallback.registrationFailure();
-                    loginCallback = null;
-                }
+                regState.registrationSucceeded(UUID.fromString(parsedMessage.getAck().getUuid()));
+                //TODO store uuid
                 break;
             default:
                 debug("Packet with unexpected type arrived");

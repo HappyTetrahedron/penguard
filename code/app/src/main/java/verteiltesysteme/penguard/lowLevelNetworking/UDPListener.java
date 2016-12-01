@@ -33,23 +33,23 @@ public class UDPListener extends Thread {
 
     @Override
     public void run(){
-        byte[] inData = new byte[64];
+        byte[] inData = new byte[1024];
         DatagramPacket in = new DatagramPacket(inData, inData.length);
         while(!interrupted() && !socket.isClosed()){
-                try {
-                    socket.receive(in);
-                    inData = in.getData();
-                    PenguardProto.PGPMessage message = parseMessage(inData);
-                    if (message != null) { //null messages that couldn't be parsed are ignored
-                        for(ListenerCallback callback : callbacks) {
-                            callback.onReceive(message);
-                        }
+            try {
+                socket.receive(in);
+                inData = in.getData();
+                PenguardProto.PGPMessage message = parseMessage(inData);
+                if (message != null) { //null messages that couldn't be parsed are ignored
+                    for(ListenerCallback callback : callbacks) {
+                        callback.onReceive(message);
                     }
                 }
-                catch (IOException e) {
-                    // fail silently
-                    debug("IOException when receiving packet: " + e.getMessage());
-                }
+            }
+            catch (IOException e) {
+                // fail silently
+                debug("IOException when receiving packet: " + e.getMessage());
+            }
         }
     }
 
@@ -76,6 +76,7 @@ public class UDPListener extends Thread {
             // fail silently
             return null;
         }
+        debug(message.toString());
         return message;
     }
 
