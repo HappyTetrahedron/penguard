@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //TODO check whether GuardService is running. If so, transition directly to guard activity.
+        //TODO check whether GuardService is running. If so, transition directly to guard activity. See issue #21
     }
 
     @Override

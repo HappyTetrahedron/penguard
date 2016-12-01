@@ -28,7 +28,6 @@ public class GLoginActivity extends AppCompatActivity {
         final Button joinB = (Button)findViewById(R.id.button3);
         final EditText usernameET = (EditText)findViewById(R.id.editText);
 
-        //TODO bind to GuardService
         Intent intent = new Intent(this, GuardService.class);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 
@@ -38,7 +37,7 @@ public class GLoginActivity extends AppCompatActivity {
 
             @Override
             public void onClick(final View view) {
-                // TODO I can imagine that bad things happen when the user mashes this button. We'll need some means of disabling it.
+                // TODO I can imagine that bad things happen when the user mashes this button. We'll need some means of disabling it. See issue #19
 
                 // Display loading circle.
                 findViewById(R.id.loadingCircle).setVisibility(View.VISIBLE);
@@ -79,6 +78,6 @@ public class GLoginActivity extends AppCompatActivity {
     }
 
     private void displayToast(String text){
-        Toast.makeText(this, text, Toast.LENGTH_SHORT);
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 }

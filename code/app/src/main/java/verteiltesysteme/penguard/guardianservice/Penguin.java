@@ -53,7 +53,7 @@ public class Penguin {
 
     public boolean isSeen() {
         return (gatt != null && gatt.getConnectionState(device) == BluetoothGatt.STATE_CONNECTED);
-        // TODO also report 'false' if RSSI is under threshold
+        // TODO also report 'false' if RSSI is under threshold, see issue #23
     }
 
     @Override

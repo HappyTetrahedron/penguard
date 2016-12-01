@@ -10,6 +10,7 @@ import java.util.Vector;
 
 class BluetoothThread extends Thread {
 
+    private final static int SCAN_INTERVAL_SECONDS = 5;
     private final Vector<Penguin> penguins;
     private GuardService service;
     private BluetoothManager manager;
@@ -23,7 +24,7 @@ class BluetoothThread extends Thread {
     public void run() {
         while (!isInterrupted()) {
 
-            //TODO this crashes hard if the user randomly disables bluetooth
+            //TODO this crashes hard if the user randomly disables bluetooth. See issue #22
             for (Penguin p : penguins) {
                 if (p.getGatt() == null) {
                     p.setGatt(p.getDevice().connectGatt(service, true, p.bluetoothGattCallback));
@@ -39,7 +40,7 @@ class BluetoothThread extends Thread {
             }
 
             try {
-                Thread.sleep(5 * 1000); //TODO tweak this value
+                Thread.sleep(SCAN_INTERVAL_SECONDS * 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

@@ -34,12 +34,12 @@ public class GuardService extends Service implements ListenerCallback{
     private UDPListener listener;
     private DatagramSocket sock;
 
-    //TODO this is super ugly. The loginCallback is only used once (upon receipt of the Server ACK/ERR packet), so having it as a member variable is kind of overkill.
+    //TODO this is super ugly. The loginCallback is only used once (upon receipt of the Server ACK/ERR packet), so having it as a member variable is kind of overkill. See issue #28
     private GLoginCallback loginCallback;
 
-    private final static int PORT = 6789; //TODO put this in settings?
+    private final static int PORT = 6789; //TODO put this in settings? See issue #14
 
-    private String plsIp = "10.0.2.15"; //TODO just for debugging. Put these in settings and read from there.
+    private String plsIp = "10.0.2.15"; //TODO just for debugging. Put these in settings and read from there. See issue #14
     private int plsPort = 6789;
 
     private final static int NOTIFICATION_ID = 1;
@@ -77,7 +77,7 @@ public class GuardService extends Service implements ListenerCallback{
             dispatcher = new UDPDispatcher(sock);
         } catch (SocketException e) {
             debug("Error creating socket: " + e.getMessage());
-            //TODO how do we properly handle this?
+            //TODO how do we properly handle this? See issue #24
         }
         listener.registerCallback(this);
         listener.start();
@@ -100,6 +100,7 @@ public class GuardService extends Service implements ListenerCallback{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
+        //TODO detect whether thread is already started. Only re-start it if not. See issue #25
         bluetoothThread.start();
         debug("Thread started");
 
@@ -129,7 +130,8 @@ public class GuardService extends Service implements ListenerCallback{
 
         dispatcher.sendPacket(regMessage, plsIp, plsPort);
 
-        // TODO We'll need to abort waiting for the packet to arrive after a certain time. Probably a good idea to do
+        //TODO detect timeout, see issue #27
+        // We'll need to abort waiting for the packet to arrive after a certain time. Probably a good idea to do
         // that within this class, so we can protect ourselves to highly delayed ACKs/ERRs from the server.
 
         return true;
@@ -152,11 +154,9 @@ public class GuardService extends Service implements ListenerCallback{
     public void onReceive(PenguardProto.PGPMessage parsedMessage) {
         debug(parsedMessage.toString());
 
-        //TODO add more if-else mayhem to distinguish between all the message types
+        //TODO add more switch-case mayhem to distinguish between all the message types, see issue #26
 
         switch(parsedMessage.getType()){
-            // TODO this still needs a lot of work, obviously. Right now we have no state, so we're not safe from things like ACKs getting delayed.
-
             case SG_ERR:
                 if (loginCallback != null) {
                     loginCallback.registrationFailure();

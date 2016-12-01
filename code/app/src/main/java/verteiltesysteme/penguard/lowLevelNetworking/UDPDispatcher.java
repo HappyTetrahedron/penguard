@@ -17,9 +17,8 @@ public class UDPDispatcher{
     public static final int ERROR_SENDING_PACKET = 1;
     public static final int ERROR_UNKNOWN_HOST = 2;
 
-    //TODO We might need to send our package over multiple sockets, e.g. wifi and gsm
     public UDPDispatcher(DatagramSocket datagramSocket) {
-        callbacks = new ArrayList<DispatcherCallback>();
+        callbacks = new ArrayList<>();
         socket = datagramSocket;
     }
 
@@ -37,7 +36,7 @@ public class UDPDispatcher{
     }
 
     // internal class that can be used to send a single packet
-    class NetworkingTask implements Runnable {
+    private class NetworkingTask implements Runnable {
 
         PenguardProto.PGPMessage message;
         String ip;

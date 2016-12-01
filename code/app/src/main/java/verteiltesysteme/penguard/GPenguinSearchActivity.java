@@ -66,16 +66,8 @@ public class GPenguinSearchActivity extends AppCompatActivity {
         // bluetooth LE scan settings
         scanSettings = new ScanSettings.Builder().build();
 
-        // Filter for LE scan
-        ScanFilter.Builder scanFilterBuilder = new ScanFilter.Builder();
-        scanFilterBuilder.setDeviceName("Smart Humigadget");
-        ScanFilter filter = scanFilterBuilder.build();
-        scanFilters = new ArrayList<>();
-        //scanFilters.add(filter);
-
         //bind the service
         Intent intent = new Intent(this, GuardService.class);
-
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 
         handler = new Handler();
@@ -139,7 +131,7 @@ public class GPenguinSearchActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BluetoothDevice device = (BluetoothDevice)parent.getItemAtPosition(position);
-                serviceConnection.addPenguin(new Penguin(device, "Penguin " + device.getName())); //TODO ask user for name
+                serviceConnection.addPenguin(new Penguin(device, "Penguin " + device.getName())); //TODO ask user for name, see issue #20
                 bluetoothScan(false); //stop ongoing scan
                 Intent intent = new Intent(parent.getContext(), GGuardActivity.class);
                 startActivity(intent);

@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 
 //here the guard can choose if he wants to simply guard a penguin alone or join an already existing group
+//TODO as per the newest specification this activity is unneeded; make sure it isn't used anywhere and then remove it. See Issue #18
 
 public class GJoinActivity extends AppCompatActivity {
 
@@ -24,10 +25,7 @@ public class GJoinActivity extends AppCompatActivity {
         joinG = (Button)findViewById(R.id.joinGroupButton);
         scanP =(Button)findViewById(R.id.scanPButton);
 
-        //TODO get the uuid from the intent and send it on
-
         //onclick listener for the two buttons
-        //TODO add the uuid to the intent this is left away here for the time being
 
         joinG.setOnClickListener(new View.OnClickListener() {
             @Override

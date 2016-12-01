@@ -19,7 +19,7 @@ public class UDPListener extends Thread {
     private DatagramSocket socket = null;
 
     public UDPListener(DatagramSocket datagramSocket){
-        callbacks = new ArrayList<ListenerCallback>();
+        callbacks = new ArrayList<>();
         socket = datagramSocket;
     }
 
@@ -27,7 +27,7 @@ public class UDPListener extends Thread {
         callbacks.add(onReceiveAction);
     }
 
-    public void unregisterCallback(DispatcherCallback deregisteredCallback) {
+    public void unregisterCallback(ListenerCallback deregisteredCallback) {
         callbacks.remove(deregisteredCallback);
     }
 
@@ -69,7 +69,7 @@ public class UDPListener extends Thread {
 
         // create truncated array
         byte[] truncated = Arrays.copyOfRange(data, 0, length);
-        //TODO truncating might be bad if the message actually HAS a 0 at the end. Not sure how to deal with that.
+        //truncating might be bad if the message actually HAS a 0 at the end. Not sure how to deal with that.
         try {
             message = PenguardProto.PGPMessage.parseFrom(truncated);
         } catch (InvalidProtocolBufferException e) {

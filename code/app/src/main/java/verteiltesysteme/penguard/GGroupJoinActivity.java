@@ -7,7 +7,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-//TODO
+//TODO use this activity to initiate group join by binding to service and calling respective method in there, see issue #17
 
 public class GGroupJoinActivity extends AppCompatActivity {
 
