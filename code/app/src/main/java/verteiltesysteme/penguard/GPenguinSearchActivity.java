@@ -33,6 +33,7 @@ import java.util.List;
 
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
+import verteiltesysteme.penguard.guardianservice.Penguin;
 
 import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
 
@@ -137,7 +138,8 @@ public class GPenguinSearchActivity extends AppCompatActivity {
         scanResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                serviceConnection.addPenguin((BluetoothDevice)parent.getItemAtPosition(position));
+                BluetoothDevice device = (BluetoothDevice)parent.getItemAtPosition(position);
+                serviceConnection.addPenguin(new Penguin(device, "Penguin " + device.getName())); //TODO ask user for name
                 bluetoothScan(false); //stop ongoing scan
                 Intent intent = new Intent(parent.getContext(), GGuardActivity.class);
                 startActivity(intent);

@@ -5,12 +5,29 @@ import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
+import verteiltesysteme.penguard.GLoginCallback;
+
 public class GuardianServiceConnection implements ServiceConnection {
 
     private GuardService service = null;
 
-    public void addPenguin(BluetoothDevice device) {
-        service.addPenguin(device);
+    /**
+     * Adds a new penguin to the connected GuardService iff that penguin isn't already
+     * being tracked.
+     * @param penguin Penguin to be added
+     */
+    public void addPenguin(Penguin penguin) {
+        service.addPenguin(penguin); //
+    }
+
+    /**
+     * Registers this guardian at the PLS using the given username. Does nothing if this guardian is already registered.
+     * @param username The name to be used.
+     * @param callback The callback executed when the ser
+     * @return True if registration request was sent, false if this guardian is already registered.
+     */
+    public boolean register(String username, GLoginCallback callback) {
+        return service.register(username, callback);
     }
 
     public boolean isConnected() {

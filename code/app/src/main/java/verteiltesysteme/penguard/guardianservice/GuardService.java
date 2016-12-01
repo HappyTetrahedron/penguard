@@ -1,24 +1,100 @@
 package verteiltesysteme.penguard.guardianservice;
 
+import android.app.PendingIntent;
 import android.app.Service;
-import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import java.net.DatagramSocket;
+import java.net.SocketException;
+import java.util.UUID;
 import java.util.Vector;
 
-public class GuardService extends Service {
+import verteiltesysteme.penguard.GGuardActivity;
+import verteiltesysteme.penguard.GLoginCallback;
+import verteiltesysteme.penguard.R;
+import verteiltesysteme.penguard.lowLevelNetworking.ListenerCallback;
+import verteiltesysteme.penguard.lowLevelNetworking.UDPDispatcher;
+import verteiltesysteme.penguard.lowLevelNetworking.UDPListener;
+import verteiltesysteme.penguard.protobuf.PenguardProto;
 
-    private final Vector<Penguin> penguins = new Vector<>(); //a vector is the same as an arraylist only that it can grow and shrink
+import static android.R.string.no;
+import static verteiltesysteme.penguard.protobuf.PenguardProto.PGPMessage.Type.SG_ACK;
+import static verteiltesysteme.penguard.protobuf.PenguardProto.PGPMessage.Type.SG_ERR;
+
+public class GuardService extends Service implements ListenerCallback{
+
+    private final Vector<Penguin> penguins = new Vector<>();
+
+    private UDPDispatcher dispatcher;
+    private UDPListener listener;
+    private DatagramSocket sock;
+
+    //TODO this is super ugly. The loginCallback is only used once (upon receipt of the Server ACK/ERR packet), so having it as a member variable is kind of overkill.
+    private GLoginCallback loginCallback;
+
+    private final static int PORT = 6789; //TODO put this in settings?
+
+    private String plsIp = "10.0.2.15"; //TODO just for debugging. Put these in settings and read from there.
+    private int plsPort = 6789;
+
+    private final static int NOTIFICATION_ID = 1;
 
     BluetoothThread bluetoothThread;
+
+    private int registrationState = 1;
+    private final static int REG_STATE_UNREGISTERED = 1;
+    private final static int REG_STATE_REGISTERED = 2;
+    private String username = "";
+    private UUID uuid = null;
+
 
     @Override
     public void onCreate() {
         super.onCreate();
         bluetoothThread = new BluetoothThread(penguins, this);
+
+        // create ongoing notification needed to be able to make this a foreground service
+        Context appContext = getApplicationContext();
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(appContext)
+                .setContentTitle(getString(R.string.penguard_active))
+                .setSmallIcon(R.drawable.icon)
+                .setOngoing(true)
+                .setContentIntent(PendingIntent.getActivity(appContext, 0,
+                        new Intent(appContext, GGuardActivity.class), 0));
+
+        // make this service a foreground service, supplying the notification
+        startForeground(NOTIFICATION_ID, builder.build());
+
+        // create networking infrastructure
+        try {
+            sock = new DatagramSocket(PORT);
+            listener = new UDPListener(sock);
+            dispatcher = new UDPDispatcher(sock);
+        } catch (SocketException e) {
+            debug("Error creating socket: " + e.getMessage());
+            //TODO how do we properly handle this?
+        }
+        listener.registerCallback(this);
+        listener.start();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        // kill our networking structure
+        sock.close();
+        try {
+            listener.join();
+        } catch (InterruptedException e) {
+            // do nothing? TODO how do we handle this?
+        }
+
     }
 
     @Override
@@ -35,13 +111,72 @@ public class GuardService extends Service {
         return new PenguinGuardBinder();
     }
 
-    public void addPenguin(BluetoothDevice device){
-        Penguin penguin = new Penguin(device, "Penguin " + device.getName());
+    boolean register(String username, GLoginCallback callback) {
+
+        if (registrationState != REG_STATE_UNREGISTERED) return false;
+        debug("Registering " + username);
+
+        this.username = username;
+        loginCallback = callback;
+
+        // create registration message
+        PenguardProto.PGPMessage regMessage = PenguardProto.PGPMessage.newBuilder()
+                .setType(PenguardProto.PGPMessage.Type.GS_REGISTER)
+                .setName(username)
+                .build();
+
+        // send it to PLS
+
+        dispatcher.sendPacket(regMessage, plsIp, plsPort);
+
+        // TODO We'll need to abort waiting for the packet to arrive after a certain time. Probably a good idea to do
+        // that within this class, so we can protect ourselves to highly delayed ACKs/ERRs from the server.
+
+        return true;
+    }
+
+    /**
+     * Adds a new penguin to the list of tracked penguins. If a penguin with the same HW address is already
+     * in the list, the list is not changed.
+     * @param penguin Penguin to be added
+     */
+    void addPenguin(Penguin penguin){
         if (!penguins.contains(penguin)) {
             penguins.add(penguin);
             debug("Penguin added.");
         }
         debug("penguin already there");
+    }
+
+    @Override
+    public void onReceive(PenguardProto.PGPMessage parsedMessage) {
+        debug(parsedMessage.toString());
+
+        //TODO add more if-else mayhem to distinguish between all the message types
+
+        switch(parsedMessage.getType()){
+            // TODO this still needs a lot of work, obviously. Right now we have no state, so we're not safe from things like ACKs getting delayed.
+
+            case SG_ERR:
+                if (loginCallback != null) {
+                    loginCallback.registrationFailure();
+                    /* Probably best if we just get rid of the callback in here. Otherwise we'd need another setter method just for
+                     * the callback which would make the code a bit too spaghetti imo.
+                     */
+                    loginCallback = null;
+                }
+                break;
+            case SG_ACK:
+                if (loginCallback != null) {
+                    loginCallback.registrationFailure();
+                    loginCallback = null;
+                }
+                break;
+            default:
+                debug("Packet with unexpected type arrived");
+                break;
+
+        }
     }
 
     // Binder used for communication with the service. Do not use directly. Use GuardianServiceConnection instead.

@@ -11,6 +11,7 @@
     <string name="permissionDeniedBTScan">Location permissions are needed in order to track your penguin</string>
     <string name="scan">scan</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="penguard_active">Penguard is active</string>
 
     <string name="menu_settings">Settings</string>
 

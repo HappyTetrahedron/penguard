@@ -33,9 +33,7 @@ public class UDPDispatcher{
 
     // Sends a PGPMessage to the given IP and port.
     public void sendPacket(PenguardProto.PGPMessage message, String ip, int port){
-        for(DispatcherCallback callback : callbacks) {
-            new Thread(new NetworkingTask(message, ip, port, callback)).start();
-        }
+        new Thread(new NetworkingTask(message, ip, port, callbacks)).start();
     }
 
     // internal class that can be used to send a single packet
@@ -44,13 +42,13 @@ public class UDPDispatcher{
         PenguardProto.PGPMessage message;
         String ip;
         int port;
-        DispatcherCallback callback;
+        ArrayList<DispatcherCallback> callbacks;
 
-        NetworkingTask(PenguardProto.PGPMessage message, String ip, int port, DispatcherCallback callback) {
+        NetworkingTask(PenguardProto.PGPMessage message, String ip, int port, ArrayList<DispatcherCallback> callbacks) {
             this.message = message;
             this.ip = ip;
             this.port = port;
-            this.callback = callback;
+            this.callbacks = callbacks;
         }
 
         @Override
@@ -61,11 +59,17 @@ public class UDPDispatcher{
                 DatagramPacket outPacket = new DatagramPacket(outData, outData.length, inetAddr, port);
                 socket.send(outPacket);
             } catch (UnknownHostException e) {
-                callback.onFailure(ERROR_UNKNOWN_HOST);
+                for (DispatcherCallback callback : callbacks) {
+                    callback.onFailure(ERROR_UNKNOWN_HOST);
+                }
             } catch (java.io.IOException e) {
-                callback.onFailure(ERROR_SENDING_PACKET);
+                for (DispatcherCallback callback : callbacks) {
+                    callback.onFailure(ERROR_SENDING_PACKET);
+                }
             }
-            callback.onSuccess();
+            for (DispatcherCallback callback : callbacks) {
+                callback.onSuccess();
+            }
         }
     }
 
