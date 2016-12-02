@@ -17,13 +17,13 @@ public class UDPDispatcher{
 
     public static final int ERROR_SENDING_PACKET = 1;
     public static final int ERROR_UNKNOWN_HOST = 2;
-
     public UDPDispatcher(DatagramSocket datagramSocket) {
         callbacks = new ArrayList<>();
         socket = datagramSocket;
     }
 
-    public void registerCallback(DispatcherCallback onPostAction) {
+
+public void registerCallback(DispatcherCallback onPostAction) {
         callbacks.add(onPostAction);
     }
 

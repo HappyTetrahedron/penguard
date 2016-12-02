@@ -5,6 +5,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -31,6 +32,7 @@ public class GuardService extends Service implements ListenerCallback{
     private DatagramSocket sock;
 
     private final static int SOCKETS_TO_TRY = 5;
+    private final static int NETWORK_TIMEOUT = 5000; // Network timeout in ms
     private final static int PORT = 6789; //TODO put this in settings? See issue #14
 
     private String plsIp = "10.2.129.106"; //TODO just for debugging. Put these in settings and read from there. See issue #14
@@ -40,12 +42,16 @@ public class GuardService extends Service implements ListenerCallback{
 
     private RegistrationState regState = new RegistrationState();
 
+    private Handler handler;
+
     BluetoothThread bluetoothThread;
 
     @Override
     public void onCreate() {
         super.onCreate();
         bluetoothThread = new BluetoothThread(penguins, this);
+
+        handler = new Handler();
 
         // create ongoing notification needed to be able to make this a foreground service
         Context appContext = getApplicationContext();
@@ -112,7 +118,8 @@ public class GuardService extends Service implements ListenerCallback{
 
     boolean register(String username, GLoginCallback callback) {
 
-        if (regState.state != regState.STATE_UNREGISTERED) return false;
+        if (regState.state != RegistrationState.STATE_UNREGISTERED) return false;
+
         debug("Registering " + username);
         regState.registrationProcessStarted(username, callback);
 
@@ -125,10 +132,14 @@ public class GuardService extends Service implements ListenerCallback{
         // send it to PLS
         dispatcher.sendPacket(regMessage, plsIp, plsPort);
 
-        //TODO detect timeout, see issue #27
-        // We'll need to abort waiting for the packet to arrive after a certain time. Probably a good idea to do
-        // that within this class, so we can protect ourselves to highly delayed ACKs/ERRs from the server.
 
+        // once timeout ticks off, cancel registration iff it is still in progress
+        handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (regState.state != RegistrationState.STATE_REGISTERED) regState.registrationFailed();
+                                }
+                            }, NETWORK_TIMEOUT);
         return true;
     }
 

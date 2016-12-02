@@ -37,10 +37,6 @@ public class GLoginActivity extends AppCompatActivity {
 
             @Override
             public void onClick(final View view) {
-                joinB.setEnabled(false);
-
-                // Display loading circle.
-                findViewById(R.id.loadingCircle).setVisibility(View.VISIBLE);
 
                 // Create a callback for the registration process
                 GLoginCallback loginCallback = new GLoginCallback() {
@@ -75,7 +71,15 @@ public class GLoginActivity extends AppCompatActivity {
                 };
 
                 // Registration happens in GuardService. We pass a callback that will be executed once the server replies.
-                serviceConnection.register(usernameET.getText().toString(), loginCallback);
+                if(serviceConnection.register(usernameET.getText().toString(), loginCallback)) { // the registration process started successfully
+                    // disable join button to prevent spamming it
+                    joinB.setEnabled(false);
+                    // Display loading circle.
+                    findViewById(R.id.loadingCircle).setVisibility(View.VISIBLE);
+                }
+                else { // registration process did not start
+                    displayToast("You are already registered");
+                }
             }
         });
 
