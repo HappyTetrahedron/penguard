@@ -105,8 +105,11 @@ public class GuardService extends Service implements ListenerCallback{
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         //TODO detect whether thread is already started. Only re-start it if not. See issue #25
-        bluetoothThread.start();
-        debug("Thread started");
+        if (!bluetoothThread.isAlive()) {
+            bluetoothThread.start();
+            debug("BluetoothThread started");
+        }
+        debug("BluetoothThread already running");
 
         return super.onStartCommand(intent, flags, startId);
     }
