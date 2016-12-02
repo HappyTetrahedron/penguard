@@ -193,9 +193,6 @@ public class GuardService extends Service implements ListenerCallback{
             case GG_STATUS_UPDATE:
                 statusUpdateReceived(parsedMessage, address.getHostName(), port);
                 break;
-            case GG_ACK:
-                guardianAckReceived(parsedMessage);
-                break;
             case GG_GRP_CHANGE:
                 grpChangeReceived(parsedMessage);
                 break;
@@ -213,6 +210,9 @@ public class GuardService extends Service implements ListenerCallback{
                 break;
             case GG_GRP_INFO:
                 grpInfoReceived(parsedMessage);
+                break;
+            case GG_ACK:
+                // ignore
                 break;
             default:
                 debug("Packet with unexpected type arrived");
@@ -259,10 +259,6 @@ public class GuardService extends Service implements ListenerCallback{
 
     private void grpChangeReceived(PenguardProto.PGPMessage message){
         // TODO implement method. See issue #36
-    }
-
-    private void guardianAckReceived(PenguardProto.PGPMessage message){
-        // TODO implement method. See issue #37
     }
 
     private void statusUpdateReceived(PenguardProto.PGPMessage message, String ip, int port){
