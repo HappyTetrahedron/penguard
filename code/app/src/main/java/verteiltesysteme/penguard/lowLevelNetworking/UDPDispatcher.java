@@ -2,6 +2,7 @@ package verteiltesysteme.penguard.lowLevelNetworking;
 
 import android.util.Log;
 
+import java.io.ByteArrayOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -52,8 +53,11 @@ public class UDPDispatcher{
 
         @Override
         public void run() {
-            byte[] outData = message.toByteArray();
+            byte[] outData;
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
             try {
+                message.writeDelimitedTo(out);
+                outData = out.toByteArray();
                 InetAddress inetAddr = InetAddress.getByName(ip);
                 DatagramPacket outPacket = new DatagramPacket(outData, outData.length, inetAddr, port);
                 socket.send(outPacket);

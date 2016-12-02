@@ -1,10 +1,12 @@
 package verteiltesysteme.penguard.guardianservice;
 
+import android.util.Log;
+
 import java.util.UUID;
 
 import verteiltesysteme.penguard.GLoginCallback;
 
-public class RegistrationState {
+class RegistrationState {
 
     int state = 1;
     final static int STATE_UNREGISTERED = 1;
@@ -36,6 +38,10 @@ public class RegistrationState {
         if (loginCallback != null) loginCallback.registrationSuccess();
         this.uuid = uuid;
         state = STATE_REGISTERED;
+    }
+
+    private void debug(String msg) {
+        Log.d("RegistrationState", msg);
     }
 
 }

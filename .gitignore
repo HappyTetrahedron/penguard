@@ -9,6 +9,10 @@
 */captures
 *.externalNativeBuild
 
+protocol/msg_pb2.py
+protocol/msg_pb2.pyc
+protocol/__pycache__
+
 *.swp
 
 *.toc

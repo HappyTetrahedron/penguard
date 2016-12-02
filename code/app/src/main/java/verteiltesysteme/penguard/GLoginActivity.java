@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -45,17 +46,31 @@ public class GLoginActivity extends AppCompatActivity {
                 GLoginCallback loginCallback = new GLoginCallback() {
                     @Override
                     public void registrationSuccess() {
-                        findViewById(R.id.loadingCircle).setVisibility(View.GONE);
+                        // We can only manipulate the loading circle and button from the UI thread
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                findViewById(R.id.loadingCircle).setVisibility(View.GONE);
+                                joinB.setEnabled(true);
+                            }
+                        });
+
+                        // Start next activity
                         Intent intent = new Intent(view.getContext(), GPenguinSearchActivity.class);
                         startActivity(intent);
-                        joinB.setEnabled(true);
                     }
 
                     @Override
                     public void registrationFailure() {
-                        findViewById(R.id.loadingCircle).setVisibility(View.GONE);
-                        displayToast("Contacting server failed.");
-                        joinB.setEnabled(true);
+                        // We can only manipulate the loading circle and button from the UI thread
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                findViewById(R.id.loadingCircle).setVisibility(View.GONE);
+                                displayToast("Contacting server failed.");
+                                joinB.setEnabled(true);
+                            }
+                        });
                     }
                 };
 
@@ -80,5 +95,9 @@ public class GLoginActivity extends AppCompatActivity {
 
     private void displayToast(String text){
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+    }
+
+    private void debug(String msg) {
+        Log.d("GLoginActivity", msg);
     }
 }

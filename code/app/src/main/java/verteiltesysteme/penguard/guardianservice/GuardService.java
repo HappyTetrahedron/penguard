@@ -157,7 +157,6 @@ public class GuardService extends Service implements ListenerCallback{
                 break;
             case SG_ACK:
                 regState.registrationSucceeded(UUID.fromString(parsedMessage.getAck().getUuid()));
-                //TODO store uuid
                 break;
             default:
                 debug("Packet with unexpected type arrived");
