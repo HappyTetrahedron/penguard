@@ -43,7 +43,7 @@ public class UDPListener extends Thread {
                 PenguardProto.PGPMessage message = parseMessage(inData);
                 if (message != null) { //null messages that couldn't be parsed are ignored
                     for(ListenerCallback callback : callbacks) {
-                        callback.onReceive(message);
+                        callback.onReceive(message, in.getAddress(), in.getPort());
                     }
                 }
             }

@@ -57,13 +57,13 @@ public class GLoginActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void registrationFailure() {
+                    public void registrationFailure(final String error) {
                         // We can only manipulate the loading circle and button from the UI thread
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 findViewById(R.id.loadingCircle).setVisibility(View.GONE);
-                                displayToast("Contacting server failed.");
+                                displayToast(error);
                                 joinB.setEnabled(true);
                             }
                         });

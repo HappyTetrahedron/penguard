@@ -3,5 +3,5 @@ package verteiltesysteme.penguard;
 public interface GLoginCallback {
     void registrationSuccess();
 
-    void registrationFailure();
+    void registrationFailure(String error);
 }

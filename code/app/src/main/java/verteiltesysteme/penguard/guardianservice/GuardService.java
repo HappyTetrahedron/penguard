@@ -11,7 +11,9 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -23,33 +25,27 @@ import verteiltesysteme.penguard.lowLevelNetworking.UDPDispatcher;
 import verteiltesysteme.penguard.lowLevelNetworking.UDPListener;
 import verteiltesysteme.penguard.protobuf.PenguardProto;
 
-import static android.R.attr.port;
-import static android.R.attr.y;
-import static android.R.id.message;
-import static verteiltesysteme.penguard.R.string.join;
-import static verteiltesysteme.penguard.protobuf.PenguardProto.PGPMessage.Type.GG_ABORT;
-import static verteiltesysteme.penguard.protobuf.PenguardProto.PGPMessage.Type.GG_ACK;
-import static verteiltesysteme.penguard.protobuf.PenguardProto.PGPMessage.Type.GG_COMMIT;
-import static verteiltesysteme.penguard.protobuf.PenguardProto.PGPMessage.Type.GG_GRP_CHANGE;
-import static verteiltesysteme.penguard.protobuf.PenguardProto.PGPMessage.Type.GS_DEREGISTER;
-import static verteiltesysteme.penguard.protobuf.PenguardProto.PGPMessage.Type.GS_REGISTER;
-import static verteiltesysteme.penguard.protobuf.PenguardProto.PGPMessage.Type.SG_ACK;
-import static verteiltesysteme.penguard.protobuf.PenguardProto.PGPMessage.Type.SG_ERR;
-import static verteiltesysteme.penguard.protobuf.PenguardProto.PGPMessage.Type.SG_MERGE_REQ;
-
 public class GuardService extends Service implements ListenerCallback{
 
+    // group state: penguins, guardians, and state sequence number
     private final Vector<Penguin> penguins = new Vector<>();
+    private final Vector<Guardian> guardians = new Vector<>();
+    private int seqNo = 0;
 
+    private Guardian myself = new Guardian();
+
+    // networking infrastructure
     private UDPDispatcher dispatcher;
     private UDPListener listener;
     private DatagramSocket sock;
 
+    // Networking constants
     private final static int SOCKETS_TO_TRY = 5;
     private final static int NETWORK_TIMEOUT = 5000; // Network timeout in ms
     private final static int PORT = 6789; //TODO put this in settings? See issue #14
 
-    private String plsIp = "10.2.129.106"; //TODO just for debugging. Put these in settings and read from there. See issue #14
+    // To be removed
+    private String plsIp = "192.168.0.113"; //TODO just for debugging. Put these in settings and read from there. See issue #14
     private int plsPort = 6789;
 
     private final static int NOTIFICATION_ID = 1;
@@ -136,11 +132,13 @@ public class GuardService extends Service implements ListenerCallback{
         if (regState.state != RegistrationState.STATE_UNREGISTERED) return false;
 
         debug("Registering " + username);
+        myself.setName(username);
         regState.registrationProcessStarted(username, callback);
 
         // create registration message
         PenguardProto.PGPMessage regMessage = PenguardProto.PGPMessage.newBuilder()
-                .setType(GS_REGISTER)
+
+                .setType(PenguardProto.PGPMessage.Type.GS_REGISTER)
                 .setName(username)
                 .build();
 
@@ -151,7 +149,7 @@ public class GuardService extends Service implements ListenerCallback{
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (regState.state != RegistrationState.STATE_REGISTERED) regState.registrationFailed();
+                if (regState.state != RegistrationState.STATE_REGISTERED) regState.registrationFailed("Connection timed out");
             }
         }, NETWORK_TIMEOUT);
         return true;
@@ -171,42 +169,50 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     @Override
-    public void onReceive(PenguardProto.PGPMessage parsedMessage) {
+    public void onReceive(PenguardProto.PGPMessage parsedMessage, InetAddress address, int port) {
         debug(parsedMessage.toString());
+
+        //If the sender was one of the guardians from the group, update his state.
+        Guardian sender = ListHelper.getGuardianByName(guardians, parsedMessage.getName());
+        if (sender != null) {
+            sender.setAddress(address);
+            sender.setPort(port);
+            sender.updateTime();
+        }
 
         switch(parsedMessage.getType()){
             case SG_ERR:
-                regState.registrationFailed();
+                serverErrReceived(parsedMessage);
                 break;
             case SG_ACK:
-                regState.registrationSucceeded(UUID.fromString(parsedMessage.getAck().getUuid()));
+                serverAckReceived(parsedMessage);
                 break;
             case SG_MERGE_REQ:
-                mergeReqReceived();
+                mergeReqReceived(parsedMessage);
                 break;
             case GG_STATUS_UPDATE:
-                statusUpdateReceived();
+                statusUpdateReceived(parsedMessage, address.getHostName(), port);
                 break;
             case GG_ACK:
-                guardianAckReceived();
+                guardianAckReceived(parsedMessage);
                 break;
             case GG_GRP_CHANGE:
-                grpChangeReceived();
+                grpChangeReceived(parsedMessage);
                 break;
             case GG_COMMIT:
-                commitReceived();
+                commitReceived(parsedMessage);
                 break;
             case GG_ABORT:
-                abortReceived();
+                abortReceived(parsedMessage);
                 break;
             case GG_VOTE_YES:
-                voteYesReceived();
+                voteYesReceived(parsedMessage);
                 break;
             case GG_VOTE_NO:
-                voteNoReceived();
+                voteNoReceived(parsedMessage);
                 break;
             case GG_GRP_INFO:
-                grpInfoReceived();
+                grpInfoReceived(parsedMessage);
                 break;
             default:
                 debug("Packet with unexpected type arrived");
@@ -214,40 +220,86 @@ public class GuardService extends Service implements ListenerCallback{
         }
     }
 
-    private void grpInfoReceived(){
+    private void serverAckReceived(PenguardProto.PGPMessage message) {
+        if (regState.state == RegistrationState.STATE_REGISTRATION_IN_PROGRESS) {
+            regState.registrationSucceeded(UUID.fromString(message.getAck().getUuid()));
+        }
+
+        // update my information about myself.
+        myself.setPort(message.getAck().getPort());
+        myself.setIp(message.getAck().getIp());
+    }
+
+    private void serverErrReceived(PenguardProto.PGPMessage message) {
+        if (regState.state == RegistrationState.STATE_REGISTRATION_IN_PROGRESS) {
+            // error during registration
+            regState.registrationFailed(message.getError().getError());
+        }
+    }
+
+    private void grpInfoReceived(PenguardProto.PGPMessage message){
         // TODO implement method. See issue #31
     }
 
-    private void voteNoReceived(){
+    private void voteNoReceived(PenguardProto.PGPMessage message){
         // TODO implement method. See issue #32
     }
 
-    private void voteYesReceived(){
+    private void voteYesReceived(PenguardProto.PGPMessage message){
         // TODO implement method. See issue #33
     }
 
-    private void abortReceived(){
+    private void abortReceived(PenguardProto.PGPMessage message){
         // TODO implement method. See issue #34
     }
 
-    private void commitReceived(){
+    private void commitReceived(PenguardProto.PGPMessage message){
         // TODO implement method. See issue #35
     }
 
-    private void grpChangeReceived(){
+    private void grpChangeReceived(PenguardProto.PGPMessage message){
         // TODO implement method. See issue #36
     }
 
-    private void guardianAckReceived(){
+    private void guardianAckReceived(PenguardProto.PGPMessage message){
         // TODO implement method. See issue #37
     }
 
-    private void statusUpdateReceived(){
-        // TODO implement method. See issue #38
+    private void statusUpdateReceived(PenguardProto.PGPMessage message, String ip, int port){
+        // Reply with an ACK
+        PenguardProto.PGPMessage ack = PenguardProto.PGPMessage.newBuilder()
+                .setType(PenguardProto.PGPMessage.Type.GG_ACK)
+                .setName(myself.getName())
+                .build();
+        dispatcher.sendPacket(ack, ip, port);
+
+        updateSeenStatus(ListHelper.getGuardianByName(guardians, message.getName()), message.getGroup().getPenguinsList());
+
+        if (message.getGroup().getSeqNo() > seqNo) { // The other guardian's status is newer!
+            updateStatus(message.getGroup());
+        }
     }
 
-    private void mergeReqReceived(){
+    private void mergeReqReceived(PenguardProto.PGPMessage message){
         // TODO implement method. See issue #39
+    }
+
+    /**
+     * updates the 'seen by' status of all penguins regarding a specific guardian
+     * @param guardian The guardian for which the status is updated
+     * @param penguinStatus The list of PGPPenguins that guardian sent to us
+     */
+    private void updateSeenStatus(Guardian guardian, List<PenguardProto.PGPPenguin> penguinStatus) {
+        for (PenguardProto.PGPPenguin protoPenguin : penguinStatus) {
+            Penguin p = ListHelper.getPenguinByAddress(penguins, protoPenguin.getMac());
+            if (p != null) p.setSeenBy(guardian, protoPenguin.getSeen());
+        }
+    }
+
+    private void updateStatus(PenguardProto.Group group) {
+        ListHelper.copyGuardianListFromProtobufList(guardians, group.getGuardiansList());
+        ListHelper.copyPenguinListFromProtobufList(penguins, group.getPenguinsList());
+        this.seqNo = group.getSeqNo();
     }
 
     // Binder used for communication with the service. Do not use directly. Use GuardianServiceConnection instead.

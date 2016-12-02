@@ -26,6 +26,9 @@ class BluetoothThread extends Thread {
 
             //TODO this crashes hard if the user randomly disables bluetooth. See issue #22
             for (Penguin p : penguins) {
+
+                if (!p.isInitialized()) p.initialize();
+
                 if (p.getGatt() == null) {
                     p.setGatt(p.getDevice().connectGatt(service, true, p.bluetoothGattCallback));
                 }

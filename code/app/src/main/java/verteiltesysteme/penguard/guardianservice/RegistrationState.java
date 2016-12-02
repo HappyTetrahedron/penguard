@@ -8,10 +8,10 @@ import verteiltesysteme.penguard.GLoginCallback;
 
 class RegistrationState {
 
-    int state = 1;
     final static int STATE_UNREGISTERED = 1;
     final static int STATE_REGISTRATION_IN_PROGRESS = 3;
     final static int STATE_REGISTERED = 2;
+    int state = STATE_UNREGISTERED;
     String username = "";
     UUID uuid = null;
     GLoginCallback loginCallback = null;
@@ -29,8 +29,8 @@ class RegistrationState {
         state = STATE_REGISTRATION_IN_PROGRESS;
     }
 
-    void registrationFailed() {
-        if (loginCallback != null) loginCallback.registrationFailure();
+    void registrationFailed(String error) {
+        if (loginCallback != null) loginCallback.registrationFailure(error);
         reset();
     }
 

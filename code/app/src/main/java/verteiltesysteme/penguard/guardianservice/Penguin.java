@@ -7,14 +7,18 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothProfile;
 import android.util.Log;
 
+import java.util.Vector;
+
 //this class is for the penguins
 
 public class Penguin {
     private int rssiValue;
     private String name;
     private String address;
-    private BluetoothDevice device;
+    private BluetoothDevice device = null;
     private BluetoothGatt gatt;
+
+    Vector<Guardian> seenBy = new Vector<>();
 
     final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
         @Override
@@ -43,12 +47,26 @@ public class Penguin {
     }
 
     public Penguin(String address, String name) {
-        if (BluetoothAdapter.checkBluetoothAddress(address)) {
             this.name = name;
             this.address = address;
+    }
+
+    public void initialize() {
+        if (BluetoothAdapter.checkBluetoothAddress(address)) {
             this.device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address);
         }
-        else throw new IllegalArgumentException("Address must be valid Bluetooth hardware address");
+        else {
+                throw new IllegalStateException("Address is not a valid Bluetooth hardware address");
+        }
+    }
+
+    public void setSeenBy(Guardian guardian, boolean newSeenStatus) {
+        if (newSeenStatus && !seenBy.contains(guardian)) seenBy.add(guardian);
+        if (!newSeenStatus && seenBy.contains(guardian)) seenBy.remove(guardian);
+    }
+
+    public boolean isInitialized() {
+        return this.device != null;
     }
 
     public boolean isSeen() {
@@ -84,6 +102,9 @@ public class Penguin {
         return device;
     }
 
+    String getAddress() {
+        return address;
+    }
     private void debug(String msg) {
         Log.d("PenguinClass", msg);
     }
