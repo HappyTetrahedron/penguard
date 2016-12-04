@@ -44,6 +44,8 @@ public class GPenguinSearchActivity extends AppCompatActivity {
     static final String EXTRA_DEVICE = "bt_device"; //aka the penguin
     static final int REQUEST_ENABLE_BT = 1; // request code for bluetooth enabling
     static final int PERMISSION_REQUEST_FINE_LOCATION = 2; // request code for location permission
+    static final int ASK_PENGUIN_NAME = 1;
+    static String penguinName;
 
     ArrayList<BluetoothDevice> scanResultsList = new ArrayList<>();
     BroadcastReceiver bcr;
@@ -131,7 +133,9 @@ public class GPenguinSearchActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BluetoothDevice device = (BluetoothDevice)parent.getItemAtPosition(position);
-                serviceConnection.addPenguin(new Penguin(device, "Penguin " + device.getName())); //TODO ask user for name, see issue #20
+                Intent getPenguinName = new Intent(getApplicationContext(), GPenguinNameActivity.class);
+                startActivityForResult(getPenguinName, ASK_PENGUIN_NAME);
+                serviceConnection.addPenguin(new Penguin(device, "Penguin " + penguinName)); //TODO ask user for name, see issue #20
                 bluetoothScan(false); //stop ongoing scan
                 Intent intent = new Intent(parent.getContext(), GGuardActivity.class);
                 startActivity(intent);
@@ -144,6 +148,15 @@ public class GPenguinSearchActivity extends AppCompatActivity {
         }
         else { //lollipop or lower; permission request not needed, scan ahead
             turnOnBluetoothAndScan();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == ASK_PENGUIN_NAME){
+            if (resultCode == RESULT_OK){
+                penguinName = data.getStringExtra("newName");
+            }
         }
     }
 

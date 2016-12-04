@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.security.Guard;
 
@@ -87,6 +88,12 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        Toast.makeText(this, "Penguard ended", Toast.LENGTH_SHORT).show();
+        super.onDestroy();
     }
 
     private void debug(String msg) {
