@@ -4,9 +4,11 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -45,7 +47,7 @@ public class GuardService extends Service implements ListenerCallback{
     private final static int PORT = 6789; //TODO put this in settings? See issue #14
 
     // To be removed
-    private String plsIp = "192.168.0.113"; //TODO just for debugging. Put these in settings and read from there. See issue #14
+    private String plsIp = "192.168.0.113"; //default values... that actual values will be read from the settings
     private int plsPort = 6789;
 
     private final static int NOTIFICATION_ID = 1;
@@ -59,6 +61,9 @@ public class GuardService extends Service implements ListenerCallback{
     @Override
     public void onCreate() {
         super.onCreate();
+        //get the ip/port from the settings
+        updateIpPortFromSettings();
+
         bluetoothThread = new BluetoothThread(penguins, this);
 
         handler = new Handler();
@@ -143,6 +148,7 @@ public class GuardService extends Service implements ListenerCallback{
                 .build();
 
         // send it to PLS
+        updateIpPortFromSettings(); //just in case the user decided to change it in the meantime
         dispatcher.sendPacket(regMessage, plsIp, plsPort);
 
         // once timeout ticks off, cancel registration iff it is still in progress
@@ -296,6 +302,13 @@ public class GuardService extends Service implements ListenerCallback{
         ListHelper.copyGuardianListFromProtobufList(guardians, group.getGuardiansList());
         ListHelper.copyPenguinListFromProtobufList(penguins, group.getPenguinsList());
         this.seqNo = group.getSeqNo();
+    }
+
+    private void updateIpPortFromSettings(){
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        plsIp = sharedPref.getString(getString(R.string.pref_key_server_address), "");
+        String plsPortstring = sharedPref.getString(getString(R.string.pref_key_port), "");
+        plsPort = Integer.parseInt(plsPortstring);
     }
 
     // Binder used for communication with the service. Do not use directly. Use GuardianServiceConnection instead.

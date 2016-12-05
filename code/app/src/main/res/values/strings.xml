@@ -23,6 +23,8 @@
     <string name="ServerPort">Server Port</string>
     <string name="pref_key_server_address">server_address</string>
     <string name="pref_key_port">port</string>
+    <string name="pref_default_port">6789</string>
+    <string name="pref_default_server">TODO add default server</string>
 
 
     <string name="pref_title_display_name">Username</string>
