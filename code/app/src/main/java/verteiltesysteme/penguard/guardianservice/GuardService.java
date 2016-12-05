@@ -310,8 +310,8 @@ public class GuardService extends Service implements ListenerCallback{
 
     private void updateIpPortFromSettings(){
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        plsIp = sharedPref.getString(getString(R.string.pref_key_server_address), "");
-        String plsPortstring = sharedPref.getString(getString(R.string.pref_key_port), "");
+        plsIp = sharedPref.getString(getString(R.string.pref_key_server_address), getString(R.string.pref_default_server));
+        String plsPortstring = sharedPref.getString(getString(R.string.pref_key_port), getString(R.string.pref_default_port));
         plsPort = Integer.parseInt(plsPortstring);
     }
 
