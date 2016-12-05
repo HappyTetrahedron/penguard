@@ -37,6 +37,7 @@
         <activity android:name=".lowLevelNetworking.UDPTesting" />
         <activity android:name=".GGroupJoinActivity" />
         <activity android:name=".GPenguinSearchActivity" />
+        <activity android:name=".GPenguinNameActivity" />
         <activity android:name=".GGuardActivity" />
 
         <service
