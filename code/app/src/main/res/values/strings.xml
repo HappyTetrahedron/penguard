@@ -12,12 +12,12 @@
     <string name="scan">scan</string>
     <string name="title_activity_settings">Settings</string>
     <string name="penguard_active">Penguard is active</string>
+    <string name="group_join_Text">Please enter the name of a member of the group you want to join</string>
 
     <string name="menu_settings">Settings</string>
 
     <!-- Strings related to Settings -->
 
-    <!-- Example General settings -->
     <string name="pref_header_general">General</string>
     <string name="ServerIPURL">Server IP or URL</string>
     <string name="ServerPort">Server Port</string>
