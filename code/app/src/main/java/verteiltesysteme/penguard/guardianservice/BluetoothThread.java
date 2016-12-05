@@ -10,6 +10,8 @@ import java.util.Vector;
 
 class BluetoothThread extends Thread {
 
+    private boolean running = true;
+
     private final static int SCAN_INTERVAL_SECONDS = 5;
     private final Vector<Penguin> penguins;
     private GuardService service;
@@ -22,7 +24,7 @@ class BluetoothThread extends Thread {
     }
 
     public void run() {
-        while (!isInterrupted()) {
+        while (running && !isInterrupted()) {
 
             //TODO this crashes hard if the user randomly disables bluetooth. See issue #22
             for (Penguin p : penguins) {
@@ -48,6 +50,10 @@ class BluetoothThread extends Thread {
                 e.printStackTrace();
             }
         }
+    }
+
+    synchronized void stopScanning() {
+        this.running = false;
     }
 
     private void debug(String msg) {

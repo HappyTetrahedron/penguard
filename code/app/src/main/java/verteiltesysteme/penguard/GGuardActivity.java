@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import verteiltesysteme.penguard.guardianservice.GuardService;
@@ -36,7 +37,9 @@ public class GGuardActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(serviceConnection);
+        if (serviceConnection != null && serviceConnection.isConnected()) {
+            unbindService(serviceConnection);
+        }
 
     }
 
@@ -55,6 +58,28 @@ public class GGuardActivity extends AppCompatActivity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void onClick(View view) {
+        if (view.equals(findViewById(R.id.addPenguinButton))) { // add new penguin
+            Intent intent = new Intent(this, GPenguinSearchActivity.class);
+            startActivity(intent);
+        }
+        if (view.equals(findViewById(R.id.joinGroupButton))) { // join another group
+            //TODO initiate group join, issue #17
+        }
+        if (view.equals(findViewById(R.id.stopServiceButton))) { // stop guardian service
+            Intent backToMainIntent = new Intent(this, MainActivity.class);
+            // clear the backstack when transitioning to main activity
+            backToMainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+            Intent stopServiceIntent = new Intent(this, GuardService.class);
+
+            unbindService(serviceConnection);
+            serviceConnection = null;
+            stopService(stopServiceIntent);
+            startActivity(backToMainIntent);
         }
     }
 

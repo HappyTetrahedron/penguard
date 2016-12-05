@@ -11,7 +11,7 @@
 
 protocol/msg_pb2.py
 protocol/msg_pb2.pyc
-protocol/__pycache__
+__pycache__
 
 *.swp
 

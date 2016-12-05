@@ -53,7 +53,8 @@ public class GLoginActivity extends AppCompatActivity {
                         });
 
                         // Start next activity
-                        Intent intent = new Intent(view.getContext(), GPenguinSearchActivity.class);
+                        Intent intent = new Intent(view.getContext(), GGuardActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
                    }
 

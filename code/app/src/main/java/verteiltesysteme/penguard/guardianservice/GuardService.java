@@ -112,6 +112,8 @@ public class GuardService extends Service implements ListenerCallback{
         } catch (InterruptedException e) {
             // do nothing? TODO how do we handle this?
         }
+
+        bluetoothThread.stopScanning();
     }
 
     @Override
@@ -126,6 +128,8 @@ public class GuardService extends Service implements ListenerCallback{
         }
         return super.onStartCommand(intent, flags, startId);
     }
+
+
 
     @Override
     public IBinder onBind(Intent intent) {

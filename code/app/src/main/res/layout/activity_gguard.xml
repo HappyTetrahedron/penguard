@@ -17,4 +17,33 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:id="@+id/rssiTV" />
+
+    <Button
+        android:text="Join group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/addPenguinButton"
+        android:layout_alignParentEnd="true"
+        android:onClick="onClick"
+        android:id="@+id/joinGroupButton" />
+
+    <Button
+        android:text="Stop service"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/stopServiceButton"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:onClick="onClick"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="Add penguin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/addPenguinButton"
+        android:layout_marginBottom="57dp"
+        android:layout_alignParentBottom="true"
+        android:onClick="onClick"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>
