@@ -1,5 +1,6 @@
 package verteiltesysteme.penguard.guardianservice;
 
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -14,15 +15,22 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
 
+import verteiltesysteme.penguard.GGroupMergeRequestsActivity;
 import verteiltesysteme.penguard.GGuardActivity;
 import verteiltesysteme.penguard.GLoginCallback;
 import verteiltesysteme.penguard.R;
@@ -37,6 +45,7 @@ public class GuardService extends Service implements ListenerCallback{
     private final Vector<Penguin> penguins = new Vector<>();
     private final Vector<Guardian> guardians = new Vector<>();
     private int seqNo = 0;
+    private final int MERGE_NOTIFICATION_ID = 123;
 
     private Guardian myself = new Guardian();
 
@@ -354,6 +363,67 @@ public class GuardService extends Service implements ListenerCallback{
 
     private void mergeReqReceived(PenguardProto.PGPMessage message){
         // TODO implement method. See issue #39
+        Context context = getApplicationContext();
+        SharedPreferences sharedMergeRequests = context.getSharedPreferences(
+                getString(R.string.group_merge_request_list_file), Context.MODE_PRIVATE);
+        String pendingMergeRequests = sharedMergeRequests.getString(getString(R.string.group_merge_request_list), "");
+
+        //I found nothing better than this hack to store the list of MergeRequests in sharedPreferences.
+        //All according to this: http://stackoverflow.com/questions/14981233/android-arraylist-of-custom-objects-save-to-sharedpreferences-serializable
+        SharedPreferences.Editor sharedPrefsEdit = sharedMergeRequests.edit();
+        Gson gson = new Gson();
+        List<PenguardProto.PGPMessage> mergerequests;
+        if (pendingMergeRequests.equals("")){
+            mergerequests = new ArrayList<PenguardProto.PGPMessage>();
+            mergerequests.add(message);
+            String mergeRequestListString = gson.toJson(mergerequests);
+            sharedPrefsEdit.putString(getString(R.string.group_merge_request_list), mergeRequestListString);
+            sharedPrefsEdit.commit();
+        }
+        else{
+            Type type = new TypeToken<ArrayList<PenguardProto.PGPMessage>>(){}.getType();
+            mergerequests = gson.fromJson(pendingMergeRequests, type);
+            mergerequests.add(message);
+            String mergeRequestListString = gson.toJson(mergerequests);
+            sharedPrefsEdit.putString(getString(R.string.group_merge_request_list), mergeRequestListString);
+            sharedPrefsEdit.commit();
+        }
+        //set Intent such that the user is directed to the MergeActivity
+        Intent resultIntent = new Intent(this, GGroupMergeRequestsActivity.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(GGroupMergeRequestsActivity.class);
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultpendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        //builds notification and sends it to the system. thanks to the id, it will be updated when this is called again
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.icon)
+                .setContentTitle(getText(R.string.notification_merge_request_title))
+                .setContentText(getText(R.string.notification_merge_request_text))
+                .setContentIntent(resultpendingIntent);
+
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(MERGE_NOTIFICATION_ID, mBuilder.build());
+    }
+
+    public void sendGroupTo(String ip, int port){
+        // create Group message
+        Vector<PenguardProto.PGPPenguin> pgpPenguinVector = ListHelper.convertToPGPPenguinList(penguins);
+        Vector<PenguardProto.PGPGuardian> pgpGuardienVector = ListHelper.convertToPGPGuardianList(guardians);
+        PenguardProto.Group group = PenguardProto.Group.newBuilder()
+
+                .setSeqNo(seqNo)
+                .addAllGuardians(pgpGuardienVector)
+                .addAllPenguins(pgpPenguinVector)
+                .build();
+
+        PenguardProto.PGPMessage groupMessage = PenguardProto.PGPMessage.newBuilder()
+
+                .setGroup(group)
+                .setName(myself.getName())
+                .build();
+
+        dispatcher.sendPacket(groupMessage, ip, port);
     }
 
     /**

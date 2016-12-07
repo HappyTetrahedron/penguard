@@ -3,6 +3,7 @@ package verteiltesysteme.penguard.guardianservice;
 import android.support.annotation.Nullable;
 
 import java.util.List;
+import java.util.Vector;
 
 import verteiltesysteme.penguard.protobuf.PenguardProto;
 
@@ -108,7 +109,7 @@ final class ListHelper {
         // first, delete all penguins from the list that are not in the protobuf
         for (int i = 0; i < penguinList.size(); i++) {
             Penguin penguin = penguinList.get(i);
-            if (getPGPPenguinByAddress(protobufList, penguin.getAddress()) == null) { //No corresponding guardian in protobuf
+            if (getPGPPenguinByAddress(protobufList, penguin.getAddress()) == null) { //No corresponding penguin in protobuf
                 penguinList.remove(i);
                 i--;
             }
@@ -116,10 +117,49 @@ final class ListHelper {
 
         // now, add all penguins from the protobuf that are not in the list.
         for (PenguardProto.PGPPenguin proto : protobufList) {
-            if (getPenguinByAddress(penguinList, proto.getMac()) == null) { //No corresponding guardian in guardianList
+            if (getPenguinByAddress(penguinList, proto.getMac()) == null) { //No corresponding penguin in penguinList
                 penguinList.add(new Penguin(proto.getMac(), proto.getName()));
             }
         }
+    }
+
+
+    /**
+     * Converts a Vector of Penguins in a Vector of PGPPenguins
+     * @param penguinlist A Vector of Penguins
+     * @return A new Vector of PGPPenguins
+     */
+    static Vector<PenguardProto.PGPPenguin> convertToPGPPenguinList(Vector<Penguin> penguinlist){
+        Vector<PenguardProto.PGPPenguin> pgppenguinlist = new Vector<>();
+        for (Penguin p : penguinlist){
+            PenguardProto.PGPPenguin pgppenguin = PenguardProto.PGPPenguin.newBuilder()
+                    .setMac(p.getAddress())
+                    .setName(p.getName())
+                    .build();
+
+            pgppenguinlist.add(pgppenguin);
+        }
+        return pgppenguinlist;
+    }
+
+
+    /**
+     * Converts a Vector of Guardians in a Vector of PGPGuardians
+     * @param guardianlist A Vector of Penguins
+     * @return A new Vector of PGPPenguins
+     */
+    static Vector<PenguardProto.PGPGuardian> convertToPGPGuardianList(Vector<Guardian> guardianlist){
+        Vector<PenguardProto.PGPGuardian> pgpguardianlist = new Vector<>();
+        for (Guardian g : guardianlist){
+            PenguardProto.PGPGuardian pgpguardian = PenguardProto.PGPGuardian.newBuilder()
+                    .setName(g.getName())
+                    .setIp(g.getIp())
+                    .setPort(g.getPort())
+                    .build();
+
+            pgpguardianlist.add(pgpguardian);
+        }
+        return pgpguardianlist;
     }
 
 }

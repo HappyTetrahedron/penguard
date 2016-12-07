@@ -51,4 +51,8 @@ public class GuardianServiceConnection implements ServiceConnection {
     public void onServiceDisconnected(ComponentName name) {
         this.service = null;
     }
+
+    public void sendGroupTo(String ip, int port){
+        this.service.sendGroupTo(ip, port);
+    }
 }

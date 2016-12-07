@@ -18,13 +18,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
-
-
         <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
         <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
         <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
         <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
 
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -47,7 +44,8 @@
 
         <activity
             android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
+            android:label="@string/title_activity_settings" />
+        <activity android:name=".GGroupMergeRequestsActivity"></activity>
     </application>
 
 </manifest>
