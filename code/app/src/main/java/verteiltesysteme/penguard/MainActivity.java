@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
          */
         b1.setOnClickListener(new View.OnClickListener() { @Override
         public void onClick(View view) {
-            Intent intent = new Intent(view.getContext(), UDPTesting.class);
+            Intent intent = new Intent(view.getContext(), GGroupJoinActivity.class); //TODO i changed this for the purpose of doing #17 since we do not have the server yet and the intent flow is sort of weird too
             startActivity(intent);
 
         }

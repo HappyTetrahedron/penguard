@@ -53,6 +53,7 @@ public class GuardService extends Service implements ListenerCallback{
     private final static int NOTIFICATION_ID = 1;
 
     private RegistrationState regState = new RegistrationState();
+    private JoinState joinState = new JoinState();
 
     private Handler handler;
 
@@ -162,6 +163,35 @@ public class GuardService extends Service implements ListenerCallback{
                 if (regState.state != RegistrationState.STATE_REGISTERED) regState.registrationFailed("Connection timed out");
             }
         }, NETWORK_TIMEOUT);
+        return true;
+    }
+
+    boolean joinGroup(String groupUN){
+        //TODO #17
+        if (joinState.state != JoinState.STATE_NOT_JOINED) return false;
+
+        debug("joining the group of: "+ groupUN);
+        joinState.startGroupJoin(groupUN);
+
+        //create join message for the server
+        PenguardProto.PGPMessage joinMessage = PenguardProto.PGPMessage.newBuilder()
+
+                .setType(PenguardProto.PGPMessage.Type.GS_GROUP_REQ)
+                //TODO there is probably something missing to say which group one wants to join
+                .build();
+
+        //send to PLS
+        updateIpPortFromSettings();
+        dispatcher.sendPacket(joinMessage, plsIp, plsPort);
+
+        //Timeout
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (joinState.state != JoinState.STATE_JOINED) joinState.joinFailed();
+            }
+        }, NETWORK_TIMEOUT);
+
         return true;
     }
 
@@ -307,6 +337,8 @@ public class GuardService extends Service implements ListenerCallback{
         ListHelper.copyPenguinListFromProtobufList(penguins, group.getPenguinsList());
         this.seqNo = group.getSeqNo();
     }
+
+
 
     private void updateIpPortFromSettings(){
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
