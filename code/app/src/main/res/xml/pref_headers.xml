@@ -17,4 +17,12 @@
         android:inputType="number"
         android:title="@string/ServerPort" />
 
+    <EditTextPreference
+        android:defaultValue="@string/pref_default_username"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:key="@string/pref_key_username"
+        android:inputType="text"
+        android:title="@string/username" />
+
 </PreferenceScreen>

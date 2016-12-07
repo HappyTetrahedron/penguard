@@ -19,6 +19,7 @@
     <string name="guard">I\'m a Guardian</string>
     <string name="penguin">I\'m a Penguin</string>
     <string name="Welcome">Welcome to Penguard! \nPlease choose whether you are a Guardian or a Penguin, i.e. a device to be protected. For further information please read the Help.</string>
+    <string name="lastUsername">Your last used username is: </string>
 
     <string name="menu_settings">Settings</string>
 
@@ -31,6 +32,8 @@
     <string name="pref_key_port">port</string>
     <string name="pref_default_port">6789</string>
     <string name="pref_default_server">TODO add default server</string>
+    <string name="pref_default_username">Username</string>
+    <string name="pref_key_username">username</string>
 
 
     <string name="pref_title_display_name">Username</string>
