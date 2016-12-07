@@ -19,15 +19,6 @@
         android:id="@+id/rssiTV" />
 
     <Button
-        android:text="Join group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/addPenguinButton"
-        android:layout_alignParentEnd="true"
-        android:onClick="onClick"
-        android:id="@+id/joinGroupButton" />
-
-    <Button
         android:text="Stop service"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -46,4 +37,23 @@
         android:layout_alignParentBottom="true"
         android:onClick="onClick"
         android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="Join group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onClick"
+        android:id="@+id/joinGroupButton"
+        android:layout_alignBaseline="@+id/addPenguinButton"
+        android:layout_alignBottom="@+id/addPenguinButton"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:text="@string/login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/joinGroupButton"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="14dp"
+        android:id="@+id/loginBtn" />
 </RelativeLayout>

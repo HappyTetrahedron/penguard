@@ -46,4 +46,12 @@
         android:layout_toStartOf="@+id/button3"
         android:layout_marginBottom="20dp"
         android:visibility="gone" />
+
+    <Button
+        android:text="@string/guard_without_login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/skipB" />
 </RelativeLayout>

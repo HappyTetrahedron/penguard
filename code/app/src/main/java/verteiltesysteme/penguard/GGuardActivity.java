@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import verteiltesysteme.penguard.guardianservice.GuardService;
@@ -20,6 +21,7 @@ public class GGuardActivity extends AppCompatActivity {
     GuardianServiceConnection serviceConnection = new GuardianServiceConnection();
 
     TextView rssiTextView;
+    Button loginB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,10 +30,20 @@ public class GGuardActivity extends AppCompatActivity {
 
         rssiTextView = (TextView)findViewById(R.id.rssiTV);
 
+        loginB = (Button)findViewById(R.id.loginBtn);
+
         //bind the service
         Intent intent = new Intent(this, GuardService.class);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 
+        //updateLoginB();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //updateLoginB();
     }
 
     @Override
@@ -81,6 +93,18 @@ public class GGuardActivity extends AppCompatActivity {
             serviceConnection = null;
             stopService(stopServiceIntent);
             startActivity(backToMainIntent);
+        }
+        if (view.equals(loginB)){//go to LoginActivity
+            Intent intent = new Intent(this, GLoginActivity.class);
+            startActivity(intent);
+        }
+    }
+
+    private void updateLoginB(){
+        if (serviceConnection.isRegistered()){
+            loginB.setEnabled(false);
+        }else {
+            loginB.setEnabled(true);
         }
     }
 

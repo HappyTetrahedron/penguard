@@ -227,6 +227,10 @@ public class GuardService extends Service implements ListenerCallback{
         return true;
     }
 
+    boolean isRegistered(){
+        return (regState.state==RegistrationState.STATE_REGISTERED);
+    }
+
     /**
      * Adds a new penguin to the list of tracked penguins. If a penguin with the same HW address is already
      * in the list, the list is not changed.
