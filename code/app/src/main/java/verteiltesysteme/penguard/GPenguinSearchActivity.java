@@ -35,8 +35,6 @@ import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 import verteiltesysteme.penguard.guardianservice.Penguin;
 
-import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
-
 //here we search for bluetooth devices and the guard can pick a penguin to guard and then go on to the GGuardActivity
 
 public class GPenguinSearchActivity extends AppCompatActivity {

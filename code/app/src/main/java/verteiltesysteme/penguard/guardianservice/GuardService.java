@@ -2,8 +2,12 @@ package verteiltesysteme.penguard.guardianservice;
 
 import android.app.PendingIntent;
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Handler;
@@ -59,6 +63,8 @@ public class GuardService extends Service implements ListenerCallback{
 
     BluetoothThread bluetoothThread;
 
+    BroadcastReceiver bluetoothBroadcastReceiver;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -80,6 +86,22 @@ public class GuardService extends Service implements ListenerCallback{
 
         // make this service a foreground service, supplying the notification
         startForeground(NOTIFICATION_ID, builder.build());
+
+        // register the BluetoothThread's BroadcastReceiver
+        IntentFilter intentFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+        registerReceiver(bluetoothThread.getBroadcastReceiver(), intentFilter);
+
+        // register our own BroadcastReceiver
+        bluetoothBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
+                        == BluetoothAdapter.STATE_OFF) {
+                    turnOnBluetooth();
+                }
+            }
+        };
+        registerReceiver(bluetoothBroadcastReceiver, intentFilter);
 
         // create networking infrastructure
         int i = 0;
@@ -115,11 +137,21 @@ public class GuardService extends Service implements ListenerCallback{
         }
 
         bluetoothThread.stopScanning();
+
+        unregisterReceiver(bluetoothThread.getBroadcastReceiver());
+        unregisterReceiver(bluetoothBroadcastReceiver);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        //TODO detect whether thread is already started. Only re-start it if not. See issue #25
+        //detect whether bluetooth is turned on. Turn it on if not.
+        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
+            turnOnBluetooth();
+        }
+
+        //detect whether thread is already started. Only re-start it if not. See issue #25
         if (!bluetoothThread.isAlive()) {
             bluetoothThread.start();
             debug("BluetoothThread started");
@@ -345,6 +377,12 @@ public class GuardService extends Service implements ListenerCallback{
         plsIp = sharedPref.getString(getString(R.string.pref_key_server_address), getString(R.string.pref_default_server));
         String plsPortstring = sharedPref.getString(getString(R.string.pref_key_port), getString(R.string.pref_default_port));
         plsPort = Integer.parseInt(plsPortstring);
+    }
+
+    private void turnOnBluetooth() {
+        Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        enableBluetoothIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(enableBluetoothIntent);
     }
 
     // Binder used for communication with the service. Do not use directly. Use GuardianServiceConnection instead.
