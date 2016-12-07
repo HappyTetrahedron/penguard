@@ -8,29 +8,34 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="verteiltesysteme.penguard.MainActivity">
+    tools:context="verteiltesysteme.penguard.MainActivity"
+    android:backgroundTint="@color/blue"
+    android:background="@color/colorPrimary">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:text="@string/Welcome"
         android:id="@+id/textView" />
 
     <Button
-        android:text="UDP testing"
+        android:text="@string/guard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/textView"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="162dp"
-        android:id="@+id/button" />
+        android:id="@+id/button"
+        android:backgroundTint="@color/orange" />
 
     <Button
-        android:text="Bluetooth testing"
+        android:text="@string/penguin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/button"
         android:layout_alignEnd="@+id/button"
         android:layout_marginTop="15dp"
-        android:id="@+id/button2" />
+        android:id="@+id/button2"
+        android:layout_alignStart="@+id/button"
+        android:backgroundTint="@color/orange" />
 </RelativeLayout>

@@ -14,6 +14,9 @@
     <string name="penguard_active">Penguard is active</string>
     <string name="group_join_Text">Please enter the name of a member of the group you want to join</string>
     <string name="group_join_wait">attempting to join the group, please wait</string>
+    <string name="guard">I\'m a guardian</string>
+    <string name="penguin">I\'m a penguin</string>
+    <string name="Welcome">Welcome to Penguard! \n Please choose if you are a guardian or a penguin i.e. a device to be protected. For further information please read the Help.</string>
 
     <string name="menu_settings">Settings</string>
 

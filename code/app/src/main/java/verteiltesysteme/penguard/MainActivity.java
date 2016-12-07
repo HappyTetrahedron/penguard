@@ -35,22 +35,23 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        b1 = (Button)findViewById(R.id.button); //UDP will later be called the i'm a guard
-        b2 = (Button)findViewById(R.id.button2); //bluetooth //will later be called i'm a penguin
+        b1 = (Button)findViewById(R.id.button); //i'm a guard
+        b2 = (Button)findViewById(R.id.button2); //i'm a penguin
 
         /* Not sure if I'm supposed to but, put I put my UDPTesting activity here, so that when I click the
          * button I can test whether my UDP implementation works. If anyone needs the button for something else,
          * feel free to just remove it. --Nils
          */
-        b1.setOnClickListener(new View.OnClickListener() { @Override
+        b2.setOnClickListener(new View.OnClickListener() { @Override
         public void onClick(View view) {
-            Intent intent = new Intent(view.getContext(), GGroupJoinActivity.class); //TODO i changed this for the purpose of doing #17 since we do not have the server yet and the intent flow is sort of weird too
-            startActivity(intent);
+            /*Intent intent = new Intent(view.getContext(), GGroupJoinActivity.class); //TODO i changed this for the purpose of doing #17 since we do not have the server yet and the intent flow is sort of weird too
+            startActivity(intent);*/
+            toast("Being a penguin is not implemented yet...sorry");
 
         }
         });
 
-        b2.setOnClickListener(new View.OnClickListener() { @Override
+        b1.setOnClickListener(new View.OnClickListener() { @Override
             public void onClick(View view) {
                 Intent serviceIntent = new Intent(view.getContext(), GuardService.class);
                 startService(serviceIntent);
@@ -95,6 +96,11 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "Penguard ended", Toast.LENGTH_SHORT).show();
         super.onDestroy();
     }
+
+    private void toast(String msg){
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
 
     private void debug(String msg) {
         Log.d("Penguard_main", msg);
