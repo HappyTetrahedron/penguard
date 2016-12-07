@@ -16,7 +16,7 @@
     <string name="group_join_wait">Attempting to join the group, please wait</string>
     <string name="guard">I\'m a Guardian</string>
     <string name="penguin">I\'m a Penguin</string>
-    <string name="Welcome">Welcome to Penguard! \n Please choose if you are a Guardian or a Penguin, i.e. a device to be protected. For further information please read the Help.</string>
+    <string name="Welcome">Welcome to Penguard! \nPlease choose whether you are a Guardian or a Penguin, i.e. a device to be protected. For further information please read the Help.</string>
 
     <string name="menu_settings">Settings</string>
 
