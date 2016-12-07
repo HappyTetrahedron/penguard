@@ -38,6 +38,10 @@ public class GuardianServiceConnection implements ServiceConnection {
         return service.joinGroup(groupUN);
     }
 
+    public boolean isRegistered(){
+        return service.isRegistered();
+    }
+
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
        this.service = ((GuardService.PenguinGuardBinder) service).getService();

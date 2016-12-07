@@ -28,8 +28,9 @@ public class GLoginActivity extends AppCompatActivity {
 
         final Button joinB = (Button)findViewById(R.id.button3);
         final EditText usernameET = (EditText)findViewById(R.id.editText);
+        final Button skipB = (Button)findViewById(R.id.skipB);
 
-        Intent intent = new Intent(this, GuardService.class);
+        final Intent intent = new Intent(this, GuardService.class);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 
 
@@ -82,6 +83,14 @@ public class GLoginActivity extends AppCompatActivity {
                 else { // registration process did not start
                     displayToast("You are already registered");
                 }
+            }
+        });
+
+        skipB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intentSkip = new Intent(view.getContext(), GGuardActivity.class);
+                startActivity(intentSkip);
             }
         });
 
