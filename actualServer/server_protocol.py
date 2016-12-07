@@ -3,6 +3,9 @@
 from msg_pb2 import PGPMessage
 from google.protobuf.internal import encoder
 
+import dataset
+import uuid
+
 
 
 class PenguinServerProtocol:
@@ -12,6 +15,8 @@ class PenguinServerProtocol:
                 PGPMessage.GS_DEREGISTER: self.deregister_client,
                 PGPMessage.GS_PING: self.handle_ping,
                 PGPMessage.GS_GROUP_REQ: self.group_request}
+        self.db = dataset.connect('sqlite:///penguard.db')
+
 
     def connection_made(self, transport):
         self.transport = transport
@@ -45,12 +50,41 @@ class PenguinServerProtocol:
 
     # =================== HANDLERS ===================
     def default_handler(self, msg, addr):
-        msg.type=PGPMessage.SG_ERR
-        msg.error.error = 'no handler found for this message type'
-        send(msg, addr)
+        response = PGPMessage()
+        response.type=PGPMessage.SG_ERR
+        response.error.error = 'No handler found for this message type.'
+        send(response, addr)
 
     def register_client(self, msg, addr):
-        default_handler(msg, addr)
+        table = self.db['guardians']
+        if table.find_one(name=msg.name):
+            response = PGPMessage()
+            response.type=PGPMessage.SG_ERR
+            response.error.error = 'User with that name already exists.'
+            send(response, addr)
+        else:
+            # create unique uuid
+            unique_uuid = False
+            while not unique_uuid:
+                new_uuid = uuid.uuid4
+                if not table.find_one(uuid=new_uuid):
+                    unique_uuid = True
+                    new_uuid = str(new_uuid)
+
+            # store that stuff
+            table.insert(dict(name=msg.name, uuid=new_uuid, addr=addr))
+            default_handler(msg, addr)
+
+            # build response
+            response = PGPMessage()
+            response.type=PGPMessage.SG_ACK
+            response.ack.uuid = new_uuid
+            response.ack.ip = addr[0]
+            response.ack.port = addr[1]
+
+            # send
+            send(response, addr)
+
 
     def deregister_client(self, msg, addr):
         default_handler(msg, addr)
