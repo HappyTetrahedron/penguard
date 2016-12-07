@@ -177,7 +177,7 @@ public class GuardService extends Service implements ListenerCallback{
         PenguardProto.PGPMessage joinMessage = PenguardProto.PGPMessage.newBuilder()
 
                 .setType(PenguardProto.PGPMessage.Type.GS_GROUP_REQ)
-                //TODO there is probably something missing to say which group one wants to join
+                .setGroupReq(PenguardProto.GroupReq.newBuilder().setName(groupUN))
                 .build();
 
         //send to PLS
