@@ -1,5 +1,6 @@
 package verteiltesysteme.penguard;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 
 //TODO use this activity to initiate group join by binding to service and calling respective method in there, see issue #17
@@ -29,6 +31,9 @@ public class GGroupJoinActivity extends AppCompatActivity {
 
         btn = (Button)findViewById(R.id.groupJoinBT);
         editText = (EditText)findViewById(R.id.groupJoinET);
+
+        Intent intent = new Intent(this, GuardService.class);
+        bindService(intent, guardianServiceConnection, Context.BIND_AUTO_CREATE);
 
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
