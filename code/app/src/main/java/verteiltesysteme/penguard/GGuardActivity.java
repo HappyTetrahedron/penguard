@@ -67,7 +67,8 @@ public class GGuardActivity extends AppCompatActivity {
             startActivity(intent);
         }
         if (view.equals(findViewById(R.id.joinGroupButton))) { // join another group
-            //TODO initiate group join, issue #17
+            Intent intent = new Intent(this, GGroupJoinActivity.class);
+            startActivity(intent);
         }
         if (view.equals(findViewById(R.id.stopServiceButton))) { // stop guardian service
             Intent backToMainIntent = new Intent(this, MainActivity.class);

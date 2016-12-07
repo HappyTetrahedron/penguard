@@ -9,15 +9,18 @@ public class JoinState {
     int state = STATE_NOT_JOINED;
     
     String groupUN= ""; //the name of another group member of the group i'd like to join
+    long timeStamp = 0;
 
     void reset(){
         state = STATE_NOT_JOINED;
         groupUN = "";
+        timeStamp = 0;
     }
 
     void startGroupJoin(String groupUN){
         state = STATE_JOIN_INPROGRESS;
         this.groupUN = groupUN;
+        timeStamp = System.currentTimeMillis();
     }
 
     void joinFailed(){
