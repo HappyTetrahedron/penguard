@@ -156,7 +156,7 @@ public class GPenguinSearchActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK){
                 BluetoothDevice device = data.getParcelableExtra("device");
                 penguinName = data.getStringExtra("newName");
-                serviceConnection.addPenguin(new Penguin(device, "Penguin " + penguinName)); //TODO ask user for name, see issue #20
+                serviceConnection.addPenguin(new Penguin(device, "Penguin " + penguinName));
                 bluetoothScan(false); //stop ongoing scan
                 Intent intent = new Intent(this, GGuardActivity.class);
                 startActivity(intent);
@@ -207,7 +207,7 @@ public class GPenguinSearchActivity extends AppCompatActivity {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    stopBluetoothScan();
+                    stopBluetoothScan(true);
                 }
             }, SCAN_PERIOD);
 
@@ -215,7 +215,7 @@ public class GPenguinSearchActivity extends AppCompatActivity {
 
         }
         else { // enable is false
-            stopBluetoothScan();
+            stopBluetoothScan(false);
         }
 
     }
@@ -230,14 +230,14 @@ public class GPenguinSearchActivity extends AppCompatActivity {
             toast(getString(R.string.scanningBTScan));
         }
         else {
-            debug("Could not get LeScanner");
+            debug("Could not get le Scanner");
         }
 
         //this does the regular bt scan
         bluetoothAdapter.startDiscovery();
     }
 
-    private void stopBluetoothScan() {
+    private void stopBluetoothScan(boolean stoppedByTimeout) {
         debug("Stopped scan");
         //stop LE scan
         if (bluetoothAdapter.getBluetoothLeScanner() != null){
@@ -247,7 +247,7 @@ public class GPenguinSearchActivity extends AppCompatActivity {
         restartScanButton.setEnabled(true);
         restartScanButton.setText(getText(R.string.scan));
         if (scanResultsList.size() > 0) {
-            toast(getString(R.string.stopBTScan));
+            if (! stoppedByTimeout) toast(getString(R.string.stopBTScan));
         }
         else { // no results found
             toast(getString(R.string.noResultBTScan));

@@ -46,10 +46,10 @@ public class GPenguinNameActivity extends AppCompatActivity {
 
             finish();
         } else{
-                    Context context = getApplicationContext();
-                    CharSequence text = "Please choose a name for your penguin";
-                    int duration = Toast.LENGTH_SHORT;
-                    Toast.makeText(context, text, duration).show();
+            Context context = getApplicationContext();
+            CharSequence text = "Please choose a name for your penguin";
+            int duration = Toast.LENGTH_SHORT;
+            Toast.makeText(context, text, duration).show();
         }
     }
 }
