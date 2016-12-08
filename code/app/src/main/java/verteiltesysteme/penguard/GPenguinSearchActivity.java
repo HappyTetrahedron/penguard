@@ -132,11 +132,12 @@ public class GPenguinSearchActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BluetoothDevice device = (BluetoothDevice)parent.getItemAtPosition(position);
                 Intent getPenguinName = new Intent(getApplicationContext(), GPenguinNameActivity.class);
+                getPenguinName.putExtra("device", device);
                 startActivityForResult(getPenguinName, ASK_PENGUIN_NAME);
-                serviceConnection.addPenguin(new Penguin(device, "Penguin " + penguinName)); //TODO ask user for name, see issue #20
-                bluetoothScan(false); //stop ongoing scan
-                Intent intent = new Intent(parent.getContext(), GGuardActivity.class);
-                startActivity(intent);
+//                serviceConnection.addPenguin(new Penguin(device, "Penguin " + penguinName)); //TODO ask user for name, see issue #20
+//                bluetoothScan(false); //stop ongoing scan
+//                Intent intent = new Intent(parent.getContext(), GGuardActivity.class);
+//                startActivity(intent);
             }
         });
 
@@ -153,7 +154,12 @@ public class GPenguinSearchActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == ASK_PENGUIN_NAME){
             if (resultCode == RESULT_OK){
+                BluetoothDevice device = data.getParcelableExtra("device");
                 penguinName = data.getStringExtra("newName");
+                serviceConnection.addPenguin(new Penguin(device, "Penguin " + penguinName)); //TODO ask user for name, see issue #20
+                bluetoothScan(false); //stop ongoing scan
+                Intent intent = new Intent(this, GGuardActivity.class);
+                startActivity(intent);
             }
         }
     }
