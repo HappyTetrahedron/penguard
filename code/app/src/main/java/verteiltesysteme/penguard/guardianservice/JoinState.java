@@ -5,7 +5,7 @@ public class JoinState {
     final static int STATE_JOINED = 1;
     final static int STATE_JOINED_FAILED = 2;
     final static int STATE_JOIN_INPROGRESS = 3;
-    final static int STATE_NOT_JOINED = 4; //i.e. in a group with only onself as a member
+    final static int STATE_NOT_JOINED = 4; //i.e. in a group with only oneself as a member
     int state = STATE_NOT_JOINED;
     
     String groupUN= ""; //the name of another group member of the group i'd like to join

@@ -18,6 +18,7 @@ import android.widget.Toast;
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 
+
 //this activity is used for login in the guard. It is called by the main activity. It receives an empty intent
 
 public class GLoginActivity extends AppCompatActivity {
@@ -33,8 +34,6 @@ public class GLoginActivity extends AppCompatActivity {
         final EditText usernameET = (EditText)findViewById(R.id.editText);
         final Button skipB = (Button)findViewById(R.id.skipB);
 
-        TextView lastusername = (TextView)findViewById(R.id.lastUsernameTV);
-
         final Intent intent = new Intent(this, GuardService.class);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 
@@ -42,7 +41,7 @@ public class GLoginActivity extends AppCompatActivity {
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         String lastUN = sharedPref.getString(getString(R.string.pref_key_username), getString(R.string.pref_default_username));
 
-        lastusername.setText(getString(R.string.lastUsername)+lastUN);
+        usernameET.setText(lastUN);
 
 
         //the onclick listener is only set like this for the purpose of easier implementing the bluetooth stuff without having to worry about networking
