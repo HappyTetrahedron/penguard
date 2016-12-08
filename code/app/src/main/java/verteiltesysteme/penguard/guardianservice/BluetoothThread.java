@@ -35,7 +35,7 @@ class BluetoothThread extends Thread{
                 for (Penguin p : penguins) {
                     if (paused) break;
 
-                    if (!p.isInitialized()) p.initialize();
+                    if (!p.isInitialized()) p.initialize(manager);
 
                     if (p.getGatt() == null) {
                         p.setGatt(p.getDevice().connectGatt(service, true, p.bluetoothGattCallback));

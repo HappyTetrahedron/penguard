@@ -26,7 +26,7 @@ public class GPenguinNameActivity extends AppCompatActivity {
         device = intent.getParcelableExtra("device");
     }
 
-    protected void submit(View view){
+    public void submit(View view){
         Log.d(TAG, "submit: button was clicked");
         EditText newName = (EditText) findViewById(R.id.newPenguinName);
         String newPenguinName = newName.getText().toString();

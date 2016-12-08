@@ -10,13 +10,12 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="verteiltesysteme.penguard.GGuardActivity">
 
-    <TextView
-        android:text="TextView"
+    <ListView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
+        android:layout_height="match_parent"
         android:layout_centerHorizontal="true"
-        android:id="@+id/rssiTV" />
+        android:id="@+id/penguinListView"
+        android:layout_above="@+id/addPenguinButton" />
 
     <Button
         android:text="Stop service"
@@ -44,16 +43,14 @@
         android:layout_height="wrap_content"
         android:onClick="onClick"
         android:id="@+id/joinGroupButton"
-        android:layout_alignBaseline="@+id/addPenguinButton"
-        android:layout_alignBottom="@+id/addPenguinButton"
-        android:layout_centerHorizontal="true" />
+        android:layout_below="@+id/penguinListView"
+        android:layout_alignParentEnd="true" />
 
     <Button
         android:text="@string/login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/joinGroupButton"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="14dp"
-        android:id="@+id/loginBtn" />
+        android:id="@+id/loginBtn"
+        android:layout_below="@+id/penguinListView"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>

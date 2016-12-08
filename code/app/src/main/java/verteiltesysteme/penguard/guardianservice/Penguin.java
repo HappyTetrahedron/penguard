@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.util.Log;
 
@@ -17,6 +18,7 @@ public class Penguin {
     private String address;
     private BluetoothDevice device = null;
     private BluetoothGatt gatt;
+    private BluetoothManager bluetoothManager;
 
     Vector<Guardian> seenBy = new Vector<>();
 
@@ -51,7 +53,8 @@ public class Penguin {
             this.address = address;
     }
 
-    public void initialize() {
+    void initialize(BluetoothManager bm) {
+        this.bluetoothManager = bm;
         if (BluetoothAdapter.checkBluetoothAddress(address)) {
             this.device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address);
         }
@@ -60,17 +63,20 @@ public class Penguin {
         }
     }
 
-    public void setSeenBy(Guardian guardian, boolean newSeenStatus) {
+    void setSeenBy(Guardian guardian, boolean newSeenStatus) {
         if (newSeenStatus && !seenBy.contains(guardian)) seenBy.add(guardian);
         if (!newSeenStatus && seenBy.contains(guardian)) seenBy.remove(guardian);
     }
 
-    public boolean isInitialized() {
-        return this.device != null;
+    boolean isInitialized() {
+        return this.device != null && this.bluetoothManager != null;
     }
 
     public boolean isSeen() {
-        return (gatt != null && gatt.getConnectionState(device) == BluetoothGatt.STATE_CONNECTED);
+        if (!isInitialized()) return false;
+        if (gatt == null) return false;
+        return (bluetoothManager.getConnectionState(device, BluetoothProfile.GATT) == BluetoothGatt.STATE_CONNECTED);
+
         // TODO also report 'false' if RSSI is under threshold, see issue #23
     }
 

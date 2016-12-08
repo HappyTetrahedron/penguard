@@ -2,6 +2,7 @@ package verteiltesysteme.penguard;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import verteiltesysteme.penguard.guardianservice.GuardService;
@@ -18,17 +20,24 @@ import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 
 public class GGuardActivity extends AppCompatActivity {
 
+    private static final int UPDATE_DELAY = 500;
+
     GuardianServiceConnection serviceConnection = new GuardianServiceConnection();
 
-    TextView rssiTextView;
     Button loginB;
+    ListView penguinList;
+
+    Handler handler;
+    Runnable updateTask;
+
+    boolean paused = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gguard);
 
-        rssiTextView = (TextView)findViewById(R.id.rssiTV);
+        penguinList = (ListView) findViewById(R.id.penguinListView);
 
         loginB = (Button)findViewById(R.id.loginBtn);
 
@@ -36,14 +45,33 @@ public class GGuardActivity extends AppCompatActivity {
         Intent intent = new Intent(this, GuardService.class);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 
-        //updateLoginB();
+        handler = new Handler();
 
+        updateTask = new Runnable() {
+            @Override
+            public void run() {
+                if (serviceConnection != null && serviceConnection.isConnected()) {
+                    if (penguinList.getAdapter() == null) {
+                        serviceConnection.subscribeListViewToPenguinAdapter(penguinList);
+                    }
+                    updateLoginB();
+                }
+                if (!paused) handler.postDelayed(this, UPDATE_DELAY);
+            }
+        };
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        //updateLoginB();
+        paused = false;
+        handler.post(updateTask);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        paused = true;
     }
 
     @Override
