@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.widget.ListView;
 
 import verteiltesysteme.penguard.GLoginCallback;
 
@@ -40,6 +41,10 @@ public class GuardianServiceConnection implements ServiceConnection {
 
     public boolean isRegistered(){
         return service.isRegistered();
+    }
+
+    public void subscribeListViewToPenguinAdapter(ListView listView) {
+        service.subscribeListViewToPenguinAdapter(listView);
     }
 
     @Override

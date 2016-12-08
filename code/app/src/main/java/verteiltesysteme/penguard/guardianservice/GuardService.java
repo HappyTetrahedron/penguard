@@ -15,6 +15,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.ListView;
 
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -64,6 +65,8 @@ public class GuardService extends Service implements ListenerCallback{
     BluetoothThread bluetoothThread;
 
     BroadcastReceiver bluetoothBroadcastReceiver;
+
+    private PenguinAdapter penguinListAdapter;
 
     @Override
     public void onCreate() {
@@ -122,6 +125,9 @@ public class GuardService extends Service implements ListenerCallback{
         }
         listener.registerCallback(this);
         listener.start();
+
+        // create penguin array adapter
+        penguinListAdapter = new PenguinAdapter(this, R.layout.list_penguins, penguins);
     }
 
     @Override
@@ -240,8 +246,15 @@ public class GuardService extends Service implements ListenerCallback{
         if (!penguins.contains(penguin)) {
             penguins.add(penguin);
             debug("Penguin added.");
+            penguin.initialize((BluetoothManager) getSystemService(BLUETOOTH_SERVICE));
         }
         debug("penguin already there");
+        penguinListAdapter.notifyDataSetChanged();
+    }
+
+    void subscribeListViewToPenguinAdapter(ListView listView) {
+        listView.setAdapter(penguinListAdapter);
+        penguinListAdapter.notifyDataSetChanged();
     }
 
     @Override
