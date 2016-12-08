@@ -35,6 +35,7 @@ message PGPMessage {
         GroupReq groupReq = 7;
         Group group = 8;
         SeqNo seqNo = 9;
+        GoodBye fuckfuckfuck = 10;
     }
         
 }
@@ -48,6 +49,10 @@ message Ack {
 
 message Error {
     required string error = 1;
+}
+
+message GoodBye {
+    required uuid = 1;
 }
 
 message Ping {
