@@ -10,14 +10,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="verteiltesysteme.penguard.GLoginActivity">
 
-    <TextView
-        android:text="The text view will in the end contain the last used username"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/lastUsernameTV"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
-
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -15,8 +15,6 @@ import android.widget.Toast;
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 
-//TODO use this activity to initiate group join by binding to service and calling respective method in there, see issue #17
-
 public class GGroupJoinActivity extends AppCompatActivity {
 
     Button btn;

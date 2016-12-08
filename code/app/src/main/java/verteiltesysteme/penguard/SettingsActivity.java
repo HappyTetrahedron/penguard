@@ -87,6 +87,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // guidelines.
             bindPreferenceSummaryToValue(findPreference("server_address"));
             bindPreferenceSummaryToValue(findPreference("port"));
+            bindPreferenceSummaryToValue(findPreference("username"));
+
         }
     }
 }

@@ -50,7 +50,7 @@ public class GGuardActivity extends AppCompatActivity {
         updateTask = new Runnable() {
             @Override
             public void run() {
-                if (serviceConnection.isConnected()) {
+                if (serviceConnection != null && serviceConnection.isConnected()) {
                     if (penguinList.getAdapter() == null) {
                         serviceConnection.subscribeListViewToPenguinAdapter(penguinList);
                     }

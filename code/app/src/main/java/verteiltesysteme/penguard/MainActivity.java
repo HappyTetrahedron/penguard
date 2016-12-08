@@ -93,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        Toast.makeText(this, "Penguard ended", Toast.LENGTH_SHORT).show();
         super.onDestroy();
     }
 

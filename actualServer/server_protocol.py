@@ -2,6 +2,7 @@
 
 from msg_pb2 import PGPMessage
 from google.protobuf.internal import encoder
+from google.protobuf.internal import decoder
 
 import dataset
 import uuid
@@ -22,21 +23,19 @@ class PenguinServerProtocol:
         self.transport = transport
 
     def datagram_received(self, data, addr):
-        handle_message(data.decode())
-        message = parse_message(data.decode())
-        
-        print('Received %r from %s' % (message, addr))
-        print('Send %r to %s' % (message, addr))
-        self.transport.sendto(data, addr)
+        print('Received message from %s' % (addr[0]))
+        self.handle_message(data, addr)
 
-    def handle_message(self, data):
-        msg = parse_message(data)
-        handle = self.handlers.get(msg.type, default_handler)
+    def handle_message(self, data, addr):
+        msg = self.parse_message(data)
+        print('Received message type %s from %s' % (PGPMessage.Type.Name(msg.type), msg.name))
+        handle = self.handlers.get(msg.type, self.default_handler)
         handle(msg, addr)
 
     def parse_message(self, data):
+        size,pos = decoder._DecodeVarint(data, 0)
         msg = PGPMessage()
-        msg.parseFromString(data)
+        msg.ParseFromString(data[pos : pos+size])
         return msg
 
     def send(self, msg, addr):
@@ -61,19 +60,18 @@ class PenguinServerProtocol:
             response = PGPMessage()
             response.type=PGPMessage.SG_ERR
             response.error.error = 'User with that name already exists.'
-            send(response, addr)
+            self.send(response, addr)
         else:
             # create unique uuid
             unique_uuid = False
             while not unique_uuid:
-                new_uuid = uuid.uuid4
+                new_uuid = str(uuid.uuid4())
                 if not table.find_one(uuid=new_uuid):
                     unique_uuid = True
                     new_uuid = str(new_uuid)
 
             # store that stuff
-            table.insert(dict(name=msg.name, uuid=new_uuid, addr=addr))
-            default_handler(msg, addr)
+            table.insert(dict(name=msg.name, uuid=new_uuid, ip=addr[0], port=addr[1]))
 
             # build response
             response = PGPMessage()
@@ -83,7 +81,7 @@ class PenguinServerProtocol:
             response.ack.port = addr[1]
 
             # send
-            send(response, addr)
+            self.send(response, addr)
 
 
     def deregister_client(self, msg, addr):

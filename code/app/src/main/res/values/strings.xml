@@ -22,19 +22,31 @@
 
     <string name="menu_settings">Settings</string>
 
+    <string name="group_merge_request_list_file">merge_request_list_file</string>
+    <string name="group_merge_request_list">merge_request_list</string>
+    <string name="dialog_title_merge_request">Merge Groups?</string>
+    <string name="dialog_text_merge_request">Do you want to merge your group with </string>
+    <string name="dialog_ok_merge_request">merge</string>
+    <string name="dialog_cancel_merge_request">abort</string>
+    <string name="notification_merge_request_title">New mergerequest</string>
+    <string name="notification_merge_request_text">Someone wants to merge groups.</string>
+
     <!-- Strings related to Settings -->
 
     <string name="pref_header_general">General</string>
     <string name="ServerIPURL">Server IP or URL</string>
     <string name="ServerPort">Server Port</string>
     <string name="pref_key_server_address">server_address</string>
+    <string name="pref_key_server_port">port</string>
     <string name="pref_key_port">port</string>
+    <string name="pref_default_server_port">6789</string>
     <string name="pref_default_port">6789</string>
-    <string name="pref_default_server">TODO add default server</string>
-
+    <string name="pref_default_server">penguard.vsos.ethz.ch</string>
+    <string name="pref_default_username">Username</string>
+    <string name="pref_key_username">username</string>
 
     <string name="pref_title_display_name">Username</string>
     <string name="pref_default_display_name">username</string>
 
-    
+
 </resources>

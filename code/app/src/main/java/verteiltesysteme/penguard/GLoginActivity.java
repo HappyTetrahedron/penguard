@@ -2,6 +2,8 @@ package verteiltesysteme.penguard;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,10 +12,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
+
 
 //this activity is used for login in the guard. It is called by the main activity. It receives an empty intent
 
@@ -32,6 +36,12 @@ public class GLoginActivity extends AppCompatActivity {
 
         final Intent intent = new Intent(this, GuardService.class);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+
+        //set the textview
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        String lastUN = sharedPref.getString(getString(R.string.pref_key_username), getString(R.string.pref_default_username));
+
+        usernameET.setText(lastUN);
 
 
         //the onclick listener is only set like this for the purpose of easier implementing the bluetooth stuff without having to worry about networking
@@ -52,6 +62,10 @@ public class GLoginActivity extends AppCompatActivity {
                                 joinB.setEnabled(true);
                             }
                         });
+
+                        //update the username in the settings
+                        debug("updating the username in the seetings: "+usernameET.getText().toString());
+                        sharedPref.edit().putString(getString(R.string.pref_key_username), usernameET.getText().toString()).apply();
 
                         // Start next activity
                         Intent intent = new Intent(view.getContext(), GGuardActivity.class);
