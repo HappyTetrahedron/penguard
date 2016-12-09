@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Penguard</string>
     <string name="join">Join</string>
-    <string name="username">Username</string>
+    <string name="username">Username:</string>
     <string name="scanP">Scan for available Penguins</string>
     <string name="joinGroup">Join an already existing group</string>
     <string name="failBTScan">Scan failed, please retry</string>
@@ -19,6 +19,7 @@
     <string name="guard">I\'m a Guardian</string>
     <string name="penguin">I\'m a Penguin</string>
     <string name="Welcome">Welcome to Penguard! \nPlease choose whether you are a Guardian or a Penguin, i.e. a device to be protected. For further information please read the Help.</string>
+    <string name="login_text">Please login to the server with a unique username. You can also guard alone without loging in. However you cannot join others in guarding if you are not loged in</string>
 
     <string name="menu_settings">Settings</string>
 

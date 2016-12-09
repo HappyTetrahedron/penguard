@@ -9,7 +9,7 @@
     <item name="green" type="color">#FF99CC00</item>
     <item name="orange" type="color">#ff9109</item>
     <item name="red" type="color">#FFFF4444</item>
-    <item name="darkblue" type="color">#FF0099CC</item>
+    <item name="darkblue" type="color">#0099cc</item>
     <item name="darkpurple" type="color">#FF9933CC</item>
     <item name="darkgreen" type="color">#FF669900</item>
     <item name="darkorange" type="color">#ff8800</item>
