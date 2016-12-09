@@ -10,33 +10,43 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="verteiltesysteme.penguard.GPenguinNameActivity">
 
+    <TextView
+        android:text="@string/penguinName_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView2"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
+
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
-        android:text=""
+        android:text="@string/peng"
         android:ems="10"
-        android:layout_alignParentTop="true"
+        android:id="@+id/newPenguinName"
+        android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="164dp"
-        android:id="@+id/newPenguinName" />
-
-    <TextView
-        android:text=""
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/newPenguinName"
-        android:layout_alignStart="@+id/newPenguinName"
-        android:layout_marginBottom="66dp"
-        android:id="@+id/textView2" />
+        android:backgroundTint="@color/orange" />
 
     <Button
-        android:text="Okay"
+        android:text="@string/penguinName_Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/newPenguinName"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="29dp"
         android:id="@+id/submitButtonPenguinname"
-        android:onClick="submit"/>
+        android:onClick="submit"
+        android:layout_below="@+id/newPenguinName"
+        android:layout_alignEnd="@+id/newPenguinName"
+        android:backgroundTint="@color/orange" />
+
+    <TextView
+        android:text="@string/penguinName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView12"
+        android:textColor="@color/orange"
+        android:textSize="24sp"
+        android:layout_marginBottom="35dp"
+        android:layout_above="@+id/submitButtonPenguinname"
+        android:layout_alignStart="@+id/newPenguinName" />
 </RelativeLayout>

@@ -21,6 +21,12 @@
     <string name="Welcome">Welcome to Penguard! \nPlease choose whether you are a Guardian or a Penguin, i.e. a device to be protected. For further information please read the Help.</string>
     <string name="login_text">Please login to the server with a unique username. You can also guard alone without loging in. However you cannot join others in guarding if you are not loged in</string>
     <string name="groupUN">Name of a group member: </string>
+    <string name="penguinName_text">How do you want to name your penguin?</string>
+    <string name="penguinName">Penguin name:</string>
+    <string name="penguinName_Button">Continue</string>
+    <string name="peng">Penguin</string>
+    <string name="penguinName_suc">Penguin was successfully named</string>
+    <string name="penguinName_empty">Please choose a name for your penguin</string>
 
     <string name="menu_settings">Settings</string>
 
