@@ -19,6 +19,8 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -31,8 +33,7 @@ import java.util.List;
 
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
-
-import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
+import verteiltesysteme.penguard.guardianservice.Penguin;
 
 //here we search for bluetooth devices and the guard can pick a penguin to guard and then go on to the GGuardActivity
 
@@ -41,6 +42,8 @@ public class GPenguinSearchActivity extends AppCompatActivity {
     static final String EXTRA_DEVICE = "bt_device"; //aka the penguin
     static final int REQUEST_ENABLE_BT = 1; // request code for bluetooth enabling
     static final int PERMISSION_REQUEST_FINE_LOCATION = 2; // request code for location permission
+    static final int ASK_PENGUIN_NAME = 1;
+    static String penguinName;
 
     ArrayList<BluetoothDevice> scanResultsList = new ArrayList<>();
     BroadcastReceiver bcr;
@@ -63,16 +66,8 @@ public class GPenguinSearchActivity extends AppCompatActivity {
         // bluetooth LE scan settings
         scanSettings = new ScanSettings.Builder().build();
 
-        // Filter for LE scan
-        ScanFilter.Builder scanFilterBuilder = new ScanFilter.Builder();
-        scanFilterBuilder.setDeviceName("Smart Humigadget");
-        ScanFilter filter = scanFilterBuilder.build();
-        scanFilters = new ArrayList<>();
-        //scanFilters.add(filter);
-
         //bind the service
         Intent intent = new Intent(this, GuardService.class);
-
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 
         handler = new Handler();
@@ -135,10 +130,14 @@ public class GPenguinSearchActivity extends AppCompatActivity {
         scanResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                serviceConnection.addPenguin((BluetoothDevice)parent.getItemAtPosition(position));
-                bluetoothScan(false); //stop ongoing scan
-                Intent intent = new Intent(parent.getContext(), GGuardActivity.class);
-                startActivity(intent);
+                BluetoothDevice device = (BluetoothDevice)parent.getItemAtPosition(position);
+                Intent getPenguinName = new Intent(getApplicationContext(), GPenguinNameActivity.class);
+                getPenguinName.putExtra("device", device);
+                startActivityForResult(getPenguinName, ASK_PENGUIN_NAME);
+//                serviceConnection.addPenguin(new Penguin(device, "Penguin " + penguinName)); //TODO ask user for name, see issue #20
+//                bluetoothScan(false); //stop ongoing scan
+//                Intent intent = new Intent(parent.getContext(), GGuardActivity.class);
+//                startActivity(intent);
             }
         });
 
@@ -148,6 +147,20 @@ public class GPenguinSearchActivity extends AppCompatActivity {
         }
         else { //lollipop or lower; permission request not needed, scan ahead
             turnOnBluetoothAndScan();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == ASK_PENGUIN_NAME){
+            if (resultCode == RESULT_OK){
+                BluetoothDevice device = data.getParcelableExtra("device");
+                penguinName = data.getStringExtra("newName");
+                serviceConnection.addPenguin(new Penguin(device, "Penguin " + penguinName));
+                bluetoothScan(false); //stop ongoing scan
+                Intent intent = new Intent(this, GGuardActivity.class);
+                startActivity(intent);
+            }
         }
     }
 
@@ -194,7 +207,7 @@ public class GPenguinSearchActivity extends AppCompatActivity {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    stopBluetoothScan();
+                    stopBluetoothScan(true);
                 }
             }, SCAN_PERIOD);
 
@@ -202,7 +215,7 @@ public class GPenguinSearchActivity extends AppCompatActivity {
 
         }
         else { // enable is false
-            stopBluetoothScan();
+            stopBluetoothScan(false);
         }
 
     }
@@ -217,14 +230,14 @@ public class GPenguinSearchActivity extends AppCompatActivity {
             toast(getString(R.string.scanningBTScan));
         }
         else {
-            debug("Could not get LeScanner");
+            debug("Could not get le Scanner");
         }
 
         //this does the regular bt scan
         bluetoothAdapter.startDiscovery();
     }
 
-    private void stopBluetoothScan() {
+    private void stopBluetoothScan(boolean stoppedByTimeout) {
         debug("Stopped scan");
         //stop LE scan
         if (bluetoothAdapter.getBluetoothLeScanner() != null){
@@ -234,7 +247,7 @@ public class GPenguinSearchActivity extends AppCompatActivity {
         restartScanButton.setEnabled(true);
         restartScanButton.setText(getText(R.string.scan));
         if (scanResultsList.size() > 0) {
-            toast(getString(R.string.stopBTScan));
+            if (! stoppedByTimeout) toast(getString(R.string.stopBTScan));
         }
         else { // no results found
             toast(getString(R.string.noResultBTScan));
@@ -259,6 +272,24 @@ public class GPenguinSearchActivity extends AppCompatActivity {
         if (!scanResultsList.contains(device)){
             scanResultsList.add(device);
             scanResultsAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_settings, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.menu_settings:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 

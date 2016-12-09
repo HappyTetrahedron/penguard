@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
 
 import verteiltesysteme.penguard.R;
@@ -55,7 +56,7 @@ public class UDPTesting extends AppCompatActivity {
 
         ListenerCallback listenAction = new ListenerCallback() {
             @Override
-            public void onReceive(PenguardProto.PGPMessage message) {
+            public void onReceive(PenguardProto.PGPMessage message, InetAddress address, int port) {
                 debug("Received message: \"" + message.toString() + "\"");
             }
         };

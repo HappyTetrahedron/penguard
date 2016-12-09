@@ -8,13 +8,54 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="verteiltesysteme.penguard.GGuardActivity">
+    tools:context="verteiltesysteme.penguard.GGuardActivity"
+    android:backgroundTint="@color/blue">
 
-    <TextView
-        android:text="TextView"
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/penguinListView"
+        android:layout_above="@+id/addPenguinButton" />
+
+    <Button
+        android:text="Stop service"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
+        android:id="@+id/stopServiceButton"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:onClick="onClick"
+        android:layout_alignParentStart="true"
+        android:backgroundTint="@color/orange" />
+
+    <Button
+        android:text="Add penguin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/addPenguinButton"
+        android:layout_marginBottom="57dp"
+        android:layout_alignParentBottom="true"
+        android:onClick="onClick"
+        android:layout_alignParentStart="true"
+        android:backgroundTint="@color/orange" />
+
+    <Button
+        android:text="Join group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onClick"
+        android:id="@+id/joinGroupButton"
+        android:layout_below="@+id/penguinListView"
+        android:layout_alignParentEnd="true"
+        android:backgroundTint="@color/orange" />
+
+    <Button
+        android:text="@string/login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/loginBtn"
+        android:layout_below="@+id/penguinListView"
         android:layout_centerHorizontal="true"
-        android:id="@+id/rssiTV" />
+        android:backgroundTint="@color/orange" />
 </RelativeLayout>

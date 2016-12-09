@@ -4,8 +4,11 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.util.Log;
+
+import java.util.Vector;
 
 //this class is for the penguins
 
@@ -13,8 +16,13 @@ public class Penguin {
     private int rssiValue;
     private String name;
     private String address;
-    private BluetoothDevice device;
+    private BluetoothDevice device = null;
     private BluetoothGatt gatt;
+    private BluetoothManager bluetoothManager;
+
+    private boolean seen = false;
+
+    private Vector<Guardian> seenBy = new Vector<>();
 
     final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
         @Override
@@ -25,6 +33,7 @@ public class Penguin {
                 gatt.readRemoteRssi();
             }
             if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                seen = false;
                 debug(name + " disconnected");
             }
         }
@@ -33,6 +42,7 @@ public class Penguin {
             super.onReadRemoteRssi(gatt, rssi, status);
             debug(name + " has RSSI " + (float)rssi);
             Penguin.this.rssiValue = rssi;
+            seen = true;
         }
     };
 
@@ -43,17 +53,47 @@ public class Penguin {
     }
 
     public Penguin(String address, String name) {
-        if (BluetoothAdapter.checkBluetoothAddress(address)) {
             this.name = name;
             this.address = address;
-            this.device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address);
-        }
-        else throw new IllegalArgumentException("Address must be valid Bluetooth hardware address");
     }
 
-    public boolean isSeen() {
-        return (gatt != null && gatt.getConnectionState(device) == BluetoothGatt.STATE_CONNECTED);
-        // TODO also report 'false' if RSSI is under threshold
+    void initialize(BluetoothManager bm) {
+        this.bluetoothManager = bm;
+        if (BluetoothAdapter.checkBluetoothAddress(address)) {
+            this.device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address);
+        }
+        else {
+                throw new IllegalStateException("Address is not a valid Bluetooth hardware address");
+        }
+    }
+
+    void setSeenBy(Guardian guardian, boolean newSeenStatus) {
+        if (newSeenStatus && !seenBy.contains(guardian)) seenBy.add(guardian);
+        if (!newSeenStatus && seenBy.contains(guardian)) seenBy.remove(guardian);
+    }
+
+    boolean isInitialized() {
+        return this.device != null && this.bluetoothManager != null;
+    }
+
+    boolean isSeen() {
+        //debug(name + (seen ? " is visible." : " is gone."));
+        return seen;
+
+        // TODO also report 'false' if RSSI is under threshold, see issue #23
+        // TODO take other guardians into account
+    }
+
+    String getSeenByInfo(){
+        if (seenBy.size() == 0) return "seen by noone else";
+
+        String answer = "seen by ";
+        for (Guardian g : seenBy) {
+            answer += g.getName();
+            answer += ", ";
+        }
+        answer = answer.substring(0, -2);
+        return answer;
     }
 
     @Override
@@ -62,6 +102,13 @@ public class Penguin {
             return this.address.equals(((Penguin) obj).address);
         }
         return false;
+    }
+
+    void disconnect() {
+        if (gatt != null) {
+            gatt.disconnect();
+            gatt.close();
+        }
     }
 
     public String getName() {
@@ -84,6 +131,9 @@ public class Penguin {
         return device;
     }
 
+    public String getAddress() {
+        return address;
+    }
     private void debug(String msg) {
         Log.d("PenguinClass", msg);
     }

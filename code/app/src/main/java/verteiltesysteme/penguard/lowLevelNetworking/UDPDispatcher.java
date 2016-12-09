@@ -2,6 +2,7 @@ package verteiltesysteme.penguard.lowLevelNetworking;
 
 import android.util.Log;
 
+import java.io.ByteArrayOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -16,14 +17,13 @@ public class UDPDispatcher{
 
     public static final int ERROR_SENDING_PACKET = 1;
     public static final int ERROR_UNKNOWN_HOST = 2;
-
-    //TODO We might need to send our package over multiple sockets, e.g. wifi and gsm
     public UDPDispatcher(DatagramSocket datagramSocket) {
-        callbacks = new ArrayList<DispatcherCallback>();
+        callbacks = new ArrayList<>();
         socket = datagramSocket;
     }
 
-    public void registerCallback(DispatcherCallback onPostAction) {
+
+public void registerCallback(DispatcherCallback onPostAction) {
         callbacks.add(onPostAction);
     }
 
@@ -33,39 +33,50 @@ public class UDPDispatcher{
 
     // Sends a PGPMessage to the given IP and port.
     public void sendPacket(PenguardProto.PGPMessage message, String ip, int port){
-        for(DispatcherCallback callback : callbacks) {
-            new Thread(new NetworkingTask(message, ip, port, callback)).start();
-        }
+        new Thread(new NetworkingTask(message, ip, port, callbacks)).start();
+    }
+
+    public boolean isOpen() {
+        return !socket.isClosed();
     }
 
     // internal class that can be used to send a single packet
-    class NetworkingTask implements Runnable {
+    private class NetworkingTask implements Runnable {
 
         PenguardProto.PGPMessage message;
         String ip;
         int port;
-        DispatcherCallback callback;
+        ArrayList<DispatcherCallback> callbacks;
 
-        NetworkingTask(PenguardProto.PGPMessage message, String ip, int port, DispatcherCallback callback) {
+        NetworkingTask(PenguardProto.PGPMessage message, String ip, int port, ArrayList<DispatcherCallback> callbacks) {
             this.message = message;
             this.ip = ip;
             this.port = port;
-            this.callback = callback;
+            this.callbacks = callbacks;
         }
 
         @Override
         public void run() {
-            byte[] outData = message.toByteArray();
+            byte[] outData;
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
             try {
+                message.writeDelimitedTo(out);
+                outData = out.toByteArray();
                 InetAddress inetAddr = InetAddress.getByName(ip);
                 DatagramPacket outPacket = new DatagramPacket(outData, outData.length, inetAddr, port);
                 socket.send(outPacket);
             } catch (UnknownHostException e) {
-                callback.onFailure(ERROR_UNKNOWN_HOST);
+                for (DispatcherCallback callback : callbacks) {
+                    callback.onFailure(ERROR_UNKNOWN_HOST);
+                }
             } catch (java.io.IOException e) {
-                callback.onFailure(ERROR_SENDING_PACKET);
+                for (DispatcherCallback callback : callbacks) {
+                    callback.onFailure(ERROR_SENDING_PACKET);
+                }
             }
-            callback.onSuccess();
+            for (DispatcherCallback callback : callbacks) {
+                callback.onSuccess();
+            }
         }
     }
 

@@ -8,7 +8,8 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="verteiltesysteme.penguard.GPenguinSearchActivity">
+    tools:context="verteiltesysteme.penguard.GPenguinSearchActivity"
+    android:backgroundTint="@color/blue">
 
     <ListView
         android:layout_width="match_parent"
@@ -17,7 +18,13 @@
         android:layout_alignParentStart="true"
         android:layout_marginStart="34dp"
         android:layout_marginTop="61dp"
-        android:id="@+id/scanResultlv" />
+        android:id="@+id/scanResultlv"
+        android:backgroundTint="@color/orange"
+        android:foregroundTint="@color/orange"
+        android:foregroundTintMode="src_in"
+        android:backgroundTintMode="src_in"
+        android:cacheColorHint="@color/orange"
+        android:choiceMode="singleChoice" />
 
     <Button
         android:text="Button"
@@ -26,5 +33,6 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
         android:id="@+id/restartScanButton"
-        android:onClick="scanButtonClicked" />
+        android:onClick="scanButtonClicked"
+        android:backgroundTint="@color/orange" />
 </RelativeLayout>

@@ -1,13 +1,60 @@
 <resources>
     <string name="app_name">Penguard</string>
     <string name="join">Join</string>
-    <string name="username">username</string>
+    <string name="username">Username:</string>
     <string name="scanP">Scan for available Penguins</string>
     <string name="joinGroup">Join an already existing group</string>
-    <string name="failBTScan">Scan Failed pls retry</string>
-    <string name="stopBTScan">Scan stopped please select a penguin</string>
+    <string name="failBTScan">Scan failed, please retry</string>
+    <string name="stopBTScan">Scan stopped. Please select a penguin</string>
     <string name="noResultBTScan">No bluetooth device found</string>
-    <string name="scanningBTScan">Scanning please wait</string>
-    <string name="permissionDeniedBTScan">Location permissions are needed in order to track your penguin</string>
-    <string name="scan">scan</string>
+    <string name="scanningBTScan">Scanning... Please wait</string>
+    <string name="permissionDeniedBTScan">Location permissions are needed in order to track your penguin!</string>
+    <string name="scan">Scan</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="penguard_active">Penguard is active</string>
+    <string name="group_join_Text">Please enter the name of a member of the group you want to join</string>
+    <string name="guard_without_login">Guard without login</string>
+    <string name="login">Login</string>
+    <string name="group_join_wait">Attempting to join the group, please wait</string>
+    <string name="guard">I\'m a Guardian</string>
+    <string name="penguin">I\'m a Penguin</string>
+    <string name="Welcome">Welcome to Penguard! \nPlease choose whether you are a Guardian or a Penguin, i.e. a device to be protected. For further information please read the Help.</string>
+    <string name="login_text">Please login to the server with a unique username. You can also guard alone without loging in. However you cannot join others in guarding if you are not loged in</string>
+    <string name="groupUN">Name of a group member: </string>
+    <string name="penguinName_text">How do you want to name your penguin?</string>
+    <string name="penguinName">Penguin name:</string>
+    <string name="penguinName_Button">Continue</string>
+    <string name="peng">Penguin</string>
+    <string name="penguinName_suc">Penguin was successfully named</string>
+    <string name="penguinName_empty">Please choose a name for your penguin</string>
+
+    <string name="menu_settings">Settings</string>
+
+    <string name="group_merge_request_list_file">merge_request_list_file</string>
+    <string name="group_merge_request_list">merge_request_list</string>
+    <string name="dialog_title_merge_request">Merge Groups?</string>
+    <string name="dialog_text_merge_request">Do you want to merge your group with </string>
+    <string name="dialog_ok_merge_request">merge</string>
+    <string name="dialog_cancel_merge_request">abort</string>
+    <string name="notification_merge_request_title">New mergerequest</string>
+    <string name="notification_merge_request_text">Someone wants to merge groups.</string>
+
+    <!-- Strings related to Settings -->
+
+    <string name="pref_header_general">General</string>
+    <string name="ServerIPURL">Server IP or URL</string>
+    <string name="ServerPort">Server Port</string>
+    <string name="pref_key_server_address">server_address</string>
+    <string name="pref_key_server_port">port</string>
+    <string name="pref_key_port">port</string>
+    <string name="pref_default_server_port">6789</string>
+    <string name="pref_default_port">6789</string>
+    <string name="pref_default_server">penguard.vsos.ethz.ch</string>
+    <string name="pref_default_username">Username</string>
+    <string name="pref_key_username">username</string>
+
+    <string name="pref_title_display_name">Username</string>
+    <string name="pref_default_display_name">username</string>
+
+
 </resources>
