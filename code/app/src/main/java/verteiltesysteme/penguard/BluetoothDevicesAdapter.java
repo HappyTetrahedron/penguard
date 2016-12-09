@@ -18,6 +18,7 @@ public class BluetoothDevicesAdapter extends ArrayAdapter<BluetoothDevice> {
     private int layoutResource;
 
     public BluetoothDevicesAdapter(Context context, int layoutResource, List<BluetoothDevice> deviceList) {
+        //TODO delete layout from the arguments and make my own
         super(context, layoutResource, deviceList);
         this.layoutResource = layoutResource;
     }

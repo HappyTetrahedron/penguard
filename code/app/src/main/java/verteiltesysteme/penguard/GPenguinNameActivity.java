@@ -37,8 +37,6 @@ public class GPenguinNameActivity extends AppCompatActivity {
             resultData.putExtra("newName", newPenguinName);
             debug( "submit: setup result");
             setResult(Activity.RESULT_OK, resultData);
-
-            Context context = getApplicationContext();
             toast(getString(R.string.penguinName_suc));
 
             finish();
