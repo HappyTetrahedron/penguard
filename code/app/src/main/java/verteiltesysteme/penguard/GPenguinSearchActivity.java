@@ -38,6 +38,7 @@ import verteiltesysteme.penguard.guardianservice.Penguin;
 
 import static verteiltesysteme.penguard.GPenguinSearchActivity.StoppedBy.NAMING;
 import static verteiltesysteme.penguard.GPenguinSearchActivity.StoppedBy.QUIT;
+import static verteiltesysteme.penguard.GPenguinSearchActivity.StoppedBy.TIMEOUT;
 
 
 //here we search for bluetooth devices and the guard can pick a penguin to guard and then go on to the GGuardActivity
@@ -243,6 +244,7 @@ public class GPenguinSearchActivity extends AppCompatActivity {
                     break;
                 case QUIT:
                     handler.removeCallbacks(scanStopperRunnable);
+                    break;
                 default:
                     throw new IllegalArgumentException("No handler available for the enum passed as an argument!");
             }
