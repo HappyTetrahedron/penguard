@@ -26,13 +26,15 @@
         android:layout_height="wrap_content"
         android:id="@+id/loadingCircle"
         android:indeterminate="true"
-        android:layout_above="@+id/editText"
+        android:layout_above="@+id/spacer"
         android:layout_toStartOf="@+id/button3"
         android:layout_centerVertical="true"
         android:layout_marginBottom="20dp"
         android:visibility="gone"
         android:backgroundTint="@color/orange"
-        android:foregroundTint="@color/orange" />
+        android:foregroundTint="@color/orange"
+        android:indeterminateTint="@color/orange"
+        android:indeterminateTintMode="src_in" />
 
     <TextView
         android:text="@string/login_text"
@@ -71,4 +73,11 @@
         android:textColor="@color/orange"
         android:layout_above="@+id/editText"
         android:layout_alignStart="@+id/editText" />
+
+    <Space
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/textView4"
+        android:layout_toStartOf="@+id/button3"
+        android:id="@+id/spacer" />
 </RelativeLayout>
