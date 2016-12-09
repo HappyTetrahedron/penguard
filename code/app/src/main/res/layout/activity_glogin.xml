@@ -59,7 +59,8 @@
         android:ems="10"
         android:id="@+id/editText"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:backgroundTint="@color/orange" />
 
     <TextView
         android:text="@string/username"
