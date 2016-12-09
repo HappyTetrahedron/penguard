@@ -30,10 +30,15 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.RunnableFuture;
 
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 import verteiltesysteme.penguard.guardianservice.Penguin;
+
+import static verteiltesysteme.penguard.GPenguinSearchActivity.StoppedBy.NAMING;
+import static verteiltesysteme.penguard.GPenguinSearchActivity.StoppedBy.QUIT;
+
 
 //here we search for bluetooth devices and the guard can pick a penguin to guard and then go on to the GGuardActivity
 
@@ -44,6 +49,9 @@ public class GPenguinSearchActivity extends AppCompatActivity {
     static final int PERMISSION_REQUEST_FINE_LOCATION = 2; // request code for location permission
     static final int ASK_PENGUIN_NAME = 1;
     static String penguinName;
+    protected enum StoppedBy{
+        NAMING, TIMEOUT, QUIT;
+    };
 
     ArrayList<BluetoothDevice> scanResultsList = new ArrayList<>();
     BroadcastReceiver bcr;
@@ -52,6 +60,12 @@ public class GPenguinSearchActivity extends AppCompatActivity {
     BluetoothManager bluetoothManager;
     BluetoothAdapter bluetoothAdapter;
     Handler handler;
+    Runnable scanStopperRunnable = new Runnable() {
+        @Override
+        public void run() {
+            stopBluetoothScan(StoppedBy.TIMEOUT);
+        }
+    };
     Button restartScanButton;
     ScanSettings scanSettings;
     List<ScanFilter> scanFilters;
@@ -133,6 +147,7 @@ public class GPenguinSearchActivity extends AppCompatActivity {
                 BluetoothDevice device = (BluetoothDevice)parent.getItemAtPosition(position);
                 Intent getPenguinName = new Intent(getApplicationContext(), GPenguinNameActivity.class);
                 getPenguinName.putExtra("device", device);
+                bluetoothScan(false);
                 startActivityForResult(getPenguinName, ASK_PENGUIN_NAME);
 //                serviceConnection.addPenguin(new Penguin(device, "Penguin " + penguinName)); //TODO ask user for name, see issue #20
 //                bluetoothScan(false); //stop ongoing scan
@@ -157,7 +172,6 @@ public class GPenguinSearchActivity extends AppCompatActivity {
                 BluetoothDevice device = data.getParcelableExtra("device");
                 penguinName = data.getStringExtra("newName");
                 serviceConnection.addPenguin(new Penguin(device, "Penguin " + penguinName));
-                bluetoothScan(false); //stop ongoing scan
                 Intent intent = new Intent(this, GGuardActivity.class);
                 startActivity(intent);
             }
@@ -167,6 +181,7 @@ public class GPenguinSearchActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        stopBluetoothScan(StoppedBy.QUIT);
         unregisterReceiver(bcr);
         unbindService(serviceConnection);
     }
@@ -204,18 +219,11 @@ public class GPenguinSearchActivity extends AppCompatActivity {
     private void bluetoothScan(boolean enable) {
         if (enable) {
             // use a handler to stop the scan after SCAN_PERIOD ms
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    stopBluetoothScan(true);
-                }
-            }, SCAN_PERIOD);
-
+            handler.postDelayed(scanStopperRunnable, SCAN_PERIOD);
             startBluetoothScan();
-
         }
         else { // enable is false
-            stopBluetoothScan(false);
+            stopBluetoothScan(StoppedBy.NAMING);
         }
 
     }
@@ -237,27 +245,38 @@ public class GPenguinSearchActivity extends AppCompatActivity {
         bluetoothAdapter.startDiscovery();
     }
 
-    private void stopBluetoothScan(boolean stoppedByTimeout) {
+    private void stopBluetoothScan(StoppedBy stoppedBy) {
         debug("Stopped scan");
         //stop LE scan
-        if (bluetoothAdapter.getBluetoothLeScanner() != null){
-            bluetoothAdapter.getBluetoothLeScanner().stopScan(scanCallback);
-        }
         debug(bluetoothAdapter.getBluetoothLeScanner().toString());
         restartScanButton.setEnabled(true);
         restartScanButton.setText(getText(R.string.scan));
         if (scanResultsList.size() > 0) {
-            if (! stoppedByTimeout) toast(getString(R.string.stopBTScan));
+            switch(stoppedBy){
+                case TIMEOUT:
+                    toast(getString(R.string.stopBTScan));
+                    break;
+                case NAMING:
+                    if (bluetoothAdapter.isDiscovering()){
+                        toast(getString(R.string.stopBTScanNaming));
+                    }
+                    handler.removeCallbacks(scanStopperRunnable);
+                    break;
+                case QUIT:
+                    handler.removeCallbacks(scanStopperRunnable);
+                default:
+                    throw new IllegalArgumentException("No handler for the enum passed as an argument!");
+            }
         }
         else { // no results found
             toast(getString(R.string.noResultBTScan));
         }
-
-        //stopping normal bt scan
-        bluetoothAdapter.cancelDiscovery();
-
+        
+        if (bluetoothAdapter.getBluetoothLeScanner() != null){
+            bluetoothAdapter.getBluetoothLeScanner().stopScan(scanCallback);
+            bluetoothAdapter.cancelDiscovery();
+        }
     }
-
 
     public void scanButtonClicked (View view) {
         if (view == restartScanButton) {

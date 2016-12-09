@@ -6,6 +6,7 @@
     <string name="joinGroup">Join an already existing group</string>
     <string name="failBTScan">Scan failed, please retry</string>
     <string name="stopBTScan">Scan stopped. Please select a penguin</string>
+    <string name="stopBTScanNaming">Scan stopped.</string>
     <string name="noResultBTScan">No bluetooth device found</string>
     <string name="scanningBTScan">Scanning... Please wait</string>
     <string name="permissionDeniedBTScan">Location permissions are needed in order to track your penguin!</string>
