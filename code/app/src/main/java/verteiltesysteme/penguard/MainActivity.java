@@ -21,6 +21,8 @@ public class MainActivity extends AppCompatActivity {
 
     Button b1, b2;
 
+    // "May contain traces of penguins." -Aline
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

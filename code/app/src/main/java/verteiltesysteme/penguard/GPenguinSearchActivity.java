@@ -48,7 +48,6 @@ public class GPenguinSearchActivity extends AppCompatActivity {
     static final int REQUEST_ENABLE_BT = 1; // request code for bluetooth enabling
     static final int PERMISSION_REQUEST_FINE_LOCATION = 2; // request code for location permission
     static final int ASK_PENGUIN_NAME = 1;
-    static String penguinName;
     protected enum StoppedBy{
         NAMING, TIMEOUT, QUIT;
     };
@@ -147,12 +146,8 @@ public class GPenguinSearchActivity extends AppCompatActivity {
                 BluetoothDevice device = (BluetoothDevice)parent.getItemAtPosition(position);
                 Intent getPenguinName = new Intent(getApplicationContext(), GPenguinNameActivity.class);
                 getPenguinName.putExtra("device", device);
-                bluetoothScan(false);
+                stopBluetoothScan(StoppedBy.NAMING);
                 startActivityForResult(getPenguinName, ASK_PENGUIN_NAME);
-//                serviceConnection.addPenguin(new Penguin(device, "Penguin " + penguinName)); //TODO ask user for name, see issue #20
-//                bluetoothScan(false); //stop ongoing scan
-//                Intent intent = new Intent(parent.getContext(), GGuardActivity.class);
-//                startActivity(intent);
             }
         });
 
@@ -170,7 +165,7 @@ public class GPenguinSearchActivity extends AppCompatActivity {
         if (requestCode == ASK_PENGUIN_NAME){
             if (resultCode == RESULT_OK){
                 BluetoothDevice device = data.getParcelableExtra("device");
-                penguinName = data.getStringExtra("newName");
+                String penguinName = data.getStringExtra("newName");
                 serviceConnection.addPenguin(new Penguin(device, "Penguin " + penguinName));
                 Intent intent = new Intent(this, GGuardActivity.class);
                 startActivity(intent);
@@ -203,7 +198,6 @@ public class GPenguinSearchActivity extends AppCompatActivity {
     }
 
     private void turnOnBluetoothAndScan() {
-
         //test whether bluetooth is enabled, enable if not
         if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
             Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -211,38 +205,23 @@ public class GPenguinSearchActivity extends AppCompatActivity {
         }
         else {
             //bluetooth already on; scan ahead
-            bluetoothScan(true);
-        }
-
-    }
-
-    private void bluetoothScan(boolean enable) {
-        if (enable) {
-            // use a handler to stop the scan after SCAN_PERIOD ms
             handler.postDelayed(scanStopperRunnable, SCAN_PERIOD);
             startBluetoothScan();
         }
-        else { // enable is false
-            stopBluetoothScan(StoppedBy.NAMING);
-        }
-
     }
 
     private void startBluetoothScan() {
-        debug("Started scan");
-        //this does the LE scan
-        if (bluetoothAdapter.getBluetoothLeScanner() != null) {
-            bluetoothAdapter.getBluetoothLeScanner().startScan(scanFilters,scanSettings,scanCallback);
-            restartScanButton.setEnabled(false); //Cannot rescan while scan is running
-            restartScanButton.setText(getText(R.string.scanningBTScan));
-            toast(getString(R.string.scanningBTScan));
-        }
-        else {
-            debug("Could not get le Scanner");
-        }
-
-        //this does the regular bt scan
+        /* There used to be a null-check for bluetoothAdapter here, which, if failed, prints out "LE scanner not found", but really,
+         * I would much rather have our application crash here if the adapter is missing. Otherwise we're just making debugging opaque.
+         * Feel free to shout at me if you disagree :P
+         * -Nils
+         */
+        restartScanButton.setEnabled(false); // So that user cannot press Scan while scan is running
+        bluetoothAdapter.getBluetoothLeScanner().startScan(scanFilters,scanSettings,scanCallback);
+        restartScanButton.setText(getText(R.string.scanningBTScan));
         bluetoothAdapter.startDiscovery();
+        toast(getString(R.string.scanningBTScan));
+        debug("Started scan");
     }
 
     private void stopBluetoothScan(StoppedBy stoppedBy) {
@@ -265,7 +244,7 @@ public class GPenguinSearchActivity extends AppCompatActivity {
                 case QUIT:
                     handler.removeCallbacks(scanStopperRunnable);
                 default:
-                    throw new IllegalArgumentException("No handler for the enum passed as an argument!");
+                    throw new IllegalArgumentException("No handler available for the enum passed as an argument!");
             }
         }
         else { // no results found
