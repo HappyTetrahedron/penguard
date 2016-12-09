@@ -9,12 +9,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
+import verteiltesysteme.penguard.guardianservice.Penguin;
 
 //here the actual guarding happens in case that we will add calibration later there will be another activity between this one and the PenguinSearchActivity
 
@@ -55,6 +57,7 @@ public class GGuardActivity extends AppCompatActivity {
                         serviceConnection.subscribeListViewToPenguinAdapter(penguinList);
                     }
                     updateLoginB();
+                    ((ArrayAdapter<Penguin>) penguinList.getAdapter()).notifyDataSetChanged();
                 }
                 if (!paused) handler.postDelayed(this, UPDATE_DELAY);
             }

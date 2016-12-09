@@ -39,10 +39,12 @@ class BluetoothThread extends Thread{
 
                     if (p.getGatt() == null) {
                         p.setGatt(p.getDevice().connectGatt(service, true, p.bluetoothGattCallback));
-                    } else if (manager.getConnectionState(p.getDevice(), BluetoothProfile.GATT) != BluetoothAdapter.STATE_CONNECTED) {
+                    }
+                    else if (manager.getConnectionState(p.getDevice(), BluetoothProfile.GATT) != BluetoothAdapter.STATE_CONNECTED) {
                         debug("Initiating connect for penguin " + p.getName());
                         p.getGatt().connect();
-                    } else {
+                    }
+                    else {
                         debug("Initiating RSSI scan for penguin " + p.getName());
                         p.getGatt().readRemoteRssi();
                     }

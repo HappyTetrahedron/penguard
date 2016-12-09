@@ -20,6 +20,8 @@ public class Penguin {
     private BluetoothGatt gatt;
     private BluetoothManager bluetoothManager;
 
+    private boolean seen = false;
+
     Vector<Guardian> seenBy = new Vector<>();
 
     final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
@@ -31,6 +33,7 @@ public class Penguin {
                 gatt.readRemoteRssi();
             }
             if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                seen = false;
                 debug(name + " disconnected");
             }
         }
@@ -39,6 +42,7 @@ public class Penguin {
             super.onReadRemoteRssi(gatt, rssi, status);
             debug(name + " has RSSI " + (float)rssi);
             Penguin.this.rssiValue = rssi;
+            seen = true;
         }
     };
 
@@ -73,11 +77,11 @@ public class Penguin {
     }
 
     public boolean isSeen() {
-        if (!isInitialized()) return false;
-        if (gatt == null) return false;
-        return (bluetoothManager.getConnectionState(device, BluetoothProfile.GATT) == BluetoothGatt.STATE_CONNECTED);
+        //debug(name + (seen ? " is visible." : " is gone."));
+        return seen;
 
         // TODO also report 'false' if RSSI is under threshold, see issue #23
+        // TODO take other guardians into account
     }
 
     @Override
