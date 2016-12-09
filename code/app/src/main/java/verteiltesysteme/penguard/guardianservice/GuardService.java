@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
 
+import verteiltesysteme.penguard.GGroupJoinCallback;
 import verteiltesysteme.penguard.GGroupMergeRequestsActivity;
 import verteiltesysteme.penguard.GGuardActivity;
 import verteiltesysteme.penguard.GLoginCallback;
@@ -58,6 +59,8 @@ public class GuardService extends Service implements ListenerCallback{
     // Networking constants
     private final static int SOCKETS_TO_TRY = 5;
     private final static int NETWORK_TIMEOUT = 5000; // Network timeout in ms
+    private final static int JOIN_REQ_TIMEOUT = 20 * 1000; // Timeout for join requests. Should be upped to 5 minutes.
+    private final static int PING_INTERVAL = 2000;
 
     private String plsIp = "";
     private int plsPort = 0;
@@ -212,11 +215,14 @@ public class GuardService extends Service implements ListenerCallback{
         return true;
     }
 
-    boolean joinGroup(String groupUN){
-        if (joinState.state != JoinState.STATE_NOT_JOINED) return false;
+    boolean joinGroup(final String groupUN, GGroupJoinCallback callback){
+        if (joinState.state != JoinState.STATE_IDLE) {
+            debug("Join not initiated because another one is in progress");
+            return false;
+        }
 
         debug("joining the group of: "+ groupUN);
-        joinState.startGroupJoin(groupUN);
+        joinState.startGroupJoin(groupUN, callback);
 
         //create join message for the server
         PenguardProto.PGPMessage joinMessage = PenguardProto.PGPMessage.newBuilder()
@@ -226,16 +232,15 @@ public class GuardService extends Service implements ListenerCallback{
                 .build();
 
         //send to PLS
-        updateIpPortFromSettings();
         dispatcher.sendPacket(joinMessage, plsIp, plsPort);
 
         //Timeout
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (joinState.state != JoinState.STATE_JOINED) joinState.joinFailed();
+                if (joinState.groupUN == groupUN && joinState.state == JoinState.STATE_JOIN_REQ_SENT) joinState.joinFailed("Your friend did not accept your join.");
             }
-        }, NETWORK_TIMEOUT);
+        }, JOIN_REQ_TIMEOUT);
 
         return true;
     }
@@ -334,7 +339,7 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void grpInfoReceived(PenguardProto.PGPMessage message){
-        // TODO implement method. See issue #31
+
     }
 
     private void voteNoReceived(PenguardProto.PGPMessage message){

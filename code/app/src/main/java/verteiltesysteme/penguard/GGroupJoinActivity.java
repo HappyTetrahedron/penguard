@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import verteiltesysteme.penguard.guardianservice.GuardService;
@@ -18,9 +19,12 @@ import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 public class GGroupJoinActivity extends AppCompatActivity {
 
     Button btn;
+    TextView textView;
     EditText editText;
 
     GuardianServiceConnection guardianServiceConnection = new GuardianServiceConnection();
+
+    GGroupJoinCallback joinCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +32,7 @@ public class GGroupJoinActivity extends AppCompatActivity {
         setContentView(R.layout.activity_ggroup_join);
 
         btn = (Button)findViewById(R.id.groupJoinBT);
+        textView = (TextView) findViewById(R.id.groupJoinTV);
         editText = (EditText)findViewById(R.id.groupJoinET);
 
         Intent intent = new Intent(this, GuardService.class);
@@ -39,6 +44,36 @@ public class GGroupJoinActivity extends AppCompatActivity {
                 groupJoin();
             }
         });
+
+        joinCallback = new GGroupJoinCallback() {
+            @Override
+            public void joinSuccessful() {
+                toast("Join successful.");
+                GGroupJoinActivity.this.finish();
+            }
+
+            @Override
+            public void joinAccepted() {
+                toast("Your Join request was accepted. Updating group...");
+            }
+
+            @Override
+            public void joinFailure(String error) {
+                toast(error);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        btn.setEnabled(true); //reenable to button
+                    }
+                });
+            }
+        };
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(guardianServiceConnection);
     }
 
     private void groupJoin(){
@@ -50,16 +85,13 @@ public class GGroupJoinActivity extends AppCompatActivity {
         String groupUN = String.valueOf(editText.getText());
 
         //call the function in the serviceConnector
-        if (guardianServiceConnection.joinGroup(groupUN)){
+        if (guardianServiceConnection.joinGroup(groupUN, joinCallback)){
             //join started successful
-        }else {
+        } else {
             //something went wrong
-            toast("Unable to join group"); //TODO maybe make a case distinction
+            toast("Unable to join group");
             btn.setEnabled(true); //reenable to button
         }
-
-        //TODO the entire group merge needs to happen and then we need to be able to transition to the next activity
-
     }
 
     @Override

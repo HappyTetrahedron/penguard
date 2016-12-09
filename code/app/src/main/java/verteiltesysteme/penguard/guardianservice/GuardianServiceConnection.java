@@ -6,6 +6,7 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.widget.ListView;
 
+import verteiltesysteme.penguard.GGroupJoinCallback;
 import verteiltesysteme.penguard.GLoginCallback;
 
 public class GuardianServiceConnection implements ServiceConnection {
@@ -35,8 +36,8 @@ public class GuardianServiceConnection implements ServiceConnection {
         return service != null;
     }
 
-    public boolean joinGroup(String groupUN){
-        return service.joinGroup(groupUN);
+    public boolean joinGroup(String groupUN, GGroupJoinCallback callback){
+        return service.joinGroup(groupUN, callback);
     }
 
     public boolean isRegistered(){

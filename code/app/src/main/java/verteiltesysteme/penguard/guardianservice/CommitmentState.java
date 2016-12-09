@@ -9,5 +9,5 @@ public class CommitmentState {
     static final int STATE_COMMIT_REQ_SENT = 4;
 
     PenguardProto.PGPMessage groupUpdate;
-    //TODO we also need a guardian once the Guardian class exists  (initiant)
+    String initiantName;
 }

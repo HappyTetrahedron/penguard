@@ -1,35 +1,45 @@
 package verteiltesysteme.penguard.guardianservice;
 
 
+import verteiltesysteme.penguard.GGroupJoinCallback;
+
 public class JoinState {
-    final static int STATE_JOINED = 1;
-    final static int STATE_JOINED_FAILED = 2;
+    final static int STATE_IDLE = 1;
+    final static int STATE_JOIN_REQ_SENT = 2;
     final static int STATE_JOIN_INPROGRESS = 3;
-    final static int STATE_NOT_JOINED = 4; //i.e. in a group with only oneself as a member
-    int state = STATE_NOT_JOINED;
+    int state = STATE_IDLE;
+
+    private GGroupJoinCallback callback = null;
     
     String groupUN= ""; //the name of another group member of the group i'd like to join
     long timeStamp = 0;
 
     void reset(){
-        state = STATE_NOT_JOINED;
+        state = STATE_IDLE;
         groupUN = "";
         timeStamp = 0;
     }
 
-    void startGroupJoin(String groupUN){
-        state = STATE_JOIN_INPROGRESS;
+    void startGroupJoin(String groupUN, GGroupJoinCallback callback){
+        state = STATE_JOIN_REQ_SENT;
         this.groupUN = groupUN;
+        this.callback = callback;
         timeStamp = System.currentTimeMillis();
     }
 
-    void joinFailed(){
+    void joinFailed(String error){
+        if (callback != null) callback.joinFailure(error);
         reset();
     }
 
-    void joinSuccessful(){
-        state = STATE_JOINED;
+    void joinReqAccepted() {
+        if (callback != null) callback.joinAccepted();
+        state = STATE_JOIN_INPROGRESS;
     }
 
-    //TODO add more if necessary
+    void joinSuccessful(){
+        if (callback != null) callback.joinSuccessful();
+        reset();
+    }
+
 }
