@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_settings, menu);
+        getMenuInflater().inflate(R.menu.menu_howto, menu);
         return true;
     }
 
@@ -87,6 +88,10 @@ public class MainActivity extends AppCompatActivity {
             case R.id.menu_settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
+                return true;
+            case R.id.menu_howto:
+                Intent intent1 = new Intent(this, HowToActivity.class);
+                startActivity(intent1);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

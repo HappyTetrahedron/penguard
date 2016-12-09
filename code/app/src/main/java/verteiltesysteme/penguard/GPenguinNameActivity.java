@@ -14,6 +14,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import verteiltesysteme.penguard.guardianservice.GuardService;
+
 public class GPenguinNameActivity extends AppCompatActivity {
     private  BluetoothDevice device;
     @Override
@@ -48,6 +50,8 @@ public class GPenguinNameActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_settings, menu);
+        getMenuInflater().inflate(R.menu.menu_howto, menu);
+        getMenuInflater().inflate(R.menu.menu_endservice, menu);
         return true;
     }
 
@@ -58,9 +62,27 @@ public class GPenguinNameActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
                 return true;
+            case R.id.menu_howto:
+                Intent intent1 = new Intent(this, HowToActivity.class);
+                startActivity(intent1);
+                return true;
+            case R.id.menu_endService:
+                killService();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void killService(){
+        Intent backToMainIntent = new Intent(this, MainActivity.class);
+        // clear the backstack when transitioning to main activity
+        backToMainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        Intent stopServiceIntent = new Intent(this, GuardService.class);
+
+        stopService(stopServiceIntent);
+        startActivity(backToMainIntent);
     }
 
     @Override

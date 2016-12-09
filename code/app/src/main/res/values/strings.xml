@@ -28,6 +28,7 @@
     <string name="peng">Penguin</string>
     <string name="penguinName_suc">Penguin was successfully named</string>
     <string name="penguinName_empty">Please choose a name for your penguin</string>
+    <string name="endService">End Service</string>
 
     <string name="menu_settings">Settings</string>
 
