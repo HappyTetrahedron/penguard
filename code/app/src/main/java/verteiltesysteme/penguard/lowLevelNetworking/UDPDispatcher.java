@@ -36,6 +36,10 @@ public void registerCallback(DispatcherCallback onPostAction) {
         new Thread(new NetworkingTask(message, ip, port, callbacks)).start();
     }
 
+    public boolean isOpen() {
+        return !socket.isClosed();
+    }
+
     // internal class that can be used to send a single packet
     private class NetworkingTask implements Runnable {
 

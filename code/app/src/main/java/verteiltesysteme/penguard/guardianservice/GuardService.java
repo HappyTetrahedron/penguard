@@ -60,7 +60,7 @@ public class GuardService extends Service implements ListenerCallback{
     private final static int SOCKETS_TO_TRY = 5;
     private final static int NETWORK_TIMEOUT = 5000; // Network timeout in ms
     private final static int JOIN_REQ_TIMEOUT = 20 * 1000; // Timeout for join requests. Should be upped to 5 minutes.
-    private final static int PING_INTERVAL = 2000;
+    private final static int PING_INTERVAL = 5000;
 
     private String plsIp = "";
     private int plsPort = 0;
@@ -73,6 +73,7 @@ public class GuardService extends Service implements ListenerCallback{
     private Handler handler;
 
     BluetoothThread bluetoothThread;
+    Thread pingThread;
     BroadcastReceiver bluetoothBroadcastReceiver;
 
     private PenguinAdapter penguinListAdapter;
@@ -139,6 +140,29 @@ public class GuardService extends Service implements ListenerCallback{
 
         // create penguin array adapter
         penguinListAdapter = new PenguinAdapter(this, R.layout.list_penguins, penguins);
+
+        pingThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (dispatcher.isOpen()) {
+                    if (regState.state == regState.STATE_REGISTERED) {
+                        PenguardProto.PGPMessage ping = PenguardProto.PGPMessage.newBuilder()
+                                .setType(PenguardProto.PGPMessage.Type.GS_PING)
+                                .setPing(PenguardProto.Ping.newBuilder()
+                                        .setUuid(regState.uuid.toString()))
+                                .setName(myself.getName())
+                                .build();
+
+                        dispatcher.sendPacket(ping, plsIp, plsPort);
+                    }
+                    try {
+                        Thread.sleep(PING_INTERVAL);
+                    } catch (InterruptedException e) {
+                        // pass
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -176,7 +200,13 @@ public class GuardService extends Service implements ListenerCallback{
         else{
             debug("BluetoothThread already running");
         }
+
+        if (!pingThread.isAlive()) {
+            pingThread.start();
+        }
+
         return super.onStartCommand(intent, flags, startId);
+
     }
 
 
