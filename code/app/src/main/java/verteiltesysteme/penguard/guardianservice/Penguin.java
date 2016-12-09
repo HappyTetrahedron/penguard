@@ -22,7 +22,7 @@ public class Penguin {
 
     private boolean seen = false;
 
-    Vector<Guardian> seenBy = new Vector<>();
+    private Vector<Guardian> seenBy = new Vector<>();
 
     final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
         @Override
@@ -76,12 +76,24 @@ public class Penguin {
         return this.device != null && this.bluetoothManager != null;
     }
 
-    public boolean isSeen() {
+    boolean isSeen() {
         //debug(name + (seen ? " is visible." : " is gone."));
         return seen;
 
         // TODO also report 'false' if RSSI is under threshold, see issue #23
         // TODO take other guardians into account
+    }
+
+    String getSeenByInfo(){
+        if (seenBy.size() == 0) return "seen by noone else";
+
+        String answer = "seen by ";
+        for (Guardian g : seenBy) {
+            answer += g.getName();
+            answer += ", ";
+        }
+        answer = answer.substring(0, -2);
+        return answer;
     }
 
     @Override
@@ -90,6 +102,13 @@ public class Penguin {
             return this.address.equals(((Penguin) obj).address);
         }
         return false;
+    }
+
+    void disconnect() {
+        if (gatt != null) {
+            gatt.disconnect();
+            gatt.close();
+        }
     }
 
     public String getName() {
@@ -112,7 +131,7 @@ public class Penguin {
         return device;
     }
 
-    String getAddress() {
+    public String getAddress() {
         return address;
     }
     private void debug(String msg) {

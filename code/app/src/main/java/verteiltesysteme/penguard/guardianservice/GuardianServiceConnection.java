@@ -40,6 +40,18 @@ public class GuardianServiceConnection implements ServiceConnection {
         return service.joinGroup(groupUN, callback);
     }
 
+    public String getPenguinName(String mac) {
+        return service.getPenguinName(mac);
+    }
+
+    public void removePenguin(String mac) {
+        service.removePenguin(mac);
+    }
+
+    public String getPenguinSeenByString(String mac) {
+        return service.getPenguinSeenByString(mac);
+    }
+
     public boolean isRegistered(){
         return service.isRegistered();
     }

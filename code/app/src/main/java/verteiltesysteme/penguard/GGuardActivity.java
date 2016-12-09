@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -62,6 +63,16 @@ public class GGuardActivity extends AppCompatActivity {
                 if (!paused) handler.postDelayed(this, UPDATE_DELAY);
             }
         };
+
+        penguinList.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Penguin penguin = (Penguin) parent.getItemAtPosition(position);
+                Intent intent = new Intent(GGuardActivity.this, GPenguinDetailActivity.class);
+                intent.putExtra(GPenguinDetailActivity.EXTRA_PENGUIN_MAC, penguin.getAddress());
+                startActivity(intent);
+            }
+        });
     }
 
     @Override

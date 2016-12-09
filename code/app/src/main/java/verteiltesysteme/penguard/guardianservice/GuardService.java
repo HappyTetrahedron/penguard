@@ -145,7 +145,7 @@ public class GuardService extends Service implements ListenerCallback{
             @Override
             public void run() {
                 while (dispatcher.isOpen()) {
-                    if (regState.state == regState.STATE_REGISTERED) {
+                    if (regState.state == RegistrationState.STATE_REGISTERED) {
                         PenguardProto.PGPMessage ping = PenguardProto.PGPMessage.newBuilder()
                                 .setType(PenguardProto.PGPMessage.Type.GS_PING)
                                 .setPing(PenguardProto.Ping.newBuilder()
@@ -268,11 +268,31 @@ public class GuardService extends Service implements ListenerCallback{
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (joinState.groupUN == groupUN && joinState.state == JoinState.STATE_JOIN_REQ_SENT) joinState.joinFailed("Your friend did not accept your join.");
+                if (joinState.groupUN.equals(groupUN) && joinState.state == JoinState.STATE_JOIN_REQ_SENT) joinState.joinFailed("Your friend did not accept your join.");
             }
         }, JOIN_REQ_TIMEOUT);
 
         return true;
+    }
+
+    void removePenguin(String mac) {
+        Penguin p = ListHelper.getPenguinByAddress(penguins, mac);
+        if (p != null) {
+            penguins.remove(p);
+            p.disconnect();
+        }
+    }
+
+    String getPenguinName(String mac) {
+        Penguin p = ListHelper.getPenguinByAddress(penguins, mac);
+        if (p != null) return p.getName();
+        else return "unknown penguin";
+    }
+
+    String getPenguinSeenByString(String mac) {
+        Penguin p = ListHelper.getPenguinByAddress(penguins, mac);
+        if (p != null) return p.getSeenByInfo();
+        else return "unknown";
     }
 
     boolean isRegistered(){
