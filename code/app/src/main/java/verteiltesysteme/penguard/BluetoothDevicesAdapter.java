@@ -18,7 +18,6 @@ public class BluetoothDevicesAdapter extends ArrayAdapter<BluetoothDevice> {
     private int layoutResource;
 
     public BluetoothDevicesAdapter(Context context, int layoutResource, List<BluetoothDevice> deviceList) {
-        //TODO delete layout from the arguments and make my own
         super(context, layoutResource, deviceList);
         this.layoutResource = layoutResource;
     }
@@ -34,7 +33,7 @@ public class BluetoothDevicesAdapter extends ArrayAdapter<BluetoothDevice> {
         BluetoothDevice device = getItem(position);
 
         if (device != null) {
-            TextView deviceNameTextView = (TextView) convertView.findViewById((android.R.id.text1));
+            TextView deviceNameTextView = (TextView) convertView.findViewById((R.id.textView8));
 
             if (deviceNameTextView != null) {
                 deviceNameTextView.setText(device.getName() + " " + device.getAddress());

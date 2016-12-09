@@ -138,7 +138,7 @@ public class GPenguinSearchActivity extends AppCompatActivity {
 
         //initialize list view for scan results
         ListView scanResults = (ListView) findViewById(R.id.scanResultlv);
-        scanResultsAdapter = new BluetoothDevicesAdapter(this, R.layout.support_simple_spinner_dropdown_item, scanResultsList);
+        scanResultsAdapter = new BluetoothDevicesAdapter(this, R.layout.penguin_search_list, scanResultsList);
         scanResults.setAdapter(scanResultsAdapter);
 
         scanResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
