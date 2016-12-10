@@ -67,6 +67,7 @@ public class GuardService extends Service implements ListenerCallback{
 
     private RegistrationState regState = new RegistrationState();
     private JoinState joinState = new JoinState();
+    private CommitmentState commitState = new CommitmentState();
 
     private Handler handler;
 
@@ -319,6 +320,63 @@ public class GuardService extends Service implements ListenerCallback{
         return true;
     }
 
+    private boolean initiateGroupChange(PenguardProto.Group group) {
+        if (group.getSeqNo() <= seqNo) return false;
+        if (commitState.state != CommitmentState.STATE_IDLE) return false;
+
+        // no objections
+        commitState.initiateCommit(group, myself);
+        PenguardProto.PGPMessage commit = PenguardProto.PGPMessage.newBuilder()
+                .setName(myself.getName())
+                .setType(PenguardProto.PGPMessage.Type.GG_GRP_CHANGE)
+                .setGroup(group)
+                .build();
+        sendToAllGuardians(commit);
+
+        // check upon the commit after a timeout
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                checkAndCommitOrAbort();
+            }
+        }, NETWORK_TIMEOUT);
+
+        return true;
+    }
+
+    private void checkAndCommitOrAbort() {
+        if (commitState.state != CommitmentState.STATE_COMMIT_REQ_SENT) return;
+
+        if (commitState.voteYesReceived && ! commitState.voteNoReceived) { // We got at least one yes, and no no
+            sendCommit();
+            updateStatus(commitState.groupUpdate);
+            commitState.commit();
+        }
+        else {
+            sendAbort();
+            commitState.abort();
+        }
+    }
+
+    private void sendCommit() {
+        PenguardProto.PGPMessage commit = PenguardProto.PGPMessage.newBuilder()
+                .setName(myself.getName())
+                .setType(PenguardProto.PGPMessage.Type.GG_COMMIT)
+                .setSeqNo(PenguardProto.SeqNo.newBuilder()
+                    .setSeqno(commitState.groupUpdate.getSeqNo()))
+                .build();
+        sendToAllGuardians(commit);
+    }
+
+    private void sendAbort() {
+        PenguardProto.PGPMessage abort = PenguardProto.PGPMessage.newBuilder()
+                .setName(myself.getName())
+                .setType(PenguardProto.PGPMessage.Type.GG_ABORT)
+                .setSeqNo(PenguardProto.SeqNo.newBuilder()
+                        .setSeqno(commitState.groupUpdate.getSeqNo()))
+                .build();
+        sendToAllGuardians(abort);
+    }
     void removePenguin(String mac) {
         Penguin p = ListHelper.getPenguinByAddress(penguins, mac);
         if (p != null) {
@@ -363,6 +421,12 @@ public class GuardService extends Service implements ListenerCallback{
         penguinListAdapter.notifyDataSetChanged();
     }
 
+    private void sendToAllGuardians(PenguardProto.PGPMessage message) {
+        for (Guardian g : guardians) {
+            dispatcher.sendPacket(message, g.getIp(), g.getPort());
+        }
+    }
+
     @Override
     public void onReceive(PenguardProto.PGPMessage parsedMessage, InetAddress address, int port) {
         debug(parsedMessage.toString());
@@ -389,7 +453,7 @@ public class GuardService extends Service implements ListenerCallback{
                 statusUpdateReceived(parsedMessage, address.getHostName(), port);
                 break;
             case GG_GRP_CHANGE:
-                grpChangeReceived(parsedMessage);
+                grpChangeReceived(parsedMessage, address.getHostName(), port);
                 break;
             case GG_COMMIT:
                 commitReceived(parsedMessage);
@@ -437,23 +501,68 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void voteNoReceived(PenguardProto.PGPMessage message){
-        // TODO implement method. See issue #32
+        if (commitState.state == CommitmentState.STATE_COMMIT_REQ_SENT
+                && message.getSeqNo().getSeqno() == commitState.groupUpdate.getSeqNo()) {
+            commitState.voteYesReceived();
+        }
     }
 
     private void voteYesReceived(PenguardProto.PGPMessage message){
-        // TODO implement method. See issue #33
+        if (commitState.state == CommitmentState.STATE_COMMIT_REQ_SENT
+                && message.getSeqNo().getSeqno() == commitState.groupUpdate.getSeqNo()) {
+            commitState.voteNoReceived();
+        }
     }
 
     private void abortReceived(PenguardProto.PGPMessage message){
-        // TODO implement method. See issue #34
+        if (commitState.state == CommitmentState.STATE_VOTED_YES
+                && commitState.initiantName.equals(message.getName())
+                && commitState.groupUpdate.getSeqNo() == message.getSeqNo().getSeqno()) {
+            debug("State update " + message.getSeqNo().getSeqno() + " aborted");
+            commitState.reset();
+        }
     }
 
     private void commitReceived(PenguardProto.PGPMessage message){
-        // TODO implement method. See issue #35
+        if (commitState.state == CommitmentState.STATE_VOTED_YES
+                && commitState.initiantName.equals(message.getName())
+                && commitState.groupUpdate.getSeqNo() == message.getSeqNo().getSeqno()) {
+            debug("Committing state number " + message.getSeqNo().getSeqno());
+            updateStatus(commitState.groupUpdate);
+            commitState.reset();
+        }
     }
 
-    private void grpChangeReceived(PenguardProto.PGPMessage message){
-        // TODO implement method. See issue #36
+    private void grpChangeReceived(PenguardProto.PGPMessage message, String host, int port){
+        if (commitState.state != CommitmentState.STATE_IDLE) { //We're already busy with a different commit
+            voteNo(message, host, port);
+        }
+        else if (message.getSeqNo().getSeqno() <= seqNo) { // This update is older than our state. Heck no.
+            voteNo(message, host, port);
+        }
+        else { // No objections
+            debug("Voted yes on status update " + message.getGroup().getSeqNo());
+            commitState.commitReqReceived(message, host, port);
+            voteYes(message, host, port);
+        }
+
+    }
+
+    private void voteYes(PenguardProto.PGPMessage message, String host, int port){
+        PenguardProto.PGPMessage vote = PenguardProto.PGPMessage.newBuilder()
+                .setType(PenguardProto.PGPMessage.Type.GG_VOTE_YES)
+                .setName(myself.getName())
+                .setSeqNo(message.getSeqNo())
+                .build();
+        dispatcher.sendPacket(vote, host, port);
+    }
+    private void voteNo(PenguardProto.PGPMessage message, String host, int port){
+        PenguardProto.PGPMessage vote = PenguardProto.PGPMessage.newBuilder()
+                .setType(PenguardProto.PGPMessage.Type.GG_VOTE_NO)
+                .setName(myself.getName())
+                .setSeqNo(message.getSeqNo())
+                .build();
+        dispatcher.sendPacket(vote, host, port);
     }
 
     private void statusUpdateReceived(PenguardProto.PGPMessage message, String ip, int port){
@@ -483,7 +592,7 @@ public class GuardService extends Service implements ListenerCallback{
         Gson gson = new Gson();
         List<PenguardProto.PGPMessage> mergerequests;
         if (pendingMergeRequests.equals("")){
-            mergerequests = new ArrayList<PenguardProto.PGPMessage>();
+            mergerequests = new ArrayList<>();
             mergerequests.add(message);
             String mergeRequestListString = gson.toJson(mergerequests);
             sharedPrefsEdit.putString(getString(R.string.group_merge_request_list), mergeRequestListString);
