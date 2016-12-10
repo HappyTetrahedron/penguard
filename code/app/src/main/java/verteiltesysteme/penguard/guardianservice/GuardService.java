@@ -16,6 +16,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.ListView;
 
@@ -95,6 +96,7 @@ public class GuardService extends Service implements ListenerCallback{
                 .setContentTitle(getString(R.string.penguard_active))
                 .setSmallIcon(R.drawable.icon)
                 .setOngoing(true)
+                .setColor(ContextCompat.getColor(this, R.color.orange))
                 .setContentIntent(PendingIntent.getActivity(appContext, 0,
                         new Intent(appContext, GGuardActivity.class), 0));
 
@@ -380,7 +382,22 @@ public class GuardService extends Service implements ListenerCallback{
     void removePenguin(String mac) {
         Penguin p = ListHelper.getPenguinByAddress(penguins, mac);
         if (p != null) {
-            penguins.remove(p);
+            if (groupIsEmpty()) { //we're alone, no commitment needed
+                penguins.remove(p);
+                penguinListAdapter.notifyDataSetChanged();
+            }
+            else {
+                List<PenguardProto.PGPPenguin> newPenguins = ListHelper.convertToPGPPenguinList(penguins);
+                newPenguins.remove(ListHelper.getPGPPenguinByAddress(newPenguins, mac));
+
+                PenguardProto.Group newGroup = PenguardProto.Group.newBuilder()
+                        .setSeqNo(seqNo + 1)
+                        .addAllPenguins(newPenguins)
+                        .addAllGuardians(ListHelper.convertToPGPGuardianList(guardians))
+                        .build();
+
+                initiateGroupChange(newGroup);
+            }
             p.disconnect();
         }
     }
@@ -408,12 +425,29 @@ public class GuardService extends Service implements ListenerCallback{
      */
     void addPenguin(Penguin penguin){
         if (!penguins.contains(penguin)) {
-            penguins.add(penguin);
-            debug("Penguin added.");
-            penguin.initialize((BluetoothManager) getSystemService(BLUETOOTH_SERVICE));
+            debug("Adding penguin " + penguin.getName());
+            if (groupIsEmpty()) { // we're alone, don't bother with commits or such
+                penguins.add(penguin);
+                penguinListAdapter.notifyDataSetChanged();
+            }
+            else {
+                PenguardProto.Group newGroup = PenguardProto.Group.newBuilder()
+                        .addAllGuardians(ListHelper.convertToPGPGuardianList(guardians))
+                        .addAllPenguins(ListHelper.convertToPGPPenguinList(penguins))
+                        .addPenguins(PenguardProto.PGPPenguin.newBuilder()
+                            .setMac(penguin.getAddress())
+                            .setName(penguin.getName())
+                            .setSeen(penguin.isSeen()))
+                        .setSeqNo(seqNo + 1)
+                        .build();
+                initiateGroupChange(newGroup);
+            }
         }
         debug("penguin already there");
-        penguinListAdapter.notifyDataSetChanged();
+    }
+
+    private boolean groupIsEmpty() {
+        return guardians.size() == 0;
     }
 
     void subscribeListViewToPenguinAdapter(ListView listView) {
@@ -660,10 +694,10 @@ public class GuardService extends Service implements ListenerCallback{
     private void updateStatus(PenguardProto.Group group) {
         ListHelper.copyGuardianListFromProtobufList(guardians, group.getGuardiansList());
         ListHelper.copyPenguinListFromProtobufList(penguins, group.getPenguinsList());
+        guardians.remove(myself);
+        penguinListAdapter.notifyDataSetChanged();
         this.seqNo = group.getSeqNo();
     }
-
-
 
     private void updateIpPortFromSettings(){
         plsIp = sharedPref.getString(getString(R.string.pref_key_server_address), getString(R.string.pref_default_server));
