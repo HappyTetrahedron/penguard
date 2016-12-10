@@ -12,11 +12,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
+import verteiltesysteme.penguard.guardianservice.LoginCallback;
 
 
 //this activity is used for login in the guard. It is called by the main activity. It receives an empty intent
@@ -24,6 +24,9 @@ import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 public class GLoginActivity extends AppCompatActivity {
 
     GuardianServiceConnection serviceConnection = new GuardianServiceConnection();
+
+    String lastUUID;
+    String lastUN;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +42,9 @@ public class GLoginActivity extends AppCompatActivity {
 
         //set the textview
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        String lastUN = sharedPref.getString(getString(R.string.pref_key_username), getString(R.string.pref_default_username));
+        lastUN = sharedPref.getString(getString(R.string.pref_key_username), getString(R.string.pref_default_username));
+        lastUUID = sharedPref.getString(getString(R.string.pref_key_uuid), getString(R.string.pref_default_uuid));
+        debug("last uuid " +lastUUID);
 
         usernameET.setText(lastUN);
 
@@ -51,9 +56,9 @@ public class GLoginActivity extends AppCompatActivity {
             public void onClick(final View view) {
 
                // Create a callback for the registration process
-                GLoginCallback loginCallback = new GLoginCallback() {
+                LoginCallback loginCallback = new LoginCallback() {
                     @Override
-                    public void registrationSuccess() {
+                    public void registrationSuccess(String uuid) {
                         // We can only manipulate the loading circle and button from the UI thread
                         runOnUiThread(new Runnable() {
                             @Override
@@ -65,7 +70,10 @@ public class GLoginActivity extends AppCompatActivity {
 
                         //update the username in the settings
                         debug("updating the username in the seetings: "+usernameET.getText().toString());
-                        sharedPref.edit().putString(getString(R.string.pref_key_username), usernameET.getText().toString()).apply();
+                        sharedPref.edit()
+                                .putString(getString(R.string.pref_key_username), usernameET.getText().toString())
+                                .putString(getString(R.string.pref_key_uuid), uuid)
+                                .apply();
 
                         // Start next activity
                         Intent intent = new Intent(view.getContext(), GGuardActivity.class);
@@ -87,15 +95,36 @@ public class GLoginActivity extends AppCompatActivity {
                     }
                 };
 
-                // Registration happens in GuardService. We pass a callback that will be executed once the server replies.
-                if(serviceConnection.register(usernameET.getText().toString(), loginCallback)) { // the registration process started successfully
-                    // disable join button to prevent spamming it
-                    joinB.setEnabled(false);
-                    // Display loading circle.
-                    findViewById(R.id.loadingCircle).setVisibility(View.VISIBLE);
+                debug("last username: " + lastUN + ". Current un: " + usernameET.getText() + ". Equal: " + usernameET.getText().toString());
+                if (lastUUID.equals("") || !lastUN.equals(usernameET.getText().toString())) { // Register a new user
+                    debug("Registering as new user");
+                    // Registration happens in GuardService. We pass a callback that will be executed once the server replies.
+                    if (serviceConnection.register(usernameET.getText().toString(), loginCallback)) { // the registration process started successfully
+                        // disable join button to prevent spamming it
+                        joinB.setEnabled(false);
+                        // Display loading circle.
+                        findViewById(R.id.loadingCircle).setVisibility(View.VISIBLE);
+
+                        if (!lastUUID.equals("")) { //We have registered previously but changed username
+                            serviceConnection.deregister(lastUN, lastUUID);
+                        }
+
+                    } else { // registration process did not start
+                        debug("Registering as existing user");
+                        displayToast("You are already registered");
+                    }
+
                 }
-                else { // registration process did not start
-                    displayToast("You are already registered");
+                else { // re-registering an existing user
+                    // Registration happens in GuardService. We pass a callback that will be executed once the server replies.
+                    if (serviceConnection.reregister(usernameET.getText().toString(), lastUUID, loginCallback)) { // the registration process started successfully
+                        // disable join button to prevent spamming it
+                        joinB.setEnabled(false);
+                        // Display loading circle.
+                        findViewById(R.id.loadingCircle).setVisibility(View.VISIBLE);
+                    } else { // registration process did not start
+                        displayToast("You are already registered");
+                    }
                 }
             }
         });

@@ -4,8 +4,6 @@ import android.util.Log;
 
 import java.util.UUID;
 
-import verteiltesysteme.penguard.GLoginCallback;
-
 class RegistrationState {
 
     final static int STATE_UNREGISTERED = 1;
@@ -14,7 +12,7 @@ class RegistrationState {
     int state = STATE_UNREGISTERED;
     String username = "";
     UUID uuid = null;
-    GLoginCallback loginCallback = null;
+    LoginCallback loginCallback = null;
 
     void reset() {
         state = STATE_UNREGISTERED;
@@ -23,7 +21,7 @@ class RegistrationState {
         loginCallback = null;
     }
 
-    void registrationProcessStarted(String username, GLoginCallback callback) {
+    void registrationProcessStarted(String username, LoginCallback callback) {
         this.username = username;
         this.loginCallback = callback;
         state = STATE_REGISTRATION_IN_PROGRESS;
@@ -35,7 +33,7 @@ class RegistrationState {
     }
 
     void registrationSucceeded(UUID uuid) {
-        if (loginCallback != null) loginCallback.registrationSuccess();
+        if (loginCallback != null) loginCallback.registrationSuccess(uuid.toString());
         this.uuid = uuid;
         state = STATE_REGISTERED;
     }

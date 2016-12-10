@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import verteiltesysteme.penguard.guardianservice.GroupJoinCallback;
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 
@@ -24,7 +25,7 @@ public class GGroupJoinActivity extends AppCompatActivity {
 
     GuardianServiceConnection guardianServiceConnection = new GuardianServiceConnection();
 
-    GGroupJoinCallback joinCallback;
+    GroupJoinCallback joinCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +46,7 @@ public class GGroupJoinActivity extends AppCompatActivity {
             }
         });
 
-        joinCallback = new GGroupJoinCallback() {
+        joinCallback = new GroupJoinCallback() {
             @Override
             public void joinSuccessful() {
                 toast("Join successful.");

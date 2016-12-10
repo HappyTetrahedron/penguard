@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -32,10 +31,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
 
-import verteiltesysteme.penguard.GGroupJoinCallback;
 import verteiltesysteme.penguard.GGroupMergeRequestsActivity;
 import verteiltesysteme.penguard.GGuardActivity;
-import verteiltesysteme.penguard.GLoginCallback;
 import verteiltesysteme.penguard.R;
 import verteiltesysteme.penguard.lowLevelNetworking.ListenerCallback;
 import verteiltesysteme.penguard.lowLevelNetworking.UDPDispatcher;
@@ -217,7 +214,7 @@ public class GuardService extends Service implements ListenerCallback{
         return new PenguinGuardBinder();
     }
 
-    boolean register(String username, GLoginCallback callback) {
+    boolean register(String username, LoginCallback callback) {
 
         if (regState.state != RegistrationState.STATE_UNREGISTERED) return false;
 
@@ -234,6 +231,7 @@ public class GuardService extends Service implements ListenerCallback{
 
         // send it to PLS
         updateIpPortFromSettings(); //just in case the user decided to change it in the meantime
+        debug("Sending to PLS: " + plsIp + ":" + plsPort);
         dispatcher.sendPacket(regMessage, plsIp, plsPort);
 
         // once timeout ticks off, cancel registration iff it is still in progress
@@ -246,7 +244,52 @@ public class GuardService extends Service implements ListenerCallback{
         return true;
     }
 
-    boolean joinGroup(final String groupUN, GGroupJoinCallback callback){
+    boolean reregister(String username, String uuid, LoginCallback callback){
+        if (regState.state != RegistrationState.STATE_UNREGISTERED) return false;
+
+        debug("Re-registering " + username);
+        myself.setName(username);
+        regState.registrationProcessStarted(username, callback);
+
+        // create registration message
+        PenguardProto.PGPMessage reregPing = PenguardProto.PGPMessage.newBuilder()
+
+                .setType(PenguardProto.PGPMessage.Type.GS_PING)
+                .setName(username)
+                .setPing(PenguardProto.Ping.newBuilder()
+                    .setUuid(uuid))
+                .build();
+
+        // send it to PLS
+        updateIpPortFromSettings(); //just in case the user decided to change it in the meantime
+        debug("Sending to PLS: " + plsIp + ":" + plsPort);
+        dispatcher.sendPacket(reregPing, plsIp, plsPort);
+
+        // once timeout ticks off, cancel registration iff it is still in progress
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (regState.state != RegistrationState.STATE_REGISTERED) regState.registrationFailed("Connection timed out");
+            }
+        }, NETWORK_TIMEOUT);
+        return true;
+
+    }
+
+    void deregister(String username, String uuid) {
+        debug("deregistering " + username);
+
+        PenguardProto.PGPMessage dereg = PenguardProto.PGPMessage.newBuilder()
+                .setType(PenguardProto.PGPMessage.Type.GS_DEREGISTER)
+                .setName(username)
+                .setGoodbye(PenguardProto.GoodBye.newBuilder()
+                    .setUuid(uuid))
+                .build();
+
+        dispatcher.sendPacket(dereg, plsIp, plsPort);
+    }
+
+    boolean joinGroup(final String groupUN, GroupJoinCallback callback){
         if (joinState.state != JoinState.STATE_IDLE) {
             debug("Join not initiated because another one is in progress");
             return false;

@@ -1,7 +1,7 @@
-package verteiltesysteme.penguard;
+package verteiltesysteme.penguard.guardianservice;
 
 
-public interface GGroupJoinCallback {
+public interface GroupJoinCallback {
     void joinSuccessful();
 
     void joinAccepted();

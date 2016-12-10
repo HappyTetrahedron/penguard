@@ -1,15 +1,13 @@
 package verteiltesysteme.penguard.guardianservice;
 
 
-import verteiltesysteme.penguard.GGroupJoinCallback;
-
-public class JoinState {
+class JoinState {
     final static int STATE_IDLE = 1;
     final static int STATE_JOIN_REQ_SENT = 2;
     final static int STATE_JOIN_INPROGRESS = 3;
     int state = STATE_IDLE;
 
-    private GGroupJoinCallback callback = null;
+    private GroupJoinCallback callback = null;
     
     String groupUN= ""; //the name of another group member of the group i'd like to join
     long timeStamp = 0;
@@ -20,7 +18,7 @@ public class JoinState {
         timeStamp = 0;
     }
 
-    void startGroupJoin(String groupUN, GGroupJoinCallback callback){
+    void startGroupJoin(String groupUN, GroupJoinCallback callback){
         state = STATE_JOIN_REQ_SENT;
         this.groupUN = groupUN;
         this.callback = callback;

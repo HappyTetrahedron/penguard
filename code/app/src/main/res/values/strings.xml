@@ -49,8 +49,10 @@
     <string name="pref_key_server_address">server_address</string>
     <string name="pref_key_server_port">port</string>
     <string name="pref_key_port">port</string>
+    <string name="pref_key_uuid">uuid</string>
     <string name="pref_default_server_port">6789</string>
     <string name="pref_default_port">6789</string>
+    <string name="pref_default_uuid"></string>
     <string name="pref_default_server">penguard.vsos.ethz.ch</string>
     <string name="pref_default_username">Username</string>
     <string name="pref_key_username">username</string>

@@ -1,13 +1,9 @@
 package verteiltesysteme.penguard.guardianservice;
 
-import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.widget.ListView;
-
-import verteiltesysteme.penguard.GGroupJoinCallback;
-import verteiltesysteme.penguard.GLoginCallback;
 
 public class GuardianServiceConnection implements ServiceConnection {
 
@@ -28,15 +24,23 @@ public class GuardianServiceConnection implements ServiceConnection {
      * @param callback The callback executed when we get a decision whether the user was registered or not.
      * @return True if registration request was sent, false if this guardian is already registered.
      */
-    public boolean register(String username, GLoginCallback callback) {
+    public boolean register(String username, LoginCallback callback) {
         return service.register(username, callback);
+    }
+
+    public boolean reregister(String username, String uuid, LoginCallback callback){
+        return service.reregister(username, uuid, callback);
+    }
+
+    public void deregister(String username, String uuid) {
+        service.deregister(username, uuid);
     }
 
     public boolean isConnected() {
         return service != null;
     }
 
-    public boolean joinGroup(String groupUN, GGroupJoinCallback callback){
+    public boolean joinGroup(String groupUN, GroupJoinCallback callback){
         return service.joinGroup(groupUN, callback);
     }
 
