@@ -19,6 +19,7 @@ public class MergeRequestArrayAdapter extends GenericArrayAdapter<PenguardProto.
 
     @Override
     public void drawText(TextView textView, PenguardProto.PGPMessage object) {
-        textView.setText(object.getName());
+        //textView.setText("blubb");
+        textView.setText(object.getMergeReq().getName());
     }
 }

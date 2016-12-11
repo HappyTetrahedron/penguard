@@ -47,6 +47,7 @@ public class GuardService extends Service implements ListenerCallback{
     private final Vector<Guardian> guardians = new Vector<>();
     private int seqNo = 0;
     private final int MERGE_NOTIFICATION_ID = 123;
+    private Vector<PenguardProto.PGPMessage> pendingMergeRequests = new Vector<PenguardProto.PGPMessage>();
 
     private Guardian myself = new Guardian();
 
@@ -532,12 +533,11 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void grpInfoReceived(PenguardProto.PGPMessage message){
-        // TODO implement method. See issue #31
         Vector<PenguardProto.PGPPenguin> otherpenguins = (Vector<PenguardProto.PGPPenguin>) message.getGroup().getPenguinsList();
         Vector<PenguardProto.PGPGuardian> otherguardians = (Vector<PenguardProto.PGPGuardian>) message.getGroup().getGuardiansList();
         ListHelper.addPGPGuardianListToGuardianList(otherguardians, guardians);
         ListHelper.addPGPPenguinListToPenguinList(otherpenguins, penguins);
-        //seqNo = Math.max(seqNo, message.getSeqNo().getSeqno()) + 1;
+        seqNo = Math.max(seqNo, message.getSeqNo().getSeqno()) + 1;
         for (Guardian guardian : guardians ){
             sendGroupChange(guardian.getIp(), guardian.getPort());
         }
@@ -624,33 +624,41 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void mergeReqReceived(PenguardProto.PGPMessage message){
-        Context context = getApplicationContext();
-        SharedPreferences sharedMergeRequests = context.getSharedPreferences(
-                getString(R.string.group_merge_request_list_file), Context.MODE_PRIVATE);
-        String pendingMergeRequests = sharedMergeRequests.getString(getString(R.string.group_merge_request_list), "");
+//        Context context = getApplicationContext();
+//        SharedPreferences sharedMergeRequests = context.getSharedPreferences(
+//                getString(R.string.group_merge_request_list_file), Context.MODE_PRIVATE);
+//        String pendingMergeRequests = sharedMergeRequests.getString(getString(R.string.group_merge_request_list), "");
 
         //I found nothing better than this hack to store the list of MergeRequests in sharedPreferences.
         //All according to this: http://stackoverflow.com/questions/14981233/android-arraylist-of-custom-objects-save-to-sharedpreferences-serializable
-        SharedPreferences.Editor sharedPrefsEdit = sharedMergeRequests.edit();
-        Gson gson = new Gson();
-        List<PenguardProto.PGPMessage> mergerequests;
-        if (pendingMergeRequests.equals("")){
-            mergerequests = new ArrayList<>();
-            mergerequests.add(message);
-            String mergeRequestListString = gson.toJson(mergerequests);
-            sharedPrefsEdit.putString(getString(R.string.group_merge_request_list), mergeRequestListString);
-            sharedPrefsEdit.commit();
-        }
-        else{
-            Type type = new TypeToken<ArrayList<PenguardProto.PGPMessage>>(){}.getType();
-            mergerequests = gson.fromJson(pendingMergeRequests, type);
-            mergerequests.add(message);
-            String mergeRequestListString = gson.toJson(mergerequests);
-            sharedPrefsEdit.putString(getString(R.string.group_merge_request_list), mergeRequestListString);
-            sharedPrefsEdit.commit();
-        }
+//        SharedPreferences.Editor sharedPrefsEdit = sharedMergeRequests.edit();
+//        Gson gson = new Gson();
+//        List<PenguardProto.PGPMessage> mergerequests;
+//        if (pendingMergeRequests.equals("")){
+//            mergerequests = new ArrayList<>();
+//            mergerequests.add(message);
+//            String mergeRequestListString = gson.toJson(mergerequests);
+//            sharedPrefsEdit.putString(getString(R.string.group_merge_request_list), mergeRequestListString);
+//            sharedPrefsEdit.commit();
+//        }
+//        else{
+//            Type type = new TypeToken<List<PenguardProto.PGPMessage>>(){}.getType();
+//            mergerequests = gson.fromJson(pendingMergeRequests, type);
+//            mergerequests.add(message);
+//            String mergeRequestListString = gson.toJson(mergerequests);
+//            sharedPrefsEdit.putString(getString(R.string.group_merge_request_list), mergeRequestListString);
+//            sharedPrefsEdit.commit();
+//        }
+
+//        if (pendingMergeRequests.isEmpty()){
+//            pendingMergeRequests = new Vector<PenguardProto.PGPMessage>();
+//        }
+//        pendingMergeRequests.add(message);
         //set Intent such that the user is directed to the MergeActivity
         Intent resultIntent = new Intent(this, GGroupMergeRequestsActivity.class);
+        resultIntent.putExtra("RequestIP", message.getMergeReq().getIp());
+        resultIntent.putExtra("RequestName", message.getMergeReq().getName());
+        resultIntent.putExtra("RequestPort", message.getMergeReq().getPort());
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(GGroupMergeRequestsActivity.class);
         stackBuilder.addNextIntent(resultIntent);
@@ -672,6 +680,7 @@ public class GuardService extends Service implements ListenerCallback{
         // create Group message
         Vector<PenguardProto.PGPPenguin> pgpPenguinVector = ListHelper.convertToPGPPenguinList(penguins);
         Vector<PenguardProto.PGPGuardian> pgpGuardianVector = ListHelper.convertToPGPGuardianList(guardians);
+        debug("packing message to send to group");
         PenguardProto.Group group = PenguardProto.Group.newBuilder()
 
                 .setSeqNo(seqNo)
@@ -686,6 +695,7 @@ public class GuardService extends Service implements ListenerCallback{
                 .setName(myself.getName())
                 .build();
 
+        debug("about to send group to: " + ip);
         dispatcher.sendPacket(groupMessage, ip, port);
     }
 

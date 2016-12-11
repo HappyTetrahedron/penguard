@@ -3,6 +3,7 @@ package verteiltesysteme.penguard.guardianservice;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.ListView;
 
 public class GuardianServiceConnection implements ServiceConnection {
@@ -75,6 +76,7 @@ public class GuardianServiceConnection implements ServiceConnection {
     }
 
     public void sendGroupTo(String ip, int port){
-        this.service.sendGroupTo(ip, port);
+        Log.e("####", "sendGroupTo: is the service null?" + (service == null));
+        service.sendGroupTo(ip, port);
     }
 }
