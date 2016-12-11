@@ -305,6 +305,7 @@ public class GuardService extends Service implements ListenerCallback{
         PenguardProto.PGPMessage joinMessage = PenguardProto.PGPMessage.newBuilder()
 
                 .setType(PenguardProto.PGPMessage.Type.GS_GROUP_REQ)
+                .setName(myself.getName())
                 .setGroupReq(PenguardProto.GroupReq.newBuilder().setName(groupUN))
                 .build();
 
@@ -463,7 +464,7 @@ public class GuardService extends Service implements ListenerCallback{
 
     @Override
     public void onReceive(PenguardProto.PGPMessage parsedMessage, InetAddress address, int port) {
-        debug(parsedMessage.toString());
+        if (parsedMessage.getType() != PenguardProto.PGPMessage.Type.SG_ACK) debug(parsedMessage.toString());
 
         //If the sender was one of the guardians from the group, update his state.
         Guardian sender = ListHelper.getGuardianByName(guardians, parsedMessage.getName());
