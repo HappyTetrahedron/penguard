@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Penguard</string>
     <string name="join">Join</string>
-    <string name="username">Username:</string>
+    <string name="username">Username</string>
     <string name="scanP">Scan for available Penguins</string>
     <string name="joinGroup">Join an already existing group</string>
     <string name="failBTScan">Scan failed, please retry</string>
@@ -24,6 +24,7 @@
     <string name="groupUN">Name of a group member: </string>
     <string name="penguinName_text">How do you want to name your penguin?</string>
     <string name="penguinName">Penguin name:</string>
+    <string name="penguinNameHint">Name</string>
     <string name="penguinName_Button">Continue</string>
     <string name="peng">Penguin</string>
     <string name="penguinName_suc">Penguin was successfully named</string>
