@@ -531,7 +531,15 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void grpInfoReceived(PenguardProto.PGPMessage message){
-
+        // TODO implement method. See issue #31
+        Vector<PenguardProto.PGPPenguin> otherpenguins = (Vector<PenguardProto.PGPPenguin>) message.getGroup().getPenguinsList();
+        Vector<PenguardProto.PGPGuardian> otherguardians = (Vector<PenguardProto.PGPGuardian>) message.getGroup().getGuardiansList();
+        ListHelper.addPGPGuardianListToGuardianList(otherguardians, guardians);
+        ListHelper.addPGPPenguinListToPenguinList(otherpenguins, penguins);
+        //seqNo = Math.max(seqNo, message.getSeqNo().getSeqno()) + 1;
+        for (Guardian guardian : guardians ){
+            sendGroupChange(guardian.getIp(), guardian.getPort());
+        }
     }
 
     private void voteNoReceived(PenguardProto.PGPMessage message){
@@ -650,6 +658,7 @@ public class GuardService extends Service implements ListenerCallback{
         //builds notification and sends it to the system. thanks to the id, it will be updated when this is called again
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.icon)
+                .setColor(ContextCompat.getColor(this, R.color.orange))
                 .setContentTitle(getText(R.string.notification_merge_request_title))
                 .setContentText(getText(R.string.notification_merge_request_text))
                 .setContentIntent(resultpendingIntent);
@@ -677,6 +686,24 @@ public class GuardService extends Service implements ListenerCallback{
                 .build();
 
         dispatcher.sendPacket(groupMessage, ip, port);
+    }
+
+    private void sendGroupChange(String ip, int port){
+        //create group-message
+        Vector<PenguardProto.PGPPenguin> pgpPenguinVector = ListHelper.convertToPGPPenguinList(penguins);
+        Vector<PenguardProto.PGPGuardian> pgpGuardianVector = ListHelper.convertToPGPGuardianList(guardians);
+
+        PenguardProto.Group group = PenguardProto.Group.newBuilder()
+                .setSeqNo(seqNo)
+                .addAllGuardians(pgpGuardianVector)
+                .addAllPenguins(pgpPenguinVector)
+                .build();
+        //create group_change-message
+        PenguardProto.PGPMessage groupChange = PenguardProto.PGPMessage.newBuilder()
+                .setType(PenguardProto.PGPMessage.Type.GG_GRP_CHANGE)
+                .setGroup(group)
+                .build();
+        dispatcher.sendPacket(groupChange, ip, port);
     }
 
     /**

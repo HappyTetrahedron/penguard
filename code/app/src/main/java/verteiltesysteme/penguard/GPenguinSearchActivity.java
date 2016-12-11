@@ -254,7 +254,7 @@ public class GPenguinSearchActivity extends AppCompatActivity {
         else { // no results found
             toast(getString(R.string.noResultBTScan));
         }
-        
+
         if (bluetoothAdapter.getBluetoothLeScanner() != null){
             bluetoothAdapter.getBluetoothLeScanner().stopScan(scanCallback);
             bluetoothAdapter.cancelDiscovery();
