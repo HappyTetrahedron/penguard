@@ -26,10 +26,15 @@
     <string name="penguinName">Penguin name:</string>
     <string name="penguinNameHint">Name</string>
     <string name="penguinName_Button">Continue</string>
-    <string name="peng">Penguin</string>
+    <string name="peng">Penguin </string>
     <string name="penguinName_suc">Penguin was successfully named</string>
     <string name="penguinName_empty">Please choose a name for your penguin</string>
     <string name="endService">End Service</string>
+    <string name="joinSuc">Join successful.</string>
+    <string name="joinAcept">Your Join request was accepted. Updating group...</string>
+    <string name="joinFail">Unable to join group</string>
+    <string name="alreadyRegistered">You are already registered</string>
+    <string name="sendingTo">Sending to </string>
 
 
 

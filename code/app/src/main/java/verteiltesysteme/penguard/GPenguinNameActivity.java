@@ -18,13 +18,15 @@ import verteiltesysteme.penguard.guardianservice.GuardService;
 
 public class GPenguinNameActivity extends AppCompatActivity {
     private  BluetoothDevice device;
+    final static String DEVICE_KEY = "device";
+    final static String NEW_NAME_EXTRA = "newName";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gpenguin_name);
         debug("onCreate: entered nameingphase");
         Intent intent = getIntent();
-        device = intent.getParcelableExtra("device");
+        device = intent.getParcelableExtra(DEVICE_KEY);
     }
 
     public void submit(View view){
@@ -33,8 +35,8 @@ public class GPenguinNameActivity extends AppCompatActivity {
 
         if (!newPenguinName.equals("")) {
             Intent resultData = new Intent();
-            resultData.putExtra("device", device);
-            resultData.putExtra("newName", newPenguinName);
+            resultData.putExtra(DEVICE_KEY, device);
+            resultData.putExtra(NEW_NAME_EXTRA, newPenguinName);
             debug( "submit: setup result");
             setResult(Activity.RESULT_OK, resultData);
             toast(getString(R.string.penguinName_suc));

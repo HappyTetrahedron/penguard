@@ -40,15 +40,12 @@ public class MainActivity extends AppCompatActivity {
         b1 = (Button)findViewById(R.id.button); //i'm a guard
         b2 = (Button)findViewById(R.id.button2); //i'm a penguin
 
-        /* Not sure if I'm supposed to but, put I put my UDPTesting activity here, so that when I click the
-         * button I can test whether my UDP implementation works. If anyone needs the button for something else,
-         * feel free to just remove it. --Nils
-         */
+
         b2.setOnClickListener(new View.OnClickListener() { @Override
         public void onClick(View view) {
-            /*Intent intent = new Intent(view.getContext(), GGroupJoinActivity.class); //TODO i changed this for the purpose of doing #17 since we do not have the server yet and the intent flow is sort of weird too
+            /*Intent intent = new Intent(view.getContext(), GGroupJoinActivity.class);
             startActivity(intent);*/
-            toast("Being a penguin is not implemented yet...sorry");
+            toast("Being a penguin is not implemented yet...sorry"); //TODO #60
 
         }
         });

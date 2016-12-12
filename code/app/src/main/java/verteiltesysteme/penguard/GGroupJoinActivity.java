@@ -49,13 +49,13 @@ public class GGroupJoinActivity extends AppCompatActivity {
         joinCallback = new GroupJoinCallback() {
             @Override
             public void joinSuccessful() {
-                toast("Join successful.");
+                toast(getString(R.string.joinSuc));
                 GGroupJoinActivity.this.finish();
             }
 
             @Override
             public void joinAccepted() {
-                toast("Your Join request was accepted. Updating group...");
+                toast(getString(R.string.joinAcept));
             }
 
             @Override
@@ -92,7 +92,7 @@ public class GGroupJoinActivity extends AppCompatActivity {
             //join started successful
         } else {
             //something went wrong
-            toast("Unable to join group");
+            toast(getString(R.string.joinFail));
             btn.setEnabled(true); //reenable to button
         }
     }
