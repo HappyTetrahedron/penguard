@@ -31,8 +31,14 @@
     <string name="penguinName_empty">Please choose a name for your penguin</string>
     <string name="endService">End Service</string>
 
-    <string name="menu_settings">Settings</string>
 
+
+    <!-- Strings related to calibration -->
+    <string name="button_calibration_start">Start Calibration</string>
+    <string name="button_calibration_end">End Calibration</string>
+    <string name="calibration_description">Bring the penguin as close as possible, then press Start</string>
+
+    <!-- Strings related to merge requests -->
     <string name="group_merge_request_list_file">merge_request_list_file</string>
     <string name="group_merge_request_list">merge_request_list</string>
     <string name="dialog_title_merge_request">Merge Groups?</string>
@@ -44,6 +50,7 @@
 
     <!-- Strings related to Settings -->
 
+    <string name="menu_settings">Settings</string>
     <string name="pref_header_general">General</string>
     <string name="ServerIPURL">Server IP or URL</string>
     <string name="ServerPort">Server Port</string>

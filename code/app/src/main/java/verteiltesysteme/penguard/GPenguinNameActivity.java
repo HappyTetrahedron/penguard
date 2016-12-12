@@ -28,12 +28,10 @@ public class GPenguinNameActivity extends AppCompatActivity {
     }
 
     public void submit(View view){
-        debug("submit: button was clicked");
         EditText newName = (EditText) findViewById(R.id.newPenguinName);
         String newPenguinName = newName.getText().toString();
 
         if (!newPenguinName.equals("")) {
-            debug( "submit: textedit was not empty");
             Intent resultData = new Intent();
             resultData.putExtra("device", device);
             resultData.putExtra("newName", newPenguinName);

@@ -407,6 +407,10 @@ public class GuardService extends Service implements ListenerCallback{
         }
     }
 
+    Penguin getPenguin(String mac) {
+        return ListHelper.getPenguinByAddress(penguins, mac);
+    }
+
     String getPenguinName(String mac) {
         Penguin p = ListHelper.getPenguinByAddress(penguins, mac);
         if (p != null) return p.getName();
@@ -755,7 +759,8 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void debug(String msg) {
-        Log.d("GuardService", msg);
+        final boolean shutup = true;
+        if (! shutup) Log.d("GuardService", msg);
     }
 
 }
