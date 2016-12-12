@@ -716,7 +716,9 @@ public class GuardService extends Service implements ListenerCallback{
                 .setColor(ContextCompat.getColor(this, R.color.orange))
                 .setContentTitle(getText(R.string.notification_merge_request_title))
                 .setContentText(getText(R.string.notification_merge_request_text))
-                .setContentIntent(resultpendingIntent);
+                .setContentIntent(resultpendingIntent)
+                .setAutoCancel(true);
+
 
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(MERGE_NOTIFICATION_ID, mBuilder.build());

@@ -127,7 +127,10 @@ public class GGroupMergeRequestsActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(serviceConnection);
+        if (serviceConnection != null && serviceConnection.isConnected()) {
+            unbindService(serviceConnection);
+        }
+
     }
 
     @Override
