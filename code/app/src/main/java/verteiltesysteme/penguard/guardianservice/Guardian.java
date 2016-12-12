@@ -15,7 +15,7 @@ public class Guardian {
 
     private String name;
 
-    private long lastSeenTimestamp;
+    private long lastSeenTimestamp; //TODO #62
 
     Guardian() {
         name = null;
@@ -28,11 +28,6 @@ public class Guardian {
         this.name = name;
         this.ip = ip;
         this.port = port;
-        try {
-            this.address = InetAddress.getByName(ip);
-        } catch (UnknownHostException e) {
-            debug("Unknown Host " + ip);
-        }
     }
 
     Guardian(String name, InetAddress address, int port) {
@@ -61,7 +56,16 @@ public class Guardian {
     }
 
     public InetAddress getAddress() {
-        return address;
+        if (address != null) {
+            return address;
+        }
+        try {
+            address = InetAddress.getByName(ip);
+            return address;
+        } catch (UnknownHostException e) {
+            debug("Invalid address: " + e.getMessage());
+        }
+        return null;
     }
 
     public String getIp() {

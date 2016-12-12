@@ -41,13 +41,14 @@ import verteiltesysteme.penguard.guardianservice.Penguin;
 
 public class GPenguinSearchActivity extends AppCompatActivity {
     static final int SCAN_PERIOD = 10000; // scan period in ms
-    static final String EXTRA_DEVICE = "bt_device"; //aka the penguin
+    static final String EXTRA_DEVICE = "device"; //aka the penguin
+    static final String EXTRA_Name = "newName";
     static final int REQUEST_ENABLE_BT = 1; // request code for bluetooth enabling
     static final int PERMISSION_REQUEST_FINE_LOCATION = 2; // request code for location permission
     static final int ASK_PENGUIN_NAME = 1;
     protected enum StoppedBy{
-        NAMING, TIMEOUT, QUIT;
-    };
+        NAMING, TIMEOUT, QUIT
+    }
 
     ArrayList<BluetoothDevice> scanResultsList = new ArrayList<>();
     BroadcastReceiver bcr;
@@ -142,7 +143,7 @@ public class GPenguinSearchActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BluetoothDevice device = (BluetoothDevice)parent.getItemAtPosition(position);
                 Intent getPenguinName = new Intent(getApplicationContext(), GPenguinNameActivity.class);
-                getPenguinName.putExtra("device", device);
+                getPenguinName.putExtra(EXTRA_DEVICE, device);
                 stopBluetoothScan(StoppedBy.NAMING);
                 startActivityForResult(getPenguinName, ASK_PENGUIN_NAME);
             }
@@ -161,9 +162,9 @@ public class GPenguinSearchActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == ASK_PENGUIN_NAME){
             if (resultCode == RESULT_OK){
-                BluetoothDevice device = data.getParcelableExtra("device");
-                String penguinName = data.getStringExtra("newName");
-                serviceConnection.addPenguin(new Penguin(device, "Penguin " + penguinName));
+                BluetoothDevice device = data.getParcelableExtra(EXTRA_DEVICE);
+                String penguinName = data.getStringExtra(EXTRA_Name);
+                serviceConnection.addPenguin(new Penguin(device, getString(R.string.peng) + penguinName));
                 Intent intent = new Intent(this, GGuardActivity.class);
                 startActivity(intent);
             }
@@ -210,11 +211,6 @@ public class GPenguinSearchActivity extends AppCompatActivity {
     }
 
     private void startBluetoothScan() {
-        /* There used to be a null-check for bluetoothAdapter here, which, if failed, prints out "LE scanner not found", but really,
-         * I would much rather have our application crash here if the adapter is missing. Otherwise we're just making debugging opaque.
-         * Feel free to shout at me if you disagree :P
-         * -Nils
-         */
         restartScanButton.setEnabled(false); // So that user cannot press Scan while scan is running
         bluetoothAdapter.getBluetoothLeScanner().startScan(scanFilters,scanSettings,scanCallback);
         restartScanButton.setText(getText(R.string.scanningBTScan));

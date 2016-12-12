@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:title="End Service"
+    <item android:title="@string/endService"
         android:id="@+id/menu_endService"
         android:orderInCategory="1"/>
 

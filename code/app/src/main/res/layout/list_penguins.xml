@@ -8,7 +8,7 @@
         android:id="@+id/penguinName"
         android:layout_width="match_parent"
         android:layout_height="20pt"
-        android:text="Penguin"
+        android:text="@string/peng"
         android:textAppearance="@style/TextAppearance.AppCompat"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"

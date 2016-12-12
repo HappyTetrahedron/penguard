@@ -20,14 +20,9 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.ListView;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
@@ -41,6 +36,12 @@ import verteiltesysteme.penguard.lowLevelNetworking.UDPListener;
 import verteiltesysteme.penguard.protobuf.PenguardProto;
 
 public class GuardService extends Service implements ListenerCallback{
+
+    private final boolean SHUTUP = false;
+
+    final static String EXTRA_IP = "RequestIP";
+    final static String EXTRA_PORT = "RequestedPort";
+    final static String EXTRA_NAME = "RequestedName";
 
     // group state: penguins, guardians, and state sequence number
     private final Vector<Penguin> penguins = new Vector<>();
@@ -147,24 +148,18 @@ public class GuardService extends Service implements ListenerCallback{
             @Override
             public void run() {
                 while (dispatcher.isOpen()) {
-                    if (regState.state == RegistrationState.STATE_REGISTERED) {
-                        PenguardProto.PGPMessage ping = PenguardProto.PGPMessage.newBuilder()
-                                .setType(PenguardProto.PGPMessage.Type.GS_PING)
-                                .setPing(PenguardProto.Ping.newBuilder()
-                                        .setUuid(regState.uuid.toString()))
-                                .setName(myself.getName())
-                                .build();
-
-                        dispatcher.sendPacket(ping, plsIp, plsPort);
-                    }
                     try {
                         Thread.sleep(PING_INTERVAL);
                     } catch (InterruptedException e) {
                         // pass
                     }
+                    sendPings();
                 }
             }
         });
+
+        updateUsernameFromSettings();
+        guardians.add(myself);
     }
 
     @Override
@@ -176,13 +171,14 @@ public class GuardService extends Service implements ListenerCallback{
         try {
             listener.join();
         } catch (InterruptedException e) {
-            // do nothing? TODO how do we handle this?
+            // do nothing? TODO how do we handle this? #61
         }
 
         bluetoothThread.stopScanning();
 
         unregisterReceiver(bluetoothThread.getBroadcastReceiver());
         unregisterReceiver(bluetoothBroadcastReceiver);
+
     }
 
     @Override
@@ -246,6 +242,34 @@ public class GuardService extends Service implements ListenerCallback{
             }
         }, NETWORK_TIMEOUT);
         return true;
+    }
+
+    private void sendPings(){
+        // send ping to server iff registered
+        if (regState.state == RegistrationState.STATE_REGISTERED) {
+            PenguardProto.PGPMessage ping = PenguardProto.PGPMessage.newBuilder()
+                    .setType(PenguardProto.PGPMessage.Type.GS_PING)
+                    .setPing(PenguardProto.Ping.newBuilder()
+                            .setUuid(regState.uuid.toString()))
+                    .setName(myself.getName())
+                    .build();
+
+            dispatcher.sendPacket(ping, plsIp, plsPort);
+        }
+
+        // send status to other guardians if there are any
+        if (!groupIsEmpty()) {
+            PenguardProto.PGPMessage status = PenguardProto.PGPMessage.newBuilder()
+                    .setType(PenguardProto.PGPMessage.Type.GG_STATUS_UPDATE)
+                    .setName(myself.getName())
+                    .setGroup(PenguardProto.Group.newBuilder()
+                            .setSeqNo(seqNo)
+                            .addAllGuardians(ListHelper.convertToPGPGuardianList(guardians))
+                            .addAllPenguins(ListHelper.convertToPGPPenguinList(penguins)))
+                    .build();
+
+            sendToAllGuardians(status);
+        }
     }
 
     boolean reregister(String username, String uuid, LoginCallback callback){
@@ -325,6 +349,7 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private boolean initiateGroupChange(PenguardProto.Group group) {
+        debug("Initiating commit for new group: " + group);
         if (group.getSeqNo() <= seqNo) return false;
         if (commitState.state != CommitmentState.STATE_IDLE) return false;
 
@@ -335,7 +360,7 @@ public class GuardService extends Service implements ListenerCallback{
                 .setType(PenguardProto.PGPMessage.Type.GG_GRP_CHANGE)
                 .setGroup(group)
                 .build();
-        sendToAllGuardians(commit);
+        sendCommitToAllGuardians(commit);
 
         // check upon the commit after a timeout
         handler.postDelayed(new Runnable() {
@@ -349,14 +374,20 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void checkAndCommitOrAbort() {
+        debug("checking back on previously initiated group change");
         if (commitState.state != CommitmentState.STATE_COMMIT_REQ_SENT) return;
 
-        if (commitState.voteYesReceived && ! commitState.voteNoReceived) { // We got at least one yes, and no no
+        debug("voteYesReceived: " + commitState.voteYesReceived);
+        debug("voteNoReceived: " + commitState.voteNoReceived);
+
+        if (commitState.voteYesReceived && !commitState.voteNoReceived) { // We got at least one yes, and no no
+            debug("change is ok, commit");
             sendCommit();
             updateStatus(commitState.groupUpdate);
             commitState.commit();
         }
         else {
+            debug("change is nok, abort");
             sendAbort();
             commitState.abort();
         }
@@ -369,7 +400,7 @@ public class GuardService extends Service implements ListenerCallback{
                 .setSeqNo(PenguardProto.SeqNo.newBuilder()
                     .setSeqno(commitState.groupUpdate.getSeqNo()))
                 .build();
-        sendToAllGuardians(commit);
+        sendCommitToAllGuardians(commit);
     }
 
     private void sendAbort() {
@@ -379,14 +410,13 @@ public class GuardService extends Service implements ListenerCallback{
                 .setSeqNo(PenguardProto.SeqNo.newBuilder()
                         .setSeqno(commitState.groupUpdate.getSeqNo()))
                 .build();
-        sendToAllGuardians(abort);
+        sendCommitToAllGuardians(abort);
     }
     void removePenguin(String mac) {
         Penguin p = ListHelper.getPenguinByAddress(penguins, mac);
         if (p != null) {
             if (groupIsEmpty()) { //we're alone, no commitment needed
                 penguins.remove(p);
-                penguinListAdapter.notifyDataSetChanged();
             }
             else {
                 List<PenguardProto.PGPPenguin> newPenguins = ListHelper.convertToPGPPenguinList(penguins);
@@ -411,13 +441,13 @@ public class GuardService extends Service implements ListenerCallback{
     String getPenguinName(String mac) {
         Penguin p = ListHelper.getPenguinByAddress(penguins, mac);
         if (p != null) return p.getName();
-        else return "unknown penguin";
+        else return getString(R.string.unknownPenguin);
     }
 
     String getPenguinSeenByString(String mac) {
         Penguin p = ListHelper.getPenguinByAddress(penguins, mac);
         if (p != null) return p.getSeenByInfo();
-        else return "unknown";
+        else return getString(R.string.unknown);
     }
 
     boolean isRegistered(){
@@ -434,7 +464,6 @@ public class GuardService extends Service implements ListenerCallback{
             debug("Adding penguin " + penguin.getName());
             if (groupIsEmpty()) { // we're alone, don't bother with commits or such
                 penguins.add(penguin);
-                penguinListAdapter.notifyDataSetChanged();
             }
             else {
                 PenguardProto.Group newGroup = PenguardProto.Group.newBuilder()
@@ -453,23 +482,36 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private boolean groupIsEmpty() {
-        return guardians.size() == 0;
+        return guardians.size() <= 1;
     }
 
     void subscribeListViewToPenguinAdapter(ListView listView) {
         listView.setAdapter(penguinListAdapter);
-        penguinListAdapter.notifyDataSetChanged();
     }
 
     private void sendToAllGuardians(PenguardProto.PGPMessage message) {
         for (Guardian g : guardians) {
-            dispatcher.sendPacket(message, g.getIp(), g.getPort());
+            if (!g.equals(myself)) {
+                dispatcher.sendPacket(message, g.getIp(), g.getPort());
+            }
+        }
+    }
+
+    private void sendCommitToAllGuardians(PenguardProto.PGPMessage message) {
+        List<PenguardProto.PGPGuardian> pgpGuardians = commitState.groupUpdate.getGuardiansList();
+        for (PenguardProto.PGPGuardian g : pgpGuardians) {
+            if (!g.getName().equals(myself.getName())){
+                dispatcher.sendPacket(message, g.getIp(), g.getPort());
+            }
         }
     }
 
     @Override
     public void onReceive(PenguardProto.PGPMessage parsedMessage, InetAddress address, int port) {
-        if (parsedMessage.getType() != PenguardProto.PGPMessage.Type.SG_ACK) debug(parsedMessage.toString());
+        if (parsedMessage.getType() != PenguardProto.PGPMessage.Type.SG_ACK
+                && parsedMessage.getType() != PenguardProto.PGPMessage.Type.GG_ACK
+                && parsedMessage.getType() != PenguardProto.PGPMessage.Type.GG_STATUS_UPDATE)
+            debug(parsedMessage.toString());
 
         //If the sender was one of the guardians from the group, update his state.
         Guardian sender = ListHelper.getGuardianByName(guardians, parsedMessage.getName());
@@ -537,28 +579,58 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void grpInfoReceived(PenguardProto.PGPMessage message){
-        Vector<PenguardProto.PGPPenguin> otherpenguins = (Vector<PenguardProto.PGPPenguin>) message.getGroup().getPenguinsList();
-        Vector<PenguardProto.PGPGuardian> otherguardians = (Vector<PenguardProto.PGPGuardian>) message.getGroup().getGuardiansList();
-        ListHelper.addPGPGuardianListToGuardianList(otherguardians, guardians);
-        ListHelper.addPGPPenguinListToPenguinList(otherpenguins, penguins);
-        seqNo = Math.max(seqNo, message.getSeqNo().getSeqno()) + 1;
-        for (Guardian guardian : guardians ){
-            sendGroupChange(guardian.getIp(), guardian.getPort());
-        }
+        List<PenguardProto.PGPGuardian> mergedGuardians = ListHelper.mergeGuardiansList(
+                ListHelper.convertToPGPGuardianList(guardians),
+                message.getGroup().getGuardiansList()
+        );
+        List<PenguardProto.PGPPenguin> mergedPenguins = ListHelper.mergePenguinLists(
+                ListHelper.convertToPGPPenguinList(penguins),
+                message.getGroup().getPenguinsList()
+        );
+        int newSeqNo = Math.max(seqNo, message.getGroup().getSeqNo()) + 1;
+
+        debug("======MY GROUP=======");
+        for (Guardian g : guardians ) debug(g.getName());
+        for (Penguin p : penguins) debug(p.getName());
+        debug("======END MY GROUP=======");
+
+        debug("======OTHER GROUP=======");
+        for (PenguardProto.PGPGuardian g : message.getGroup().getGuardiansList()) debug(g.toString());
+        for (PenguardProto.PGPPenguin g : message.getGroup().getPenguinsList()) debug(g.toString());
+        debug("======END OTHER GROUP=======");
+
+        debug("======NEW GROUP=======");
+        for (PenguardProto.PGPGuardian g : mergedGuardians) debug(g.toString());
+        for (PenguardProto.PGPPenguin g : mergedPenguins) debug(g.toString());
+        debug("======END NEW GROUP=======");
+
+             PenguardProto.Group newGroup = PenguardProto.Group.newBuilder()
+                .setSeqNo(newSeqNo)
+                .addAllGuardians(mergedGuardians)
+                .addAllPenguins(mergedPenguins)
+                .build();
+        debug("Starting big big commit for group merge.");
+        initiateGroupChange(newGroup);
     }
 
     private void voteNoReceived(PenguardProto.PGPMessage message){
         if (commitState.state == CommitmentState.STATE_COMMIT_REQ_SENT
                 && message.getSeqNo().getSeqno() == commitState.groupUpdate.getSeqNo()) {
-            commitState.voteYesReceived();
+            commitState.voteNoReceived();
         }
     }
 
     private void voteYesReceived(PenguardProto.PGPMessage message){
         if (commitState.state == CommitmentState.STATE_COMMIT_REQ_SENT
                 && message.getSeqNo().getSeqno() == commitState.groupUpdate.getSeqNo()) {
-            commitState.voteNoReceived();
+            debug("Accepting a yes vote");
+            commitState.voteYesReceived();
         }
+        else {
+            debug("Not accepting yes vote");
+        }
+        debug("state is " + commitState.state );
+        debug("commit no is " + commitState.groupUpdate.getSeqNo() +", received no is " + message.getSeqNo().getSeqno());
     }
 
     private void abortReceived(PenguardProto.PGPMessage message){
@@ -582,9 +654,11 @@ public class GuardService extends Service implements ListenerCallback{
 
     private void grpChangeReceived(PenguardProto.PGPMessage message, String host, int port){
         if (commitState.state != CommitmentState.STATE_IDLE) { //We're already busy with a different commit
+            debug("voting no because already in a different commit");
             voteNo(message, host, port);
         }
-        else if (message.getSeqNo().getSeqno() <= seqNo) { // This update is older than our state. Heck no.
+        else if (message.getGroup().getSeqNo() <= seqNo) { // This update is older than our state. Heck no.
+            debug("voting no because sequence number too small, " + message.getGroup().getSeqNo() + "<" + seqNo);
             voteNo(message, host, port);
         }
         else { // No objections
@@ -599,7 +673,8 @@ public class GuardService extends Service implements ListenerCallback{
         PenguardProto.PGPMessage vote = PenguardProto.PGPMessage.newBuilder()
                 .setType(PenguardProto.PGPMessage.Type.GG_VOTE_YES)
                 .setName(myself.getName())
-                .setSeqNo(message.getSeqNo())
+                .setSeqNo(PenguardProto.SeqNo.newBuilder()
+                        .setSeqno(message.getGroup().getSeqNo()))
                 .build();
         dispatcher.sendPacket(vote, host, port);
     }
@@ -607,7 +682,8 @@ public class GuardService extends Service implements ListenerCallback{
         PenguardProto.PGPMessage vote = PenguardProto.PGPMessage.newBuilder()
                 .setType(PenguardProto.PGPMessage.Type.GG_VOTE_NO)
                 .setName(myself.getName())
-                .setSeqNo(message.getSeqNo())
+                .setSeqNo(PenguardProto.SeqNo.newBuilder()
+                        .setSeqno(message.getGroup().getSeqNo()))
                 .build();
         dispatcher.sendPacket(vote, host, port);
     }
@@ -628,41 +704,11 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void mergeReqReceived(PenguardProto.PGPMessage message){
-//        Context context = getApplicationContext();
-//        SharedPreferences sharedMergeRequests = context.getSharedPreferences(
-//                getString(R.string.group_merge_request_list_file), Context.MODE_PRIVATE);
-//        String pendingMergeRequests = sharedMergeRequests.getString(getString(R.string.group_merge_request_list), "");
-
-        //I found nothing better than this hack to store the list of MergeRequests in sharedPreferences.
-        //All according to this: http://stackoverflow.com/questions/14981233/android-arraylist-of-custom-objects-save-to-sharedpreferences-serializable
-//        SharedPreferences.Editor sharedPrefsEdit = sharedMergeRequests.edit();
-//        Gson gson = new Gson();
-//        List<PenguardProto.PGPMessage> mergerequests;
-//        if (pendingMergeRequests.equals("")){
-//            mergerequests = new ArrayList<>();
-//            mergerequests.add(message);
-//            String mergeRequestListString = gson.toJson(mergerequests);
-//            sharedPrefsEdit.putString(getString(R.string.group_merge_request_list), mergeRequestListString);
-//            sharedPrefsEdit.commit();
-//        }
-//        else{
-//            Type type = new TypeToken<List<PenguardProto.PGPMessage>>(){}.getType();
-//            mergerequests = gson.fromJson(pendingMergeRequests, type);
-//            mergerequests.add(message);
-//            String mergeRequestListString = gson.toJson(mergerequests);
-//            sharedPrefsEdit.putString(getString(R.string.group_merge_request_list), mergeRequestListString);
-//            sharedPrefsEdit.commit();
-//        }
-
-//        if (pendingMergeRequests.isEmpty()){
-//            pendingMergeRequests = new Vector<PenguardProto.PGPMessage>();
-//        }
-//        pendingMergeRequests.add(message);
         //set Intent such that the user is directed to the MergeActivity
         Intent resultIntent = new Intent(this, GGroupMergeRequestsActivity.class);
-        resultIntent.putExtra("RequestIP", message.getMergeReq().getIp());
-        resultIntent.putExtra("RequestName", message.getMergeReq().getName());
-        resultIntent.putExtra("RequestPort", message.getMergeReq().getPort());
+        resultIntent.putExtra(EXTRA_IP, message.getMergeReq().getIp());
+        resultIntent.putExtra(EXTRA_NAME, message.getMergeReq().getName());
+        resultIntent.putExtra(EXTRA_PORT, message.getMergeReq().getPort());
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(GGroupMergeRequestsActivity.class);
         stackBuilder.addNextIntent(resultIntent);
@@ -674,7 +720,9 @@ public class GuardService extends Service implements ListenerCallback{
                 .setColor(ContextCompat.getColor(this, R.color.orange))
                 .setContentTitle(getText(R.string.notification_merge_request_title))
                 .setContentText(getText(R.string.notification_merge_request_text))
-                .setContentIntent(resultpendingIntent);
+                .setContentIntent(resultpendingIntent)
+                .setAutoCancel(true);
+
 
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(MERGE_NOTIFICATION_ID, mBuilder.build());
@@ -688,6 +736,7 @@ public class GuardService extends Service implements ListenerCallback{
         PenguardProto.Group group = PenguardProto.Group.newBuilder()
 
                 .setSeqNo(seqNo)
+                // add the others
                 .addAllGuardians(pgpGuardianVector)
                 .addAllPenguins(pgpPenguinVector)
                 .build();
@@ -699,26 +748,8 @@ public class GuardService extends Service implements ListenerCallback{
                 .setName(myself.getName())
                 .build();
 
-        debug("about to send group to: " + ip);
+        debug("about to send group to: " + ip + ":" + port);
         dispatcher.sendPacket(groupMessage, ip, port);
-    }
-
-    private void sendGroupChange(String ip, int port){
-        //create group-message
-        Vector<PenguardProto.PGPPenguin> pgpPenguinVector = ListHelper.convertToPGPPenguinList(penguins);
-        Vector<PenguardProto.PGPGuardian> pgpGuardianVector = ListHelper.convertToPGPGuardianList(guardians);
-
-        PenguardProto.Group group = PenguardProto.Group.newBuilder()
-                .setSeqNo(seqNo)
-                .addAllGuardians(pgpGuardianVector)
-                .addAllPenguins(pgpPenguinVector)
-                .build();
-        //create group_change-message
-        PenguardProto.PGPMessage groupChange = PenguardProto.PGPMessage.newBuilder()
-                .setType(PenguardProto.PGPMessage.Type.GG_GRP_CHANGE)
-                .setGroup(group)
-                .build();
-        dispatcher.sendPacket(groupChange, ip, port);
     }
 
     /**
@@ -736,8 +767,6 @@ public class GuardService extends Service implements ListenerCallback{
     private void updateStatus(PenguardProto.Group group) {
         ListHelper.copyGuardianListFromProtobufList(guardians, group.getGuardiansList());
         ListHelper.copyPenguinListFromProtobufList(penguins, group.getPenguinsList());
-        guardians.remove(myself);
-        penguinListAdapter.notifyDataSetChanged();
         this.seqNo = group.getSeqNo();
     }
 
@@ -745,6 +774,11 @@ public class GuardService extends Service implements ListenerCallback{
         plsIp = sharedPref.getString(getString(R.string.pref_key_server_address), getString(R.string.pref_default_server));
         String plsPortstring = sharedPref.getString(getString(R.string.pref_key_server_port), getString(R.string.pref_default_server_port));
         plsPort = Integer.parseInt(plsPortstring);
+    }
+
+    private void updateUsernameFromSettings() {
+        String user = sharedPref.getString(getString(R.string.pref_key_username), getString(R.string.pref_default_username));
+        myself.setName(user);
     }
 
     private void turnOnBluetooth() {
@@ -762,8 +796,7 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void debug(String msg) {
-        final boolean shutup = true;
-        if (! shutup) Log.d("GuardService", msg);
+        if (! SHUTUP) Log.d("GuardService", msg);
     }
 
 }

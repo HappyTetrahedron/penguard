@@ -27,6 +27,9 @@ public class GGroupMergeRequestsActivity extends AppCompatActivity {
 
     GuardianServiceConnection serviceConnection = new GuardianServiceConnection();
     private ArrayList<PenguardProto.PGPMessage> pendingRequests = new ArrayList<PenguardProto.PGPMessage>();
+    final static String EXTRA_IP = "RequestIP";
+    final static String EXTRA_PORT = "RequestedPort";
+    final static String EXTRA_NAME = "RequestedName";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +40,9 @@ public class GGroupMergeRequestsActivity extends AppCompatActivity {
         Intent bindintent = new Intent(this, GuardService.class);
         bindService(bindintent, serviceConnection, Context.BIND_AUTO_CREATE);
         Intent intent = getIntent();
-        String ip = intent.getStringExtra("RequestIP");
-        String name = intent.getStringExtra("RequestName");
-        int port = intent.getIntExtra("RequestPort", 6789);
+        String ip = intent.getStringExtra(EXTRA_IP);
+        String name = intent.getStringExtra(EXTRA_NAME);
+        int port = intent.getIntExtra(EXTRA_PORT, 6789);
         PenguardProto.MergeReq merge = PenguardProto.MergeReq.newBuilder()
                 .setIp(ip)
                 .setName(name)
@@ -52,15 +55,6 @@ public class GGroupMergeRequestsActivity extends AppCompatActivity {
                 .build();
 
         pendingRequests.add(mergerequest);
-//        final ArrayList<PenguardProto.PGPMessage> mergerequests = (ArrayList<PenguardProto.PGPMessage>) intent.getSerializableExtra("pendingRequests");
-//        Context context = getApplicationContext();
-//        SharedPreferences sharedMergeRequests = context.getSharedPreferences(
-//                getString(R.string.group_merge_request_list_file), Context.MODE_PRIVATE);
-//        String pendingMergeRequests = sharedMergeRequests.getString(getString(R.string.group_merge_request_list), "");
-//        Gson gson = new Gson();
-//        Type type = new TypeToken<List<PenguardProto.PGPMessage>>(){}.getType();
-//        final ArrayList<PenguardProto.PGPMessage> mergerequests = gson.fromJson(pendingMergeRequests, type);
-        Log.e("MergeRequAct", "onCreate: " + pendingRequests);
 
         ListView mergerequestlist = (ListView) findViewById(R.id.mergeRequestList);
 
@@ -95,6 +89,7 @@ public class GGroupMergeRequestsActivity extends AppCompatActivity {
                                     pendingRequests.remove(position);
                                     toast("Initialised merging groups");
                                     mergeRequestAdapter.notifyDataSetChanged();
+                                    toast(getString(R.string.sendingTo) + ip + ":" + port);
                                     serviceConnection.sendGroupTo(ip, port);
                                 }
                             });
@@ -114,6 +109,15 @@ public class GGroupMergeRequestsActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (serviceConnection != null && serviceConnection.isConnected()) {
+            unbindService(serviceConnection);
+        }
+
     }
 
     @Override
@@ -162,7 +166,7 @@ public class GGroupMergeRequestsActivity extends AppCompatActivity {
     }
 
     private void debug(String msg) {
-        Log.e("MergeRequestActivity", msg);
+        Log.d("MergeRequestActivity", msg);
     }
 
     private void toast(String msg){

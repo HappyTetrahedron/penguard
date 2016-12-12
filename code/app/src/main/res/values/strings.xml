@@ -8,7 +8,7 @@
     <string name="stopBTScan">Scan stopped. Please select a penguin</string>
     <string name="stopBTScanNaming">Scan stopped.</string>
     <string name="noResultBTScan">No bluetooth device found</string>
-    <string name="scanningBTScan">Scanning... Please wait</string>
+    <string name="scanningBTScan">Scanning… Please wait</string>
     <string name="permissionDeniedBTScan">Location permissions are needed in order to track your penguin!</string>
     <string name="scan">Scan</string>
     <string name="title_activity_settings">Settings</string>
@@ -26,17 +26,34 @@
     <string name="penguinName">Penguin name:</string>
     <string name="penguinNameHint">Name</string>
     <string name="penguinName_Button">Continue</string>
-    <string name="peng">Penguin</string>
+    <string name="peng">Penguin </string>
     <string name="penguinName_suc">Penguin was successfully named</string>
     <string name="penguinName_empty">Please choose a name for your penguin</string>
     <string name="endService">End Service</string>
-
+    <string name="joinSuc">Join successful.</string>
+    <string name="joinAcept">Your Join request was accepted. Updating group…</string>
+    <string name="joinFail">Unable to join group</string>
+    <string name="alreadyRegistered">You are already registered</string>
+    <string name="sendingTo">Sending to </string>
+    <string name="unknown">unknown</string>
+    <string name="unknownPenguin">unknown penguin</string>
+    <string name="howTo">HowTo</string>
+    <string name="removePenguin">Remove this penguin</string>
+    <string name="mergeRequest">Merge Requests</string>
+    <string name="backToOverview">Back to Overview</string>
+    <string name="stopService">Stop service</string>
+    <string name="addPenguin">Add penguin</string>
+    <string name="joinGroupBTN">Join group</string>
+    <string name="name">Name</string>
+    <string name="groupOverviewBTN">Group overview</string>
 
 
     <!-- Strings related to calibration -->
     <string name="button_calibration_start">Start Calibration</string>
     <string name="button_calibration_end">End Calibration</string>
     <string name="calibration_description">Bring the penguin as close as possible, then press Start</string>
+    <string name="calibrate">Calibrate</string>
+    <string name="calibrationToggle">calibrationToggle</string>
 
     <!-- Strings related to merge requests -->
     <string name="group_merge_request_list_file">merge_request_list_file</string>
@@ -62,7 +79,7 @@
     <string name="pref_default_port">6789</string>
     <string name="pref_default_uuid"></string>
     <string name="pref_default_server">penguard.vsos.ethz.ch</string>
-    <string name="pref_default_username">Username</string>
+    <string name="pref_default_username" />
     <string name="pref_key_username">username</string>
     <string name="please_logout_to_change">Please log out to change settings.</string>
 

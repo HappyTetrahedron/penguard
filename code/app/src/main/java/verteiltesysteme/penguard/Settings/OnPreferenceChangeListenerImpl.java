@@ -27,6 +27,7 @@ public class OnPreferenceChangeListenerImpl implements Preference.OnPreferenceCh
     @Override
     public boolean onPreferenceChange(Preference preference, Object value) {
         String stringValue = value.toString();
+        preference.setSummary(stringValue);
 
         // Only update the setting if it's NOT a server setting. Server settings are described in listOfServerSettings.
         if (settingsActivity.isMyServiceRunning(GuardService.class)){
@@ -38,7 +39,6 @@ public class OnPreferenceChangeListenerImpl implements Preference.OnPreferenceCh
             }
         }
 
-        preference.setSummary(stringValue);
         return true;
     }
 

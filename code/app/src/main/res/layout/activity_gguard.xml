@@ -19,18 +19,17 @@
         android:layout_above="@+id/addPenguinButton" />
 
     <Button
-        android:text="Stop service"
+        android:text="@string/stopService"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/stopServiceButton"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
         android:onClick="onClick"
         android:layout_alignParentStart="true"
         android:backgroundTint="@color/orange" />
 
     <Button
-        android:text="Add penguin"
+        android:text="@string/addPenguin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/addPenguinButton"
@@ -41,7 +40,7 @@
         android:backgroundTint="@color/orange" />
 
     <Button
-        android:text="Join group"
+        android:text="@string/joinGroupBTN"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="onClick"
@@ -58,4 +57,13 @@
         android:layout_below="@+id/penguinListView"
         android:layout_centerHorizontal="true"
         android:backgroundTint="@color/orange" />
+
+    <Button
+        android:text="@string/groupOverviewBTN"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/buttonGroupOverview"
+        android:backgroundTint="@color/orange"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true" />
 </RelativeLayout>

@@ -94,16 +94,13 @@ public class Penguin {
             answer += g.getName();
             answer += ", ";
         }
-        answer = answer.substring(0, -2);
+        answer = answer.substring(0, answer.length() - 2);
         return answer;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Penguin){
-            return this.address.equals(((Penguin) obj).address);
-        }
-        return false;
+        return obj instanceof Penguin && this.address.equals(((Penguin) obj).address);
     }
 
     void disconnect() {

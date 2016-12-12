@@ -7,9 +7,6 @@ import java.util.ArrayList;
 
 import verteiltesysteme.penguard.protobuf.PenguardProto;
 
-/**
- * Created by seamaster on 06.12.16.
- */
 
 public class MergeRequestArrayAdapter extends GenericArrayAdapter<PenguardProto.PGPMessage> {
 
@@ -19,7 +16,6 @@ public class MergeRequestArrayAdapter extends GenericArrayAdapter<PenguardProto.
 
     @Override
     public void drawText(TextView textView, PenguardProto.PGPMessage object) {
-        //textView.setText("blubb");
         textView.setText(object.getMergeReq().getName());
     }
 }

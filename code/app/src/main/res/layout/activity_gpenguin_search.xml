@@ -27,7 +27,7 @@
         android:choiceMode="singleChoice" />
 
     <Button
-        android:text="Button"
+        android:text="@string/scanP"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"

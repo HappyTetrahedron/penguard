@@ -12,7 +12,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.Arrays;
+
 import verteiltesysteme.penguard.Settings.SettingsActivity;
+
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 import verteiltesysteme.penguard.guardianservice.Penguin;
@@ -102,7 +105,7 @@ public class GPenguinDetailActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 int[] calibrationResults = result.getIntArrayExtra(GCalibrationActivity.CALIBRATION_INTENT_IDENTIFIER);
                 penguin.setCalibratedValues(calibrationResults);
-                debug("Got calibration result: " + calibrationResults.toString());
+                debug("Got calibration result: " + Arrays.toString(calibrationResults));
             }
         }
     }

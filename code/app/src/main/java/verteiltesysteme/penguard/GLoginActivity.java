@@ -112,7 +112,7 @@ public class GLoginActivity extends AppCompatActivity {
 
                     } else { // registration process did not start
                         debug("Registering as existing user");
-                        displayToast("You are already registered");
+                        displayToast(getString(R.string.alreadyRegistered));
                     }
 
                 }
@@ -124,7 +124,7 @@ public class GLoginActivity extends AppCompatActivity {
                         // Display loading circle.
                         findViewById(R.id.loadingCircle).setVisibility(View.VISIBLE);
                     } else { // registration process did not start
-                        displayToast("You are already registered");
+                        displayToast(getString(R.string.alreadyRegistered));
                     }
                 }
             }
