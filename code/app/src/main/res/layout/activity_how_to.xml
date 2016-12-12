@@ -11,7 +11,7 @@
     tools:context="verteiltesysteme.penguard.HowToActivity">
 
     <TextView
-        android:text="TODO describe howto use penguard"
+        android:text="TODO describe howto use penguard #52"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"

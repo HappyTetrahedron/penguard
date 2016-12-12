@@ -16,7 +16,7 @@
         android:layout_alignParentStart="true" />
 
     <ToggleButton
-        android:text="calibrationToggle"
+        android:text="@string/calibrationToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="126dp"

@@ -100,10 +100,7 @@ public class Penguin {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Penguin){
-            return this.address.equals(((Penguin) obj).address);
-        }
-        return false;
+        return obj instanceof Penguin && this.address.equals(((Penguin) obj).address);
     }
 
     void disconnect() {

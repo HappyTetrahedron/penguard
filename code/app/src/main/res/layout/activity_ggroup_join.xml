@@ -37,8 +37,8 @@
         android:backgroundTint="@color/orange"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:hint="Username"
-        android:contentDescription="Name" />
+        android:hint="@string/pref_title_display_name"
+        android:contentDescription="@string/name" />
 
     <TextView
         android:text="@string/groupUN"

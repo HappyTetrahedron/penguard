@@ -30,7 +30,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.RunnableFuture;
 
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
@@ -51,8 +50,8 @@ public class GPenguinSearchActivity extends AppCompatActivity {
     static final int PERMISSION_REQUEST_FINE_LOCATION = 2; // request code for location permission
     static final int ASK_PENGUIN_NAME = 1;
     protected enum StoppedBy{
-        NAMING, TIMEOUT, QUIT;
-    };
+        NAMING, TIMEOUT, QUIT
+    }
 
     ArrayList<BluetoothDevice> scanResultsList = new ArrayList<>();
     BroadcastReceiver bcr;

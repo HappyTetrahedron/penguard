@@ -8,8 +8,6 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-import static verteiltesysteme.penguard.R.string.username;
-
 public class GuardianServiceConnection implements ServiceConnection {
 
     // List of callbacks that get executed once the connection is available.

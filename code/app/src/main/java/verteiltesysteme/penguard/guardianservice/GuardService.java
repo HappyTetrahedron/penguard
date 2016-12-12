@@ -39,6 +39,10 @@ public class GuardService extends Service implements ListenerCallback{
 
     private final boolean SHUTUP = false;
 
+    final static String EXTRA_IP = "RequestIP";
+    final static String EXTRA_PORT = "RequestedPort";
+    final static String EXTRA_NAME = "RequestedName";
+
     // group state: penguins, guardians, and state sequence number
     private final Vector<Penguin> penguins = new Vector<>();
     private final Vector<Guardian> guardians = new Vector<>();
@@ -167,7 +171,7 @@ public class GuardService extends Service implements ListenerCallback{
         try {
             listener.join();
         } catch (InterruptedException e) {
-            // do nothing? TODO how do we handle this?
+            // do nothing? TODO how do we handle this? #61
         }
 
         bluetoothThread.stopScanning();
@@ -437,13 +441,13 @@ public class GuardService extends Service implements ListenerCallback{
     String getPenguinName(String mac) {
         Penguin p = ListHelper.getPenguinByAddress(penguins, mac);
         if (p != null) return p.getName();
-        else return "unknown penguin";
+        else return getString(R.string.unknownPenguin);
     }
 
     String getPenguinSeenByString(String mac) {
         Penguin p = ListHelper.getPenguinByAddress(penguins, mac);
         if (p != null) return p.getSeenByInfo();
-        else return "unknown";
+        else return getString(R.string.unknown);
     }
 
     boolean isRegistered(){
@@ -702,9 +706,9 @@ public class GuardService extends Service implements ListenerCallback{
     private void mergeReqReceived(PenguardProto.PGPMessage message){
         //set Intent such that the user is directed to the MergeActivity
         Intent resultIntent = new Intent(this, GGroupMergeRequestsActivity.class);
-        resultIntent.putExtra("RequestIP", message.getMergeReq().getIp());
-        resultIntent.putExtra("RequestName", message.getMergeReq().getName());
-        resultIntent.putExtra("RequestPort", message.getMergeReq().getPort());
+        resultIntent.putExtra(EXTRA_IP, message.getMergeReq().getIp());
+        resultIntent.putExtra(EXTRA_NAME, message.getMergeReq().getName());
+        resultIntent.putExtra(EXTRA_PORT, message.getMergeReq().getPort());
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(GGroupMergeRequestsActivity.class);
         stackBuilder.addNextIntent(resultIntent);

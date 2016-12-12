@@ -15,7 +15,7 @@ public class Guardian {
 
     private String name;
 
-    private long lastSeenTimestamp;
+    private long lastSeenTimestamp; //TODO #62
 
     Guardian() {
         name = null;

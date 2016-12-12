@@ -9,9 +9,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-/**
- * Created by seamaster on 06.12.16.
- */
 
 public abstract class GenericArrayAdapter<T> extends ArrayAdapter<T> {
 

@@ -31,7 +31,6 @@ class BluetoothThread extends Thread{
     public void run() {
         while (running && !isInterrupted()) {
             if (!paused) {
-                //TODO this crashes hard if the user randomly disables bluetooth. See issue #22
                 for (Penguin p : penguins) {
                     if (paused) break;
 

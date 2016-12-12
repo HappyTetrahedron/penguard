@@ -19,7 +19,7 @@
         android:layout_above="@+id/addPenguinButton" />
 
     <Button
-        android:text="Stop service"
+        android:text="@string/stopService"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/stopServiceButton"
@@ -30,7 +30,7 @@
         android:backgroundTint="@color/orange" />
 
     <Button
-        android:text="Add penguin"
+        android:text="@string/addPenguin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/addPenguinButton"
@@ -41,7 +41,7 @@
         android:backgroundTint="@color/orange" />
 
     <Button
-        android:text="Join group"
+        android:text="@string/joinGroupBTN"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="onClick"
