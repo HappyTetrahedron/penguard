@@ -68,7 +68,6 @@ public class GGroupMergeRequestsActivity extends AppCompatActivity {
 //        Gson gson = new Gson();
 //        Type type = new TypeToken<List<PenguardProto.PGPMessage>>(){}.getType();
 //        final ArrayList<PenguardProto.PGPMessage> mergerequests = gson.fromJson(pendingMergeRequests, type);
-        Log.e("MergeRequAct", "onCreate: " + pendingRequests);
 
         ListView mergerequestlist = (ListView) findViewById(R.id.mergeRequestList);
 
@@ -103,6 +102,7 @@ public class GGroupMergeRequestsActivity extends AppCompatActivity {
                                     pendingRequests.remove(position);
                                     toast("Initialised merging groups");
                                     mergeRequestAdapter.notifyDataSetChanged();
+                                    toast("Sending to " + ip + ":" + port);
                                     serviceConnection.sendGroupTo(ip, port);
                                 }
                             });
@@ -122,6 +122,12 @@ public class GGroupMergeRequestsActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(serviceConnection);
     }
 
     @Override
@@ -170,7 +176,7 @@ public class GGroupMergeRequestsActivity extends AppCompatActivity {
     }
 
     private void debug(String msg) {
-        Log.e("MergeRequestActivity", msg);
+        Log.d("MergeRequestActivity", msg);
     }
 
     private void toast(String msg){

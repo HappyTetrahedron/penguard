@@ -63,10 +63,10 @@ public class UDPListener extends Thread {
         try {
             message = PenguardProto.PGPMessage.parseDelimitedFrom(in);
         } catch (InvalidProtocolBufferException e) {
-            // fail silently
+            debug("Invalid protobuf: " + e.getMessage());
             return null;
         } catch (IOException e) {
-            // fail silently
+            debug("IOException: " + e.getMessage());
             return null;
         }
         return message;
