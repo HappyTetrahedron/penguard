@@ -99,6 +99,21 @@ final class ListHelper {
     }
 
     /**
+     * Adds all members of a Vector of PGPGuardians to a vector of Guardians
+     * @param pgpGuardianVector Vector of which all members shall be added
+     * @param guardianVector Vector to which all members shall be added
+     */
+    static void addPGPGuardianListToGuardianList(Vector<PenguardProto.PGPGuardian> pgpGuardianVector, Vector<Guardian> guardianVector){
+        for (PenguardProto.PGPGuardian pgpGuardian : pgpGuardianVector) {
+            if (getGuardianByName(guardianVector, pgpGuardian.getName()) == null) { //No corresponding guardian in guardianList
+                guardianVector.add(new Guardian(pgpGuardian.getName(), pgpGuardian.getIp(), pgpGuardian.getPort()));
+            }
+        }
+    }
+
+
+
+    /**
      * Updates a list of Penguins to correspond to a list of PGPPenguins without entirely flushing
      * the list, i.e. penguins that are both in the old and new list are not removed and re-inserted.
      * Runs in O(N*M), use with care
@@ -123,7 +138,18 @@ final class ListHelper {
         }
     }
 
-
+    /**
+     * Adds all members of a Vector of PGPGuardians to a vector of Guardians
+     * @param pgpPenguinsVector Vector of which all members shall be added
+     * @param penguinVector Vector to which all members shall be added
+     */
+    static void addPGPPenguinListToPenguinList(Vector<PenguardProto.PGPPenguin> pgpPenguinsVector, Vector<Penguin> penguinVector) {
+        for (PenguardProto.PGPPenguin pgpPenguin : pgpPenguinsVector) {
+            if (getPenguinByAddress(penguinVector, pgpPenguin.getMac()) == null) { //No corresponding penguin in penguinList
+                penguinVector.add(new Penguin(pgpPenguin.getMac(), pgpPenguin.getName()));
+            }
+        }
+    }
     /**
      * Converts a Vector of Penguins in a Vector of PGPPenguins
      * @param penguinlist A Vector of Penguins

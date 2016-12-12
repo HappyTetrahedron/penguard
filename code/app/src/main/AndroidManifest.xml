@@ -22,7 +22,6 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -48,6 +47,8 @@
         <activity android:name=".GGroupMergeRequestsActivity" />
         <activity android:name=".GPenguinDetailActivity"></activity>
         <activity android:name=".GCalibrationActivity" />
+        <activity android:name=".HowToActivity"></activity>
+>>>>>>> refs/remotes/origin/devel
     </application>
 
 </manifest>

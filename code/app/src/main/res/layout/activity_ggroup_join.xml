@@ -32,12 +32,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
-        android:text="Name"
         android:ems="10"
         android:id="@+id/groupJoinET"
         android:backgroundTint="@color/orange"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:hint="Username"
+        android:contentDescription="Name" />
 
     <TextView
         android:text="@string/groupUN"

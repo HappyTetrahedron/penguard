@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import verteiltesysteme.penguard.guardianservice.GroupJoinCallback;
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 
@@ -24,7 +25,7 @@ public class GGroupJoinActivity extends AppCompatActivity {
 
     GuardianServiceConnection guardianServiceConnection = new GuardianServiceConnection();
 
-    GGroupJoinCallback joinCallback;
+    GroupJoinCallback joinCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +46,7 @@ public class GGroupJoinActivity extends AppCompatActivity {
             }
         });
 
-        joinCallback = new GGroupJoinCallback() {
+        joinCallback = new GroupJoinCallback() {
             @Override
             public void joinSuccessful() {
                 toast("Join successful.");
@@ -73,7 +74,9 @@ public class GGroupJoinActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(guardianServiceConnection);
+        if (guardianServiceConnection != null && guardianServiceConnection.isConnected()) {
+            unbindService(guardianServiceConnection);
+        }
     }
 
     private void groupJoin(){
@@ -97,6 +100,8 @@ public class GGroupJoinActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_settings, menu);
+        getMenuInflater().inflate(R.menu.menu_howto, menu);
+        getMenuInflater().inflate(R.menu.menu_endservice, menu);
         return true;
     }
 
@@ -107,9 +112,29 @@ public class GGroupJoinActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
                 return true;
+            case R.id.menu_howto:
+                Intent intent1 = new Intent(this, HowToActivity.class);
+                startActivity(intent1);
+                return true;
+            case R.id.menu_endService:
+                unbindAndKillService();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void unbindAndKillService(){
+        Intent backToMainIntent = new Intent(this, MainActivity.class);
+        // clear the backstack when transitioning to main activity
+        backToMainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        Intent stopServiceIntent = new Intent(this, GuardService.class);
+
+        unbindService(guardianServiceConnection);
+        guardianServiceConnection = null;
+        stopService(stopServiceIntent);
+        startActivity(backToMainIntent);
     }
 
     private void toast(String msg){

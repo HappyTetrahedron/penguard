@@ -26,3 +26,8 @@ __pycache__
 *.blg
 *.pdf
 *.synctex.gz
+*.out
+
+*.vrb
+pres.tex
+guide.tex

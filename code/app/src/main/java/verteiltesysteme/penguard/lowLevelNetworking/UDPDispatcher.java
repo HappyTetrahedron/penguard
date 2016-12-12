@@ -36,6 +36,10 @@ public void registerCallback(DispatcherCallback onPostAction) {
         new Thread(new NetworkingTask(message, ip, port, callbacks)).start();
     }
 
+    public void sendPacketBlocking(PenguardProto.PGPMessage message, String ip, int port){
+        new NetworkingTask(message, ip, port, callbacks).run();
+    }
+
     public boolean isOpen() {
         return !socket.isClosed();
     }
