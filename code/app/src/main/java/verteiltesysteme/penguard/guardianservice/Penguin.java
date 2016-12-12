@@ -13,14 +13,19 @@ import java.util.Vector;
 //this class is for the penguins
 
 public class Penguin {
-    private int rssiValue;
     private String name;
     private String address;
     private BluetoothDevice device = null;
     private BluetoothGatt gatt;
     private BluetoothManager bluetoothManager;
-    private double minDistance;
-    private double maxDistance;
+    private int rssiValue;
+    private int minDistanceRssi;
+    private int maxDistanceRssi;
+
+    /* Couldn't come up with a good name. This factor determines how much lower than the maxDistanceRssi
+     * a Penguin's RSSI can be to still be qualified as 'seen'.
+     */
+    private final double RSSI_SEEN_THRESHOLD_LEVERAGE = 1.2;
 
     private boolean seen = false;
 
@@ -44,7 +49,17 @@ public class Penguin {
             super.onReadRemoteRssi(gatt, rssi, status);
             debug(name + " has RSSI " + (float)rssi);
             Penguin.this.rssiValue = rssi;
-            seen = true;
+
+            if(maxDistanceRssi == 0 && minDistanceRssi == 0) {
+                return;
+            }
+
+            if (rssiValue >= Penguin.this.getRssiSeenThreshold()) {
+                seen = true;
+            }
+            else {
+                seen = false;
+            }
         }
     };
 
@@ -69,6 +84,10 @@ public class Penguin {
         }
     }
 
+    private double getRssiSeenThreshold() {
+        return (minDistanceRssi - RSSI_SEEN_THRESHOLD_LEVERAGE * (minDistanceRssi - maxDistanceRssi));
+    }
+
     void setSeenBy(Guardian guardian, boolean newSeenStatus) {
         if (newSeenStatus && !seenBy.contains(guardian)) seenBy.add(guardian);
         if (!newSeenStatus && seenBy.contains(guardian)) seenBy.remove(guardian);
@@ -79,11 +98,7 @@ public class Penguin {
     }
 
     boolean isSeen() {
-        //debug(name + (seen ? " is visible." : " is gone."));
         return seen;
-
-        // TODO also report 'false' if RSSI is under threshold, see issue #23
-        // TODO take other guardians into account
     }
 
     String getSeenByInfo(){
@@ -119,8 +134,8 @@ public class Penguin {
     }
 
     public void setCalibratedValues(int[] calibratedValues){
-        minDistance = calibratedValues[0];
-        maxDistance = calibratedValues[1];
+        minDistanceRssi = calibratedValues[0];
+        maxDistanceRssi = calibratedValues[1];
     }
 
     BluetoothGatt getGatt() {
