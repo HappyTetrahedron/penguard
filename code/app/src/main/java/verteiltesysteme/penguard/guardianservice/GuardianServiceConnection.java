@@ -6,10 +6,17 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.widget.ListView;
 
+import java.util.ArrayList;
+
 import verteiltesysteme.penguard.GGroupJoinCallback;
 import verteiltesysteme.penguard.GLoginCallback;
 
+import static verteiltesysteme.penguard.R.string.username;
+
 public class GuardianServiceConnection implements ServiceConnection {
+
+    // List of callbacks that get executed once the connection is available.
+    private ArrayList<Runnable> serviceConnectedCallbacks = new ArrayList<Runnable>();
 
     private GuardService service = null;
 
@@ -20,6 +27,10 @@ public class GuardianServiceConnection implements ServiceConnection {
      */
     public void addPenguin(Penguin penguin) {
         service.addPenguin(penguin);
+    }
+
+    public Penguin getPenguinById(String mac){
+        return service.getPenguin(mac);
     }
 
     /**
@@ -63,6 +74,9 @@ public class GuardianServiceConnection implements ServiceConnection {
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
        this.service = ((GuardService.PenguinGuardBinder) service).getService();
+        for (Runnable r : serviceConnectedCallbacks){
+            r.run();
+        }
     }
 
     @Override
@@ -72,5 +86,13 @@ public class GuardianServiceConnection implements ServiceConnection {
 
     public void sendGroupTo(String ip, int port){
         this.service.sendGroupTo(ip, port);
+    }
+
+    public void registerServiceConnectedCallback(Runnable serviceConnectedCallback){
+        serviceConnectedCallbacks.add(serviceConnectedCallback);
+    }
+
+    public void unregisterServiceConnectedCallback(Runnable serviceConnectedCallback){
+        serviceConnectedCallbacks.remove(serviceConnectedCallback);
     }
 }

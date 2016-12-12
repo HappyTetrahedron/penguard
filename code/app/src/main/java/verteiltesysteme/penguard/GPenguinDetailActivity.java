@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
+import verteiltesysteme.penguard.guardianservice.Penguin;
 
 public class GPenguinDetailActivity extends AppCompatActivity {
 
@@ -21,10 +22,13 @@ public class GPenguinDetailActivity extends AppCompatActivity {
     private String penguinMac;
 
     public static final String EXTRA_PENGUIN_MAC = "penguin_mac";
+    private static final int PENGUIN_CALIBRATION_REQUEST = 1;
 
     private TextView penguinName;
     private TextView penguinInfo;
+    private Button calibrateButton;
     private Button removeButton;
+    private Penguin penguin;
 
     private Handler handler;
     private Runnable updateTask;
@@ -39,6 +43,12 @@ public class GPenguinDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_gpenguin_detail);
 
         serviceConnection = new GuardianServiceConnection();
+        serviceConnection.registerServiceConnectedCallback(new Runnable() {
+            @Override
+            public void run() {
+                readPenguinFromMac();
+            }
+        });
         Intent intent = new Intent(this, GuardService.class);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 
@@ -47,6 +57,7 @@ public class GPenguinDetailActivity extends AppCompatActivity {
 
         penguinName = (TextView) findViewById(R.id.penguinNameTV);
         penguinInfo = (TextView) findViewById(R.id.penguinInfoTV);
+        calibrateButton = (Button) findViewById(R.id.calibrationBtn);
         removeButton = (Button) findViewById(R.id.removePenguinBtn);
 
         handler = new Handler();
@@ -55,7 +66,7 @@ public class GPenguinDetailActivity extends AppCompatActivity {
             @Override
             public void run() {
                 if (serviceConnection != null && serviceConnection.isConnected()) {
-                    penguinName.setText(serviceConnection.getPenguinName(penguinMac));
+                    penguinName.setText(penguin.getName());
                     penguinInfo.setText(serviceConnection.getPenguinSeenByString(penguinMac));
                 }
                 if (!paused) handler.postDelayed(this, UPDATE_DELAY);
@@ -83,6 +94,17 @@ public class GPenguinDetailActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent result) {
+        if (requestCode == PENGUIN_CALIBRATION_REQUEST){
+            if (resultCode == RESULT_OK) {
+                int[] calibrationResults = result.getIntArrayExtra(GCalibrationActivity.CALIBRATION_INTENT_IDENTIFIER);
+                penguin.setCalibratedValues(calibrationResults);
+                debug("Got calibration result: " + calibrationResults.toString());
+            }
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_settings, menu);
         return true;
@@ -105,8 +127,16 @@ public class GPenguinDetailActivity extends AppCompatActivity {
             serviceConnection.removePenguin(penguinMac);
             finish();
         }
+        else if(view.equals(calibrateButton)) {
+            Intent intent = new Intent(this, GCalibrationActivity.class);
+            intent.putExtra(EXTRA_PENGUIN_MAC, penguinMac);
+            startActivityForResult(intent, PENGUIN_CALIBRATION_REQUEST);
+        }
     }
 
+    private void readPenguinFromMac(){
+        penguin = serviceConnection.getPenguinById(penguinMac);
+    }
 
     private void debug(String msg) {
         Log.d("GPenguinDetail", msg);

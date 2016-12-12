@@ -19,6 +19,8 @@ public class Penguin {
     private BluetoothDevice device = null;
     private BluetoothGatt gatt;
     private BluetoothManager bluetoothManager;
+    private double minDistance;
+    private double maxDistance;
 
     private boolean seen = false;
 
@@ -85,9 +87,9 @@ public class Penguin {
     }
 
     String getSeenByInfo(){
-        if (seenBy.size() == 0) return "seen by noone else";
+        if (seenBy.size() == 0) return "Seen by noone else";
 
-        String answer = "seen by ";
+        String answer = "Seen by ";
         for (Guardian g : seenBy) {
             answer += g.getName();
             answer += ", ";
@@ -119,6 +121,11 @@ public class Penguin {
         return rssiValue;
     }
 
+    public void setCalibratedValues(int[] calibratedValues){
+        minDistance = calibratedValues[0];
+        maxDistance = calibratedValues[1];
+    }
+
     BluetoothGatt getGatt() {
         return gatt;
     }
@@ -131,9 +138,14 @@ public class Penguin {
         return device;
     }
 
+    public void readRssi(){
+        gatt.readRemoteRssi();
+    }
+
     public String getAddress() {
         return address;
     }
+
     private void debug(String msg) {
         Log.d("PenguinClass", msg);
     }

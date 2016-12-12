@@ -47,6 +47,7 @@
             android:label="@string/title_activity_settings" />
         <activity android:name=".GGroupMergeRequestsActivity" />
         <activity android:name=".GPenguinDetailActivity"></activity>
+        <activity android:name=".GCalibrationActivity" />
     </application>
 
 </manifest>

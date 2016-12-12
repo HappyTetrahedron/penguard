@@ -94,7 +94,6 @@ public class GGuardActivity extends AppCompatActivity {
         if (serviceConnection != null && serviceConnection.isConnected()) {
             unbindService(serviceConnection);
         }
-
     }
 
     @Override

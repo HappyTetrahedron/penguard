@@ -37,4 +37,14 @@
         android:layout_below="@+id/penguinNameTV"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true" />
+
+    <Button
+        android:text="Calibrate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/removePenguinBtn"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="40dp"
+        android:id="@+id/calibrationBtn"
+        android:onClick="onClick" />
 </RelativeLayout>
