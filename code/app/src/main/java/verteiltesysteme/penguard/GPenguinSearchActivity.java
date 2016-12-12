@@ -30,15 +30,11 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.RunnableFuture;
 
+import verteiltesysteme.penguard.Settings.SettingsActivity;
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 import verteiltesysteme.penguard.guardianservice.Penguin;
-
-import static verteiltesysteme.penguard.GPenguinSearchActivity.StoppedBy.NAMING;
-import static verteiltesysteme.penguard.GPenguinSearchActivity.StoppedBy.QUIT;
-import static verteiltesysteme.penguard.GPenguinSearchActivity.StoppedBy.TIMEOUT;
 
 
 //here we search for bluetooth devices and the guard can pick a penguin to guard and then go on to the GGuardActivity

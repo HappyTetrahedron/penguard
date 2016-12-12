@@ -12,10 +12,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import java.security.Guard;
-
+import verteiltesysteme.penguard.Settings.SettingsActivity;
 import verteiltesysteme.penguard.guardianservice.GuardService;
-import verteiltesysteme.penguard.lowLevelNetworking.UDPTesting;
 
 public class MainActivity extends AppCompatActivity {
 
