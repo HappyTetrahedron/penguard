@@ -94,7 +94,7 @@ public class Penguin {
             answer += g.getName();
             answer += ", ";
         }
-        answer = answer.substring(0, -2);
+        answer = answer.substring(0, answer.length() - 2);
         return answer;
     }
 

@@ -140,8 +140,8 @@ final class ListHelper {
 
     /**
      * Returns a new list that contains all PGPGuardians both in A and B.
-     * @param a
-     * @param b
+     * @param a first PGPGuardian list
+     * @param b second PGPGuardian list
      * @return Merged list of PGPGuardians
      */
     static List<PenguardProto.PGPGuardian> mergeGuardiansList(List<PenguardProto.PGPGuardian> a, List<PenguardProto.PGPGuardian> b) {
@@ -158,8 +158,8 @@ final class ListHelper {
 
     /**
      * Returns a new list that contains all PGPpenguins both in A and B.
-     * @param a
-     * @param b
+     * @param a first PGPPenguin list
+     * @param b second PGPPenguin list
      * @return Merged list of PGPpenguins
      */
     static List<PenguardProto.PGPPenguin> mergePenguinLists(List<PenguardProto.PGPPenguin> a, List<PenguardProto.PGPPenguin> b) {
@@ -197,6 +197,7 @@ final class ListHelper {
             PenguardProto.PGPPenguin pgppenguin = PenguardProto.PGPPenguin.newBuilder()
                     .setMac(p.getAddress())
                     .setName(p.getName())
+                    .setSeen(p.isSeen())
                     .build();
 
             pgppenguinlist.add(pgppenguin);

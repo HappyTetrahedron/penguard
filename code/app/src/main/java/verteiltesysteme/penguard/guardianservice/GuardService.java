@@ -37,6 +37,8 @@ import verteiltesysteme.penguard.protobuf.PenguardProto;
 
 public class GuardService extends Service implements ListenerCallback{
 
+    private final boolean SHUTUP = false;
+
     // group state: penguins, guardians, and state sequence number
     private final Vector<Penguin> penguins = new Vector<>();
     private final Vector<Guardian> guardians = new Vector<>();
@@ -142,24 +144,17 @@ public class GuardService extends Service implements ListenerCallback{
             @Override
             public void run() {
                 while (dispatcher.isOpen()) {
-                    if (regState.state == RegistrationState.STATE_REGISTERED) {
-                        PenguardProto.PGPMessage ping = PenguardProto.PGPMessage.newBuilder()
-                                .setType(PenguardProto.PGPMessage.Type.GS_PING)
-                                .setPing(PenguardProto.Ping.newBuilder()
-                                        .setUuid(regState.uuid.toString()))
-                                .setName(myself.getName())
-                                .build();
-
-                        dispatcher.sendPacket(ping, plsIp, plsPort);
-                    }
                     try {
                         Thread.sleep(PING_INTERVAL);
                     } catch (InterruptedException e) {
                         // pass
                     }
+                    sendPings();
                 }
             }
         });
+
+        updateUsernameFromSettings();
         guardians.add(myself);
     }
 
@@ -243,6 +238,34 @@ public class GuardService extends Service implements ListenerCallback{
             }
         }, NETWORK_TIMEOUT);
         return true;
+    }
+
+    private void sendPings(){
+        // send ping to server iff registered
+        if (regState.state == RegistrationState.STATE_REGISTERED) {
+            PenguardProto.PGPMessage ping = PenguardProto.PGPMessage.newBuilder()
+                    .setType(PenguardProto.PGPMessage.Type.GS_PING)
+                    .setPing(PenguardProto.Ping.newBuilder()
+                            .setUuid(regState.uuid.toString()))
+                    .setName(myself.getName())
+                    .build();
+
+            dispatcher.sendPacket(ping, plsIp, plsPort);
+        }
+
+        // send status to other guardians if there are any
+        if (!groupIsEmpty()) {
+            PenguardProto.PGPMessage status = PenguardProto.PGPMessage.newBuilder()
+                    .setType(PenguardProto.PGPMessage.Type.GG_STATUS_UPDATE)
+                    .setName(myself.getName())
+                    .setGroup(PenguardProto.Group.newBuilder()
+                            .setSeqNo(seqNo)
+                            .addAllGuardians(ListHelper.convertToPGPGuardianList(guardians))
+                            .addAllPenguins(ListHelper.convertToPGPPenguinList(penguins)))
+                    .build();
+
+            sendToAllGuardians(status);
+        }
     }
 
     boolean reregister(String username, String uuid, LoginCallback callback){
@@ -455,7 +478,7 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private boolean groupIsEmpty() {
-        return guardians.size() == 0;
+        return guardians.size() <= 1;
     }
 
     void subscribeListViewToPenguinAdapter(ListView listView) {
@@ -464,7 +487,7 @@ public class GuardService extends Service implements ListenerCallback{
 
     private void sendToAllGuardians(PenguardProto.PGPMessage message) {
         for (Guardian g : guardians) {
-            if (!guardians.equals(myself)) {
+            if (!g.equals(myself)) {
                 dispatcher.sendPacket(message, g.getIp(), g.getPort());
             }
         }
@@ -481,7 +504,10 @@ public class GuardService extends Service implements ListenerCallback{
 
     @Override
     public void onReceive(PenguardProto.PGPMessage parsedMessage, InetAddress address, int port) {
-        if (parsedMessage.getType() != PenguardProto.PGPMessage.Type.SG_ACK) debug(parsedMessage.toString());
+        if (parsedMessage.getType() != PenguardProto.PGPMessage.Type.SG_ACK
+                && parsedMessage.getType() != PenguardProto.PGPMessage.Type.GG_ACK
+                && parsedMessage.getType() != PenguardProto.PGPMessage.Type.GG_STATUS_UPDATE)
+            debug(parsedMessage.toString());
 
         //If the sender was one of the guardians from the group, update his state.
         Guardian sender = ListHelper.getGuardianByName(guardians, parsedMessage.getName());
@@ -744,6 +770,11 @@ public class GuardService extends Service implements ListenerCallback{
         plsPort = Integer.parseInt(plsPortstring);
     }
 
+    private void updateUsernameFromSettings() {
+        String user = sharedPref.getString(getString(R.string.pref_key_username), getString(R.string.pref_default_username));
+        myself.setName(user);
+    }
+
     private void turnOnBluetooth() {
         Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         enableBluetoothIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -759,8 +790,7 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void debug(String msg) {
-        final boolean shutup = true;
-        if (! shutup) Log.d("GuardService", msg);
+        if (! SHUTUP) Log.d("GuardService", msg);
     }
 
 }
