@@ -138,6 +138,10 @@ public class GGuardActivity extends AppCompatActivity {
             Intent intent = new Intent(this, GLoginActivity.class);
             startActivity(intent);
         }
+        if (view.equals(findViewById(R.id.buttonGroupOverview))){
+            Intent intent = new Intent(this, GGroupOverviewActivity.class);
+            startActivity(intent);
+        }
     }
 
     private void unbindAndKillService(){

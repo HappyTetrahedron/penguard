@@ -45,6 +45,7 @@
     <string name="addPenguin">Add penguin</string>
     <string name="joinGroupBTN">Join group</string>
     <string name="name">Name</string>
+    <string name="groupOverviewBTN">Group overview</string>
 
 
     <!-- Strings related to calibration -->

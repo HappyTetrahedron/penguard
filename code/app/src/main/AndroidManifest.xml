@@ -45,10 +45,11 @@
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" />
         <activity android:name=".GGroupMergeRequestsActivity" />
-        <activity android:name=".GPenguinDetailActivity"></activity>
+        <activity android:name=".GPenguinDetailActivity" />
         <activity android:name=".GCalibrationActivity" />
-        <activity android:name=".HowToActivity"></activity>
->>>>>>> refs/remotes/origin/devel
+        <activity android:name=".HowToActivity" />
+        >>>>>>> refs/remotes/origin/devel
+        <activity android:name=".GGroupOverviewActivity"></activity>
     </application>
 
 </manifest>
