@@ -64,6 +64,7 @@
     <string name="pref_default_server">penguard.vsos.ethz.ch</string>
     <string name="pref_default_username">Username</string>
     <string name="pref_key_username">username</string>
+    <string name="please_logout_to_change">Please log out to change settings.</string>
 
     <string name="pref_title_display_name">Username</string>
     <string name="pref_default_display_name">username</string>
