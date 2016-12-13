@@ -37,12 +37,12 @@ public class CommitmentState {
     }
 
     void abort() {
-        if(commitCallback != null) { commitCallback.onAbort("Error: 2pc abort"); }
+        if(commitCallback != null) { commitCallback.onAbort("2PC: abort"); }
         reset();
     }
 
     void commit() {
-        if(commitCallback != null) { commitCallback.onCommit("Error: 2pc abort"); }
+        if(commitCallback != null) { commitCallback.onCommit("2PC: commit"); }
         reset();
     }
 
