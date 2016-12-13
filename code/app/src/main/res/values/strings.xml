@@ -64,6 +64,8 @@
     <string name="dialog_cancel_merge_request">abort</string>
     <string name="notification_merge_request_title">New mergerequest</string>
     <string name="notification_merge_request_text">Someone wants to merge groups.</string>
+    <string name="notification_join_failed_progress">Join not initiated because another one is in progress</string>
+    <string name="notification_join_failed_abort">Join failed. Probably some member of a group is unreachable or merging with another group.</string>
 
     <!-- Strings related to Settings -->
 

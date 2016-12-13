@@ -89,12 +89,10 @@ public class GGroupJoinActivity extends AppCompatActivity {
         String groupUN = String.valueOf(editText.getText());
 
         //call the function in the serviceConnector
-        if (guardianServiceConnection.joinGroup(groupUN, joinCallback)){
-            //join started successful
-        } else {
-            //something went wrong
-            toast(getString(R.string.joinFail));
-            btn.setEnabled(true); //reenable to button
+        if (! guardianServiceConnection.joinGroup(groupUN, joinCallback)){
+            //something went wrong, so notify user and re-enable the button
+            joinCallback.joinFailure(getString(R.string.notification_join_failed_progress));
+            btn.setEnabled(true);
         }
     }
 

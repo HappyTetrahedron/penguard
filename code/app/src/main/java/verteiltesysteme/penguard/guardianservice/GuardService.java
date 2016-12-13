@@ -35,6 +35,8 @@ import verteiltesysteme.penguard.lowLevelNetworking.UDPDispatcher;
 import verteiltesysteme.penguard.lowLevelNetworking.UDPListener;
 import verteiltesysteme.penguard.protobuf.PenguardProto;
 
+import static verteiltesysteme.penguard.guardianservice.JoinState.STATE_JOIN_INPROGRESS;
+
 public class GuardService extends Service implements ListenerCallback{
 
     private final boolean SHUTUP = false;
@@ -341,7 +343,9 @@ public class GuardService extends Service implements ListenerCallback{
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (joinState.groupUN.equals(groupUN) && joinState.state == JoinState.STATE_JOIN_REQ_SENT) joinState.joinFailed("Your friend did not accept your join.");
+                if (joinState.groupUN.equals(groupUN) && joinState.state == JoinState.STATE_JOIN_REQ_SENT) {
+                    joinState.joinFailed("Your friend did not accept your join.");
+                }
             }
         }, JOIN_REQ_TIMEOUT);
 
@@ -610,6 +614,7 @@ public class GuardService extends Service implements ListenerCallback{
                 .addAllPenguins(mergedPenguins)
                 .build();
         debug("Starting big big commit for group merge.");
+        joinState.joinReqAccepted();
         initiateGroupChange(newGroup);
     }
 
@@ -636,8 +641,10 @@ public class GuardService extends Service implements ListenerCallback{
     private void abortReceived(PenguardProto.PGPMessage message){
         if (commitState.state == CommitmentState.STATE_VOTED_YES
                 && commitState.initiantName.equals(message.getName())
-                && commitState.groupUpdate.getSeqNo() == message.getSeqNo().getSeqno()) {
+                && commitState.groupUpdate.getSeqNo() == message.getSeqNo().getSeqno()
+                && joinState.state == joinState.STATE_JOIN_INPROGRESS) {
             debug("State update " + message.getSeqNo().getSeqno() + " aborted");
+            joinState.joinFailed(getString(R.string.notification_join_failed_abort));
             commitState.reset();
         }
     }
@@ -645,8 +652,10 @@ public class GuardService extends Service implements ListenerCallback{
     private void commitReceived(PenguardProto.PGPMessage message){
         if (commitState.state == CommitmentState.STATE_VOTED_YES
                 && commitState.initiantName.equals(message.getName())
-                && commitState.groupUpdate.getSeqNo() == message.getSeqNo().getSeqno()) {
+                && commitState.groupUpdate.getSeqNo() == message.getSeqNo().getSeqno()
+                && joinState.state == joinState.STATE_JOIN_INPROGRESS) {
             debug("Committing state number " + message.getSeqNo().getSeqno());
+            joinState.joinSuccessful();
             updateStatus(commitState.groupUpdate);
             commitState.reset();
         }
@@ -678,6 +687,7 @@ public class GuardService extends Service implements ListenerCallback{
                 .build();
         dispatcher.sendPacket(vote, host, port);
     }
+
     private void voteNo(PenguardProto.PGPMessage message, String host, int port){
         PenguardProto.PGPMessage vote = PenguardProto.PGPMessage.newBuilder()
                 .setType(PenguardProto.PGPMessage.Type.GG_VOTE_NO)
