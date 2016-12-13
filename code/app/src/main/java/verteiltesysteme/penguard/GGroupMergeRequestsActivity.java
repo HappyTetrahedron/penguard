@@ -89,7 +89,6 @@ public class GGroupMergeRequestsActivity extends AppCompatActivity {
                                     pendingRequests.remove(position);
                                     toast("Initialised merging groups");
                                     mergeRequestAdapter.notifyDataSetChanged();
-                                    toast(getString(R.string.sendingTo) + ip + ":" + port);
                                     serviceConnection.sendGroupTo(ip, port);
                                 }
                             });
