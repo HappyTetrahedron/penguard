@@ -91,7 +91,7 @@ public class GGroupJoinActivity extends AppCompatActivity {
         //call the function in the serviceConnector
         if (! guardianServiceConnection.joinGroup(groupUN, joinCallback)){
             //something went wrong, so notify user and re-enable the button
-            joinCallback.joinFailure(getString(R.string.notification_join_failed_progress));
+            joinCallback.joinFailure(getString(R.string.notification_merge_failed_progress));
             btn.setEnabled(true);
         }
     }

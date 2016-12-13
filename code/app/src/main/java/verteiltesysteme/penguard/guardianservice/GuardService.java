@@ -35,6 +35,7 @@ import verteiltesysteme.penguard.lowLevelNetworking.UDPDispatcher;
 import verteiltesysteme.penguard.lowLevelNetworking.UDPListener;
 import verteiltesysteme.penguard.protobuf.PenguardProto;
 
+import static android.R.id.message;
 import static verteiltesysteme.penguard.guardianservice.JoinState.STATE_JOIN_INPROGRESS;
 
 public class GuardService extends Service implements ListenerCallback{
@@ -352,10 +353,8 @@ public class GuardService extends Service implements ListenerCallback{
         return true;
     }
 
-    private boolean initiateGroupChange(PenguardProto.Group group) {
+    private void initiateGroupChange(PenguardProto.Group group) {
         debug("Initiating commit for new group: " + group);
-        if (group.getSeqNo() <= seqNo) return false;
-        if (commitState.state != CommitmentState.STATE_IDLE) return false;
 
         // no objections
         commitState.initiateCommit(group, myself);
@@ -373,8 +372,6 @@ public class GuardService extends Service implements ListenerCallback{
                 checkAndCommitOrAbort();
             }
         }, NETWORK_TIMEOUT);
-
-        return true;
     }
 
     private void checkAndCommitOrAbort() {
@@ -614,8 +611,13 @@ public class GuardService extends Service implements ListenerCallback{
                 .addAllPenguins(mergedPenguins)
                 .build();
         debug("Starting big big commit for group merge.");
-        joinState.joinReqAccepted();
-        initiateGroupChange(newGroup);
+        if (newGroup.getSeqNo() <= seqNo || (commitState.state != CommitmentState.STATE_IDLE)){
+            joinState.joinFailed(getString(R.string.notification_merge_failed_busy));
+        }
+        else {
+            joinState.joinReqAccepted();
+            initiateGroupChange(newGroup);
+        }
     }
 
     private void voteNoReceived(PenguardProto.PGPMessage message){
@@ -639,23 +641,27 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void abortReceived(PenguardProto.PGPMessage message){
+        if (joinState.state == joinState.STATE_JOIN_INPROGRESS) {
+            joinState.joinFailed(getString(R.string.notification_merge_failed_abort));
+        }
+
         if (commitState.state == CommitmentState.STATE_VOTED_YES
                 && commitState.initiantName.equals(message.getName())
-                && commitState.groupUpdate.getSeqNo() == message.getSeqNo().getSeqno()
-                && joinState.state == joinState.STATE_JOIN_INPROGRESS) {
+                && commitState.groupUpdate.getSeqNo() == message.getSeqNo().getSeqno()) {
             debug("State update " + message.getSeqNo().getSeqno() + " aborted");
-            joinState.joinFailed(getString(R.string.notification_join_failed_abort));
             commitState.reset();
         }
     }
 
     private void commitReceived(PenguardProto.PGPMessage message){
+        if (joinState.state == joinState.STATE_JOIN_INPROGRESS) {
+            joinState.joinSuccessful();
+        }
+
         if (commitState.state == CommitmentState.STATE_VOTED_YES
                 && commitState.initiantName.equals(message.getName())
-                && commitState.groupUpdate.getSeqNo() == message.getSeqNo().getSeqno()
-                && joinState.state == joinState.STATE_JOIN_INPROGRESS) {
+                && commitState.groupUpdate.getSeqNo() == message.getSeqNo().getSeqno()) {
             debug("Committing state number " + message.getSeqNo().getSeqno());
-            joinState.joinSuccessful();
             updateStatus(commitState.groupUpdate);
             commitState.reset();
         }
