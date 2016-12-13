@@ -354,6 +354,9 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void initiateGroupChange(PenguardProto.Group group) {
+        if (group.getSeqNo() <= seqNo || (commitState.state != CommitmentState.STATE_IDLE)){
+            return;
+        }
         debug("Initiating commit for new group: " + group);
 
         // no objections
