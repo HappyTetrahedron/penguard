@@ -13,12 +13,15 @@ import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -34,9 +37,6 @@ import verteiltesysteme.penguard.lowLevelNetworking.ListenerCallback;
 import verteiltesysteme.penguard.lowLevelNetworking.UDPDispatcher;
 import verteiltesysteme.penguard.lowLevelNetworking.UDPListener;
 import verteiltesysteme.penguard.protobuf.PenguardProto;
-
-import static android.R.id.message;
-import static verteiltesysteme.penguard.guardianservice.JoinState.STATE_JOIN_INPROGRESS;
 
 public class GuardService extends Service implements ListenerCallback{
 
@@ -353,14 +353,13 @@ public class GuardService extends Service implements ListenerCallback{
         return true;
     }
 
-    private void initiateGroupChange(PenguardProto.Group group) {
+    private void initiateGroupChange(PenguardProto.Group group, TwoPhaseCommitCallback callback) {
         if (group.getSeqNo() <= seqNo || (commitState.state != CommitmentState.STATE_IDLE)){
             return;
         }
         debug("Initiating commit for new group: " + group);
-
         // no objections
-        commitState.initiateCommit(group, myself);
+        commitState.initiateCommit(group, myself, callback);
         PenguardProto.PGPMessage commit = PenguardProto.PGPMessage.newBuilder()
                 .setName(myself.getName())
                 .setType(PenguardProto.PGPMessage.Type.GG_GRP_CHANGE)
@@ -416,7 +415,7 @@ public class GuardService extends Service implements ListenerCallback{
                 .build();
         sendCommitToAllGuardians(abort);
     }
-    void removePenguin(String mac) {
+    void removePenguin(String mac, TwoPhaseCommitCallback callback) {
         Penguin p = ListHelper.getPenguinByAddress(penguins, mac);
         if (p != null) {
             if (groupIsEmpty()) { //we're alone, no commitment needed
@@ -432,7 +431,7 @@ public class GuardService extends Service implements ListenerCallback{
                         .addAllGuardians(ListHelper.convertToPGPGuardianList(guardians))
                         .build();
 
-                initiateGroupChange(newGroup);
+                initiateGroupChange(newGroup, callback);
             }
             p.disconnect();
         }
@@ -463,7 +462,7 @@ public class GuardService extends Service implements ListenerCallback{
      * in the list, the list is not changed.
      * @param penguin Penguin to be added
      */
-    void addPenguin(Penguin penguin){
+    void addPenguin(Penguin penguin, TwoPhaseCommitCallback callback){
         if (!penguins.contains(penguin)) {
             debug("Adding penguin " + penguin.getName());
             if (groupIsEmpty()) { // we're alone, don't bother with commits or such
@@ -479,7 +478,7 @@ public class GuardService extends Service implements ListenerCallback{
                             .setSeen(penguin.isSeen()))
                         .setSeqNo(seqNo + 1)
                         .build();
-                initiateGroupChange(newGroup);
+                initiateGroupChange(newGroup, callback);
             }
         }
         debug("penguin already there");
@@ -619,7 +618,25 @@ public class GuardService extends Service implements ListenerCallback{
         }
         else {
             joinState.joinReqAccepted();
-            initiateGroupChange(newGroup);
+
+            /*
+                InitiateGroupChange needs a callback and since we don't receive one from the
+                request we just make something up. Could be null but why not make an example of
+                what it could look like.
+             */
+
+            TwoPhaseCommitCallback NotReallyUsefulCallback = new TwoPhaseCommitCallback() {
+                @Override
+                public void onCommit(String message) {
+                    debug(message);
+                }
+
+                @Override
+                public void onAbort(String error) {
+                    debug(error);
+                }
+            };
+            initiateGroupChange(newGroup, NotReallyUsefulCallback);
         }
     }
 

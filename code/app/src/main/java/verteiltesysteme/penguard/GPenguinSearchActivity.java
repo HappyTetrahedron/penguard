@@ -35,6 +35,7 @@ import verteiltesysteme.penguard.Settings.SettingsActivity;
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 import verteiltesysteme.penguard.guardianservice.Penguin;
+import verteiltesysteme.penguard.guardianservice.TwoPhaseCommitCallback;
 
 
 //here we search for bluetooth devices and the guard can pick a penguin to guard and then go on to the GGuardActivity
@@ -164,7 +165,20 @@ public class GPenguinSearchActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK){
                 BluetoothDevice device = data.getParcelableExtra(EXTRA_DEVICE);
                 String penguinName = data.getStringExtra(EXTRA_Name);
-                serviceConnection.addPenguin(new Penguin(device, getString(R.string.peng) + penguinName));
+                TwoPhaseCommitCallback callback = new TwoPhaseCommitCallback() {
+                    @Override
+                    public void onCommit(String message) {
+                        debug(message);
+                    }
+
+                    @Override
+                    public void onAbort(String error) {
+                        debug(error);
+                    }
+                };
+                serviceConnection.addPenguin(
+                        new Penguin(device, getString(R.string.peng) + penguinName),
+                        callback);
                 Intent intent = new Intent(this, GGuardActivity.class);
                 startActivity(intent);
             }

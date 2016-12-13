@@ -20,8 +20,8 @@ public class GuardianServiceConnection implements ServiceConnection {
      * being tracked.
      * @param penguin Penguin to be added
      */
-    public void addPenguin(Penguin penguin) {
-        service.addPenguin(penguin);
+    public void addPenguin(Penguin penguin, TwoPhaseCommitCallback callback) {
+        service.addPenguin(penguin, callback);
     }
 
     public Penguin getPenguinById(String mac){
@@ -58,8 +58,8 @@ public class GuardianServiceConnection implements ServiceConnection {
         return service.getPenguinName(mac);
     }
 
-    public void removePenguin(String mac) {
-        service.removePenguin(mac);
+    public void removePenguin(String mac, TwoPhaseCommitCallback callback) {
+        service.removePenguin(mac, callback);
     }
 
     public String getPenguinSeenByString(String mac) {

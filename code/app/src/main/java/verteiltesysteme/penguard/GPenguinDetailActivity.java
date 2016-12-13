@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Arrays;
 
@@ -19,6 +20,7 @@ import verteiltesysteme.penguard.Settings.SettingsActivity;
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 import verteiltesysteme.penguard.guardianservice.Penguin;
+import verteiltesysteme.penguard.guardianservice.TwoPhaseCommitCallback;
 
 public class GPenguinDetailActivity extends AppCompatActivity {
 
@@ -139,7 +141,18 @@ public class GPenguinDetailActivity extends AppCompatActivity {
 
     public void onClick(View view) {
         if (view.equals(removeButton)) {
-            serviceConnection.removePenguin(penguinMac);
+            TwoPhaseCommitCallback callback = new TwoPhaseCommitCallback() {
+                @Override
+                public void onCommit(String message) {
+                    debug(message);
+                }
+
+                @Override
+                public void onAbort(String error) {
+                    debug(error);
+                }
+            };
+            serviceConnection.removePenguin(penguinMac, callback);
             finish();
         }
         else if(view.equals(calibrateButton)) {

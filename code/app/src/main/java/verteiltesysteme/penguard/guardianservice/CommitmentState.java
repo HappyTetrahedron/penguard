@@ -8,6 +8,9 @@ public class CommitmentState {
     static final int STATE_COMMIT_REQ_SENT = 4;
     int state = STATE_IDLE;
 
+    /* Is called when 2pc aborts or commits */
+    TwoPhaseCommitCallback commitCallback = null;
+
     PenguardProto.Group groupUpdate;
     String initiantName;
     String initiantHost;
@@ -26,17 +29,20 @@ public class CommitmentState {
         state = STATE_VOTED_YES;
     }
 
-    void initiateCommit(PenguardProto.Group group, Guardian initiant) {
+    void initiateCommit(PenguardProto.Group group, Guardian initiant, TwoPhaseCommitCallback callback) {
         groupUpdate = group;
         initiantName = initiant.getName();
         state = STATE_COMMIT_REQ_SENT;
+        commitCallback = callback;
     }
 
     void abort() {
+        if(commitCallback != null) { commitCallback.onAbort("Error: 2pc abort"); }
         reset();
     }
 
     void commit() {
+        if(commitCallback != null) { commitCallback.onCommit("Error: 2pc abort"); }
         reset();
     }
 
@@ -48,6 +54,7 @@ public class CommitmentState {
         state = STATE_IDLE;
         voteNoReceived = false;
         voteYesReceived = false;
+        commitCallback = null;
     }
 
     void voteNoReceived() {
