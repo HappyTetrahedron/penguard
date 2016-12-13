@@ -65,5 +65,6 @@
         android:id="@+id/buttonGroupOverview"
         android:backgroundTint="@color/orange"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:onClick="onClick" />
 </RelativeLayout>

@@ -82,6 +82,7 @@ public class GuardService extends Service implements ListenerCallback{
     BroadcastReceiver bluetoothBroadcastReceiver;
 
     private PenguinAdapter penguinListAdapter;
+    private GuardianAdapter guardianListAdapter;
     private SharedPreferences sharedPref;
 
     @Override
@@ -147,6 +148,10 @@ public class GuardService extends Service implements ListenerCallback{
         // create penguin array adapter
         penguinListAdapter = new PenguinAdapter(this, R.layout.list_penguins, penguins);
 
+        //create guard array adapter
+        //TODO change the layout
+        guardianListAdapter = new GuardianAdapter(this, R.layout.list_penguins, guardians);
+
         pingThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -164,6 +169,8 @@ public class GuardService extends Service implements ListenerCallback{
         updateUsernameFromSettings();
         guardians.add(myself);
     }
+
+
 
     @Override
     public void onDestroy() {
@@ -245,6 +252,19 @@ public class GuardService extends Service implements ListenerCallback{
             }
         }, NETWORK_TIMEOUT);
         return true;
+    }
+
+    public void kickGuardian(Guardian guardian, TwoPhaseCommitCallback callback){
+        List<PenguardProto.PGPGuardian> newGuardians = ListHelper.convertToPGPGuardianList(guardians);
+        newGuardians.remove(ListHelper.getPGPGuardianByName(newGuardians, guardian.getName()));
+
+        PenguardProto.Group newGroup = PenguardProto.Group.newBuilder()
+                .setSeqNo(seqNo + 1)
+                .addAllPenguins(ListHelper.convertToPGPPenguinList(penguins))
+                .addAllGuardians(newGuardians)
+                .build();
+
+        initiateGroupChange(newGroup, callback);
     }
 
     private void sendPings(){
@@ -490,6 +510,10 @@ public class GuardService extends Service implements ListenerCallback{
 
     void subscribeListViewToPenguinAdapter(ListView listView) {
         listView.setAdapter(penguinListAdapter);
+    }
+
+    void subscribeListViewToGuardianAdapter(ListView listView){
+       listView.setAdapter(guardianListAdapter);
     }
 
     private void sendToAllGuardians(PenguardProto.PGPMessage message) {

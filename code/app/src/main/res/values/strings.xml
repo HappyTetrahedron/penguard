@@ -46,6 +46,11 @@
     <string name="joinGroupBTN">Join group</string>
     <string name="name">Name</string>
     <string name="groupOverviewBTN">Group overview</string>
+    <string name="delete">Kick guardian from the group</string>
+    <string name="cancel">Cancel</string>
+    <string name="deleteQuestion">Do you want to kick that guardian from the group? </string>
+    <string name="removeGuardianSuc">Guardian successfuly removed</string>
+    <string name="removeGuardianFail">Guardian coul not be removed</string>
 
 
     <!-- Strings related to calibration -->

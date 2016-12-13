@@ -68,6 +68,10 @@ public class Guardian {
         return null;
     }
 
+    public long getTimeStamp(){
+        return  this.lastSeenTimestamp;
+    }
+
     public String getIp() {
         return ip;
     }
