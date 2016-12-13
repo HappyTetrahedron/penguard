@@ -46,6 +46,10 @@
     <string name="joinGroupBTN">Join group</string>
     <string name="name">Name</string>
     <string name="groupOverviewBTN">Group overview</string>
+    <string name="penguinRemoveSucceeded">Penguin removed!</string>
+    <string name="penguinRemoveFailed">Penguin could not be removed, please try again</string>
+    <string name="penguinAddSucceeded">Penguin added!</string>
+    <string name="penguinAddFailed">Penguin could not be added, please try again</string>
 
 
     <!-- Strings related to calibration -->

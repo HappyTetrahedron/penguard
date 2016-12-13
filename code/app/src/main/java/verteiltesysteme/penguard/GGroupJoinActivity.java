@@ -50,13 +50,23 @@ public class GGroupJoinActivity extends AppCompatActivity {
         joinCallback = new GroupJoinCallback() {
             @Override
             public void joinSuccessful() {
-                toast(getString(R.string.joinSuc));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        toast(getString(R.string.joinSuc));
+                    }
+                });
                 GGroupJoinActivity.this.finish();
             }
 
             @Override
             public void joinAccepted() {
-                toast(getString(R.string.joinAcept));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        toast(getString(R.string.joinAcept));
+                    }
+                });
             }
 
             @Override

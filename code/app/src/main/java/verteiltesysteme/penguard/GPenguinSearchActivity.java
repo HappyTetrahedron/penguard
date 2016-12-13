@@ -168,16 +168,25 @@ public class GPenguinSearchActivity extends AppCompatActivity {
                 TwoPhaseCommitCallback callback = new TwoPhaseCommitCallback() {
                     @Override
                     public void onCommit(String message) {
-                        debug(message);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                toast(getString(R.string.penguinAddSucceeded));
+                            }
+                        });
                     }
-
                     @Override
                     public void onAbort(String error) {
-                        debug(error);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                toast(getString(R.string.penguinAddFailed));
+                            }
+                        });
                     }
                 };
                 serviceConnection.addPenguin(
-                        new Penguin(device, getString(R.string.peng) + penguinName),
+                        new Penguin(device, penguinName),
                         callback);
                 Intent intent = new Intent(this, GGuardActivity.class);
                 startActivity(intent);
