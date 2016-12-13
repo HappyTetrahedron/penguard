@@ -144,12 +144,21 @@ public class GPenguinDetailActivity extends AppCompatActivity {
             TwoPhaseCommitCallback callback = new TwoPhaseCommitCallback() {
                 @Override
                 public void onCommit(String message) {
-                    debug(message);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            toast(getString(R.string.penguinRemoveSucceeded));
+                        }
+                    });
                 }
-
                 @Override
                 public void onAbort(String error) {
-                    debug(error);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            toast(getString(R.string.penguinRemoveFailed));
+                        }
+                    });
                 }
             };
             serviceConnection.removePenguin(penguinMac, callback);
@@ -177,6 +186,10 @@ public class GPenguinDetailActivity extends AppCompatActivity {
         serviceConnection = null;
         stopService(stopServiceIntent);
         startActivity(backToMainIntent);
+    }
+
+    private void toast(String msg){
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
     private void debug(String msg) {

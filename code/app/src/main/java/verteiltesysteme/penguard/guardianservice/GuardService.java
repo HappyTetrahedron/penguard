@@ -408,11 +408,17 @@ public class GuardService extends Service implements ListenerCallback{
             sendCommit();
             updateStatus(commitState.groupUpdate);
             commitState.commit();
+            if (joinState.state == JoinState.STATE_JOIN_INPROGRESS) {
+                joinState.joinSuccessful();
+            }
         }
         else {
             debug("change is nok, abort");
             sendAbort();
             commitState.abort();
+            if (joinState.state == JoinState.STATE_JOIN_INPROGRESS) {
+                joinState.joinFailed(getString(R.string.joinFail));
+            }
         }
     }
 

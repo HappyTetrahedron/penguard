@@ -50,10 +50,12 @@ public class Penguin {
             debug(name + " has RSSI " + (float)rssi);
             Penguin.this.rssiValue = rssi;
 
-            if(maxDistanceRssi == 0 && minDistanceRssi == 0) {
+            if(maxDistanceRssi == 0 && minDistanceRssi == 0) { // distance threshold not set
+                seen = true;
                 return;
             }
 
+            // distance threshold set
             if (rssiValue >= Penguin.this.getRssiSeenThreshold()) {
                 seen = true;
             }

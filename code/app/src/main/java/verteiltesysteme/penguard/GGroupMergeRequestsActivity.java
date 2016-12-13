@@ -90,6 +90,8 @@ public class GGroupMergeRequestsActivity extends AppCompatActivity {
                                     toast("Initialised merging groups");
                                     mergeRequestAdapter.notifyDataSetChanged();
                                     serviceConnection.sendGroupTo(ip, port);
+                                    dialogInterface.dismiss();
+                                    GGroupMergeRequestsActivity.this.finish();
                                 }
                             });
 
