@@ -181,7 +181,7 @@ public class GuardService extends Service implements ListenerCallback{
         try {
             listener.join();
         } catch (InterruptedException e) {
-            // do nothing? TODO how do we handle this? #61
+            // do nothing
         }
 
         bluetoothThread.stopScanning();
@@ -266,6 +266,13 @@ public class GuardService extends Service implements ListenerCallback{
                 .build();
 
         initiateGroupChange(newGroup, callback);
+
+        //send that guardian a kick message
+        debug("kick sent");
+        PenguardProto.PGPMessage kick = PenguardProto.PGPMessage.newBuilder()
+                .setType(PenguardProto.PGPMessage.Type.GG_KICK)
+                .build();
+        dispatcher.sendPacket(kick, guardian.getIp(), guardian.getPort());
     }
 
     private void sendPings(){
@@ -603,6 +610,7 @@ public class GuardService extends Service implements ListenerCallback{
                 // ignore
                 break;
             case GG_KICK:
+                debug("recieved a kick");
                 kickRecieved(parsedMessage);
                 break;
             default:
@@ -624,6 +632,11 @@ public class GuardService extends Service implements ListenerCallback{
                 .addAllGuardians(onlyMe)
                 .addAllPenguins(noPenguins)
                 .build();
+
+        debug("======MY GROUP AFTER KICK=======");
+        for (Guardian g : guardians ) debug(g.getName());
+        for (Penguin p : penguins) debug(p.getName());
+        debug("======END MY GROUP AFTER KICK=======");
 
         //callback does nothing
         TwoPhaseCommitCallback NotReallyUsefulCallback = new TwoPhaseCommitCallback() {
