@@ -16,9 +16,9 @@ class PenguinAdapter extends ArrayAdapter<Penguin> {
 
     private int layoutResource;
 
-    PenguinAdapter(Context context, int layoutResource, List<Penguin> penguinList) {
-        super(context, layoutResource, penguinList);
-        this.layoutResource = layoutResource;
+    PenguinAdapter(Context context, List<Penguin> penguinList) {
+        super(context, R.layout.list_penguins, penguinList);
+        this.layoutResource = R.layout.list_penguins;
     }
 
     @NonNull

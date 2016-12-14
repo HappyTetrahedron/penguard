@@ -13,12 +13,15 @@ import java.util.List;
 import verteiltesysteme.penguard.R;
 
 
-public class GuardianAdapter extends ArrayAdapter<Guardian> {
+class GuardianAdapter extends ArrayAdapter<Guardian> {
     private int layoutResource;
 
-    GuardianAdapter(Context context, int layoutResource, List<Guardian> guardianList) {
-        super(context, layoutResource, guardianList);
-        this.layoutResource = layoutResource;
+    private final Guardian myself;
+
+    GuardianAdapter(Context context, List<Guardian> guardianList, final Guardian myself) {
+        super(context, R.layout.list_guardians, guardianList);
+        this.layoutResource = R.layout.list_guardians;
+        this.myself = myself;
     }
 
     @NonNull
@@ -32,15 +35,19 @@ public class GuardianAdapter extends ArrayAdapter<Guardian> {
 
         Guardian guardian = getItem(position);
 
-        //TODO use another layout
-
         if (guardian != null) {
-            TextView titleTextView = (TextView) convertView.findViewById(R.id.penguinName);
+            TextView titleTextView = (TextView) convertView.findViewById(R.id.guardianName);
 
             if (titleTextView != null) {
                 //calculate lastSeen
-                long lastSeen = System.currentTimeMillis() - guardian.getTimeStamp();
-                titleTextView.setText(guardian.getName() + "last seen " + lastSeen);
+                if (guardian.equals(myself)) {
+                    titleTextView.setText(guardian.getName() + " - you");
+                }
+                else {
+                    long lastSeen = System.currentTimeMillis() - guardian.getTimeStamp();
+                    long lastSeenMinutes = lastSeen / (1000 * 60);
+                    titleTextView.setText(guardian.getName() + " - last seen " + lastSeenMinutes + " minutes ago");
+                }
             }
         }
 

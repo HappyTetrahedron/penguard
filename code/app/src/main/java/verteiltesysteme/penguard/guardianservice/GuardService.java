@@ -51,7 +51,7 @@ public class GuardService extends Service implements ListenerCallback{
     private final Vector<Guardian> guardians = new Vector<>();
     private int seqNo = 0;
     private final int MERGE_NOTIFICATION_ID = 123;
-    private Vector<PenguardProto.PGPMessage> pendingMergeRequests = new Vector<PenguardProto.PGPMessage>();
+    private Vector<PenguardProto.PGPMessage> pendingMergeRequests = new Vector<>();
 
     private Guardian myself = new Guardian();
 
@@ -146,11 +146,11 @@ public class GuardService extends Service implements ListenerCallback{
         listener.start();
 
         // create penguin array adapter
-        penguinListAdapter = new PenguinAdapter(this, R.layout.list_penguins, penguins);
+        penguinListAdapter = new PenguinAdapter(this, penguins);
 
         //create guard array adapter
         //TODO change the layout
-        guardianListAdapter = new GuardianAdapter(this, R.layout.list_penguins, guardians);
+        guardianListAdapter = new GuardianAdapter(this, guardians, myself);
 
         pingThread = new Thread(new Runnable() {
             @Override
@@ -379,21 +379,30 @@ public class GuardService extends Service implements ListenerCallback{
         }
         debug("Initiating commit for new group: " + group);
         // no objections
-        commitState.initiateCommit(group, myself, callback);
-        PenguardProto.PGPMessage commit = PenguardProto.PGPMessage.newBuilder()
-                .setName(myself.getName())
-                .setType(PenguardProto.PGPMessage.Type.GG_GRP_CHANGE)
-                .setGroup(group)
-                .build();
-        sendCommitToAllGuardians(commit);
 
-        // check upon the commit after a timeout
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                checkAndCommitOrAbort();
-            }
-        }, NETWORK_TIMEOUT);
+        if (group.getGuardiansList().size() == 1 && group.getGuardiansList().get(0).getName().equals(myself.getName())) {
+            // The new group consists of myself only. Skip the 2 phase commit.
+            updateStatus(group);
+            callback.onCommit("");
+        }
+        else {
+            // initiate 2 phase commit
+            commitState.initiateCommit(group, myself, callback);
+            PenguardProto.PGPMessage commit = PenguardProto.PGPMessage.newBuilder()
+                    .setName(myself.getName())
+                    .setType(PenguardProto.PGPMessage.Type.GG_GRP_CHANGE)
+                    .setGroup(group)
+                    .build();
+            sendCommitToAllGuardians(commit);
+
+            // check upon the commit after a timeout
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    checkAndCommitOrAbort();
+                }
+            }, NETWORK_TIMEOUT);
+        }
     }
 
     private void checkAndCommitOrAbort() {
@@ -691,7 +700,7 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void abortReceived(PenguardProto.PGPMessage message){
-        if (joinState.state == joinState.STATE_JOIN_INPROGRESS) {
+        if (joinState.state == JoinState.STATE_JOIN_INPROGRESS) {
             joinState.joinFailed(getString(R.string.notification_merge_failed_abort));
         }
 
@@ -704,7 +713,7 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void commitReceived(PenguardProto.PGPMessage message){
-        if (joinState.state == joinState.STATE_JOIN_INPROGRESS) {
+        if (joinState.state == JoinState.STATE_JOIN_INPROGRESS) {
             joinState.joinSuccessful();
         }
 

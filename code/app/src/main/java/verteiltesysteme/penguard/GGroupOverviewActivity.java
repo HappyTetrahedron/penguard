@@ -61,7 +61,7 @@ public class GGroupOverviewActivity extends AppCompatActivity  implements Notice
             public void run() {
                 if (serviceConnection != null && serviceConnection.isConnected()) {
                     if (listView.getAdapter() == null) {
-                        serviceConnection.subscribeListViewToPenguinAdapter(listView);
+                        serviceConnection.subscribeListViewToGuardianAdapter(listView);
                     }
                     ((ArrayAdapter<Guardian>) listView.getAdapter()).notifyDataSetChanged();
                 }
