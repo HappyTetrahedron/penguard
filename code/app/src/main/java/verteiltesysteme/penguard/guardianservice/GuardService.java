@@ -10,18 +10,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.View;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -32,6 +30,7 @@ import java.util.Vector;
 
 import verteiltesysteme.penguard.GGroupMergeRequestsActivity;
 import verteiltesysteme.penguard.GGuardActivity;
+import verteiltesysteme.penguard.GPenguinDetailActivity;
 import verteiltesysteme.penguard.R;
 import verteiltesysteme.penguard.lowLevelNetworking.ListenerCallback;
 import verteiltesysteme.penguard.lowLevelNetworking.UDPDispatcher;
@@ -80,6 +79,7 @@ public class GuardService extends Service implements ListenerCallback{
     BluetoothThread bluetoothThread;
     Thread pingThread;
     BroadcastReceiver bluetoothBroadcastReceiver;
+    private MediaPlayer alarmPlayer;
 
     private PenguinAdapter penguinListAdapter;
     private SharedPreferences sharedPref;
@@ -157,6 +157,13 @@ public class GuardService extends Service implements ListenerCallback{
                         // pass
                     }
                     sendPings();
+
+                    // Check if any penguins have gone missing. If so, ring the alarm.
+                    for (Penguin penguin : penguins) {
+                        if (!penguin.isSeenByAnyone() && !penguin.isUserNotifiedOfMissing()) {
+                            penguinGoneMissing(penguin);
+                        }
+                    }
                 }
             }
         });
@@ -620,7 +627,7 @@ public class GuardService extends Service implements ListenerCallback{
                 .build();
         debug("Starting big big commit for group merge.");
         if (newGroup.getSeqNo() <= seqNo || (commitState.state != CommitmentState.STATE_IDLE)){
-            joinState.joinFailed(getString(R.string.notification_merge_failed_busy));
+            joinState.joinFailed(getString(R.string.toast_merge_failed_busy));
         }
         else {
             joinState.joinReqAccepted();
@@ -668,7 +675,7 @@ public class GuardService extends Service implements ListenerCallback{
 
     private void abortReceived(PenguardProto.PGPMessage message){
         if (joinState.state == joinState.STATE_JOIN_INPROGRESS) {
-            joinState.joinFailed(getString(R.string.notification_merge_failed_abort));
+            joinState.joinFailed(getString(R.string.toast_merge_failed_abort));
         }
 
         if (commitState.state == CommitmentState.STATE_VOTED_YES
@@ -743,6 +750,48 @@ public class GuardService extends Service implements ListenerCallback{
         if (message.getGroup().getSeqNo() > seqNo) { // The other guardian's status is newer!
             updateStatus(message.getGroup());
         }
+    }
+
+    private void penguinGoneMissing(Penguin penguin) {
+        Intent resultIntent = new Intent(this, GPenguinDetailActivity.class);
+        resultIntent.putExtra(GPenguinDetailActivity.EXTRA_PENGUIN_MAC, penguin.getAddress());
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(GGroupMergeRequestsActivity.class);
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultpendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // Build penguin-missing notification.
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.icon)
+                .setColor(ContextCompat.getColor(this, R.color.orange))
+                .setContentTitle(getText(R.string.notification_penguin_missing_title))
+                .setContentIntent(resultpendingIntent)
+                .setAutoCancel(true);
+        if (Math.random() < 0.98) {
+            mBuilder.setContentText(penguin.getName() + " " + getText(R.string.notification_penguin_missing));
+        }
+        else {
+            mBuilder.setContentText(penguin.getName() + " " + getText(R.string.notification_penguin_missing2));
+        }
+
+        // Activate notification.
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(MERGE_NOTIFICATION_ID, mBuilder.build());
+
+        if (alarmPlayer == null) {
+            alarmPlayer = MediaPlayer.create(this, R.raw.alarm);
+        }
+        alarmPlayer.setVolume(1.0f, 1.0f);
+        alarmPlayer.setLooping(true);
+        debug("alaaarm");
+        alarmPlayer.start();
+    }
+
+    protected void stopAlarm(Penguin penguin) {
+        if (alarmPlayer != null) {
+            alarmPlayer.setLooping(false);
+        }
+        penguin.setUserNotifiedOfMissing(true);
     }
 
     private void mergeReqReceived(PenguardProto.PGPMessage message){

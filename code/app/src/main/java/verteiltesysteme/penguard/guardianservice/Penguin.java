@@ -27,7 +27,27 @@ public class Penguin {
      */
     private final double RSSI_SEEN_THRESHOLD_LEVERAGE = 1.2;
 
-    private boolean seen = false;
+    private boolean userNotifiedOfMissing = true;
+
+    /* In case you're wondering why this boolean suddenly turned into a class, it's because the alternative (keeping it a simple boolean)
+     * would lead to bugs with absolute certainty, since we're at least once going to forget setting userNotifiedOfMissing to false every time seen is
+     * set to true.
+     */
+    private Seen seen = new Seen();
+    private class Seen {
+        private boolean seen = false;
+
+        private void updateSeen(boolean seen){
+            this.seen = seen;
+            if (seen) {
+                userNotifiedOfMissing = false;
+            }
+        }
+
+        private boolean isSeen() {
+            return seen;
+        }
+    }
 
     private Vector<Guardian> seenBy = new Vector<>();
 
@@ -40,10 +60,11 @@ public class Penguin {
                 gatt.readRemoteRssi();
             }
             if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                seen = false;
+                seen.updateSeen(false);
                 debug(name + " disconnected");
             }
         }
+
         @Override
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
             super.onReadRemoteRssi(gatt, rssi, status);
@@ -51,16 +72,21 @@ public class Penguin {
             Penguin.this.rssiValue = rssi;
 
             if(maxDistanceRssi == 0 && minDistanceRssi == 0) { // distance threshold not set
-                seen = true;
+                debug("Penguin seen");
+                seen.updateSeen(true);
                 return;
+            }
+            else{
+                debug("minDistanceRssi: " + minDistanceRssi);
+                debug("maxDistanceRssi: " + maxDistanceRssi);
             }
 
             // distance threshold set
             if (rssiValue >= Penguin.this.getRssiSeenThreshold()) {
-                seen = true;
+                seen.updateSeen(true);
             }
             else {
-                seen = false;
+                seen.updateSeen(false);
             }
         }
     };
@@ -75,6 +101,7 @@ public class Penguin {
             this.name = name;
             this.address = address;
     }
+
 
     void initialize(BluetoothManager bm) {
         this.bluetoothManager = bm;
@@ -95,12 +122,16 @@ public class Penguin {
         if (!newSeenStatus && seenBy.contains(guardian)) seenBy.remove(guardian);
     }
 
+    boolean isSeenByAnyone(){
+        return !seenBy.isEmpty() || seen.isSeen();
+    }
+
     boolean isInitialized() {
         return this.device != null && this.bluetoothManager != null;
     }
 
     boolean isSeen() {
-        return seen;
+        return seen.isSeen();
     }
 
     String getSeenByInfo(){
@@ -162,6 +193,14 @@ public class Penguin {
 
     private void debug(String msg) {
         Log.d("PenguinClass", msg);
+    }
+
+    void setUserNotifiedOfMissing(boolean userNotifiedOfMissing){
+        this.userNotifiedOfMissing = userNotifiedOfMissing;
+    }
+
+    boolean isUserNotifiedOfMissing() {
+        return userNotifiedOfMissing;
     }
 
 }

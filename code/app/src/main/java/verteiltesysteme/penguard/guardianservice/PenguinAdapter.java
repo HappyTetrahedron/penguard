@@ -29,7 +29,6 @@ class PenguinAdapter extends ArrayAdapter<Penguin> {
             convertView = layoutInflater.inflate(layoutResource, null);
         }
 
-
         Penguin penguin = getItem(position);
 
         if (penguin != null) {

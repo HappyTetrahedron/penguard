@@ -28,6 +28,10 @@ public class GuardianServiceConnection implements ServiceConnection {
         return service.getPenguin(mac);
     }
 
+    public void stopAlarm(Penguin penguin){
+        service.stopAlarm(penguin);
+    }
+
     /**
      * Registers this guardian at the PLS using the given username. Does nothing if this guardian is already registered.
      * @param username The name to be used.

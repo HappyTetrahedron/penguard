@@ -52,7 +52,8 @@ public class GPenguinDetailActivity extends AppCompatActivity {
         serviceConnection.registerServiceConnectedCallback(new Runnable() {
             @Override
             public void run() {
-                readPenguinFromMac();
+                penguin = serviceConnection.getPenguinById(penguinMac);
+                serviceConnection.stopAlarm(penguin);
             }
         });
         Intent intent = new Intent(this, GuardService.class);
@@ -171,9 +172,6 @@ public class GPenguinDetailActivity extends AppCompatActivity {
         }
     }
 
-    private void readPenguinFromMac(){
-        penguin = serviceConnection.getPenguinById(penguinMac);
-    }
 
     private void unbindAndKillService(){
         Intent backToMainIntent = new Intent(this, MainActivity.class);
