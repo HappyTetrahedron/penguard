@@ -23,12 +23,6 @@ public class MergeRequestArrayAdapter extends ArrayAdapter<PenguardProto.PGPMess
         this.layoutResource = R.layout.list_guardians; //using the guardian layout bc this will be the same layout/style there is no reason to use an extra one as they are supposed to look the same
     }
 
-    /*@Override
-    public void drawText(TextView textView, PenguardProto.PGPMessage object) {
-        textView.setText(object.getMergeReq().getName());
-        TODO remove this once everything works
-
-    }*/
 
     @NonNull
     @Override

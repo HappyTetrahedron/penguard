@@ -1,5 +1,7 @@
 package verteiltesysteme.penguard.guardianservice;
 
+import android.app.AlarmManager;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -10,11 +12,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
@@ -890,6 +896,7 @@ public class GuardService extends Service implements ListenerCallback{
         stackBuilder.addNextIntent(resultIntent);
         PendingIntent resultpendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
+
         //builds notification and sends it to the system. thanks to the id, it will be updated when this is called again
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.icon)
@@ -897,6 +904,7 @@ public class GuardService extends Service implements ListenerCallback{
                 .setContentTitle(getText(R.string.notification_merge_request_title))
                 .setContentText(getText(R.string.notification_merge_request_text))
                 .setContentIntent(resultpendingIntent)
+                .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
                 .setAutoCancel(true);
 
 
