@@ -22,6 +22,7 @@ message PGPMessage {
         GG_VOTE_YES = 12;
         GG_VOTE_NO = 13;
         GG_GRP_INFO = 14;
+	GG_KICK = 15;
     }
 
     required Type type = 1;

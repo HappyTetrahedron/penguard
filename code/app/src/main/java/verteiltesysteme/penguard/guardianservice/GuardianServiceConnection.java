@@ -78,12 +78,24 @@ public class GuardianServiceConnection implements ServiceConnection {
         service.subscribeListViewToPenguinAdapter(listView);
     }
 
+    public void subscribeListViewToGuardianAdapter(ListView listView){
+        service.subscribeListViewToGuardianAdapter(listView);
+    }
+
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
        this.service = ((GuardService.PenguinGuardBinder) service).getService();
         for (Runnable r : serviceConnectedCallbacks){
             r.run();
         }
+    }
+
+    public void kickGuardian(Guardian guardian, TwoPhaseCommitCallback callback){
+        service.kickGuardian(guardian, callback);
+    }
+
+    public Guardian getMyself(){
+        return service.getMyself();
     }
 
     @Override
