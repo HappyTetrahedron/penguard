@@ -3,6 +3,7 @@ package verteiltesysteme.penguard.Settings;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -10,7 +11,15 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 import verteiltesysteme.penguard.AppCompatPreferenceActivity;
+import verteiltesysteme.penguard.R;
+import verteiltesysteme.penguard.guardianservice.GuardService;
+import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
+
+import static android.R.attr.settingsActivity;
+import static java.util.Arrays.asList;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -25,21 +34,46 @@ import verteiltesysteme.penguard.AppCompatPreferenceActivity;
  */
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
-    private OnPreferenceChangeListenerImpl onPreferenceChangeListener;
+    private OnPreferenceChangeListenerImpl onPreferenceChangeListener = new OnPreferenceChangeListenerImpl();
+    protected static final ArrayList<String> listOfServerSettings = new ArrayList<>(asList("server_address", "port", "username"));
+    private class OnPreferenceChangeListenerImpl implements Preference.OnPreferenceChangeListener {
 
-    /* This class is the definition of spaghetti code, but I'm taking no responsibility here since I wasn't the one who
-     * introduced like three static anonymous classes.
-     * (also this is not meant as harsh as it sounds. Refactoring this was just painfully entertaining)
-     * If we have enough time we can consider tidying up this class a bit - for example, settings must now be added from the PreferenceFragmentImpl.
-     * -Nils
-     */
+        // This method gets called directly after the user has changed a preference. We just always accept the change.
+        @Override
+        public boolean onPreferenceChange(Preference preference, Object value) {
+            String stringValue = value.toString();
+            preference.setSummary(stringValue);
+            return true;
+        }
+    }
+
+    private GuardianServiceConnection guardianServiceConnection;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        onPreferenceChangeListener = new OnPreferenceChangeListenerImpl(this);
-        PreferenceFragmentImpl preferenceFragment = new PreferenceFragmentImpl();
+        final PreferenceFragmentImpl preferenceFragment = new PreferenceFragmentImpl();
         preferenceFragment.setSettingsActivity(this);
+
+        Intent intent = new Intent(this, GuardService.class);
+        guardianServiceConnection = new GuardianServiceConnection();
+        bindService(intent, guardianServiceConnection, Context.BIND_AUTO_CREATE);
+        guardianServiceConnection.registerServiceConnectedCallback(new Runnable() {
+            @Override
+            public void run() {
+                preferenceFragment.initializeSettings(guardianServiceConnection.isRegistered());
+            }
+        });
+
         getFragmentManager().beginTransaction().replace(android.R.id.content, preferenceFragment).commit();
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        if (guardianServiceConnection != null && guardianServiceConnection.isConnected()) {
+            unbindService(guardianServiceConnection);
+        }
     }
 
     protected void bindPreferenceSummaryToValue(Preference preference) {
@@ -51,16 +85,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 PreferenceManager
                         .getDefaultSharedPreferences(preference.getContext())
                         .getString(preference.getKey(), ""));
-    }
-
-    protected boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     protected void toast(String msg){
