@@ -56,7 +56,8 @@
         android:id="@+id/loginBtn"
         android:layout_below="@+id/penguinListView"
         android:layout_centerHorizontal="true"
-        android:backgroundTint="@color/orange" />
+        android:backgroundTint="@color/orange"
+        android:onClick="onClick" />
 
     <Button
         android:text="@string/groupOverviewBTN"

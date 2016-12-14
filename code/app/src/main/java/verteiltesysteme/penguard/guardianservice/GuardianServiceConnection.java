@@ -90,6 +90,10 @@ public class GuardianServiceConnection implements ServiceConnection {
         service.kickGuardian(guardian, callback);
     }
 
+    public Guardian getMyself(){
+        return service.getMyself();
+    }
+
     @Override
     public void onServiceDisconnected(ComponentName name) {
         this.service = null;

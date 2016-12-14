@@ -73,6 +73,7 @@ public class GGuardActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
     }
 
     @Override

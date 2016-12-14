@@ -40,6 +40,8 @@ public class GGroupOverviewActivity extends AppCompatActivity  implements Notice
     boolean paused = false;
     private static final int UPDATE_DELAY = 500;
 
+    int counter = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +76,10 @@ public class GGroupOverviewActivity extends AppCompatActivity  implements Notice
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 selectedGuardian = (Guardian)adapterView.getItemAtPosition(i);
-                showDeleteDialog();
+                if (counter ==0) {
+                    counter++;
+                    showDeleteDialog();
+                }
             }
         });
     }
@@ -85,17 +90,25 @@ public class GGroupOverviewActivity extends AppCompatActivity  implements Notice
             public void onCommit(String message) {
                 //it worked
                 toast(getString(R.string.removeGuardianSuc));
+                counter = 0;
                 dialog.dismiss();
-                //TODO update listview
             }
 
             @Override
             public void onAbort(String error) {
                 //it didn't work
+                counter = 0;
                 toast(getString(R.string.removeGuardianFail));
+                dialog.dismiss();
             }
         };
-        serviceConnection.kickGuardian(guardian,callback);
+        if (!guardian.equals(serviceConnection.getMyself())) {
+            debug("guardian trying to remove is not yourself");
+            serviceConnection.kickGuardian(guardian,callback);
+        }else {
+            debug("you are trying to remove yourself");
+            toast(getString(R.string.removeSelf));
+        }
     }
 
     private void showDeleteDialog(){
@@ -167,12 +180,14 @@ public class GGroupOverviewActivity extends AppCompatActivity  implements Notice
     public void onDialogPositiveClick(DialogFragment dialog) {
         //this is for the dialog buttons this is the delete guardian button
         deleteGuardian(selectedGuardian);
+        counter =0;
         dialog.dismiss();
     }
 
     @Override
     public void onDialogNegativeClick(DialogFragment dialog) {
         //this is for the dialog buttons... this is the cancel button
+        counter=0;
         dialog.dismiss();
     }
 

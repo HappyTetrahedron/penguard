@@ -55,6 +55,7 @@
     <string name="penguinRemoveFailed">Penguin could not be removed, please try again</string>
     <string name="penguinAddSucceeded">Penguin added!</string>
     <string name="penguinAddFailed">Penguin could not be added, please try again</string>
+    <string name="removeSelf">You cannot remove yourself</string>
 
 
     <!-- Strings related to calibration -->

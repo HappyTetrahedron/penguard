@@ -548,6 +548,10 @@ public class GuardService extends Service implements ListenerCallback{
         }
     }
 
+    public Guardian getMyself(){
+        return myself;
+    }
+
     @Override
     public void onReceive(PenguardProto.PGPMessage parsedMessage, InetAddress address, int port) {
         if (parsedMessage.getType() != PenguardProto.PGPMessage.Type.SG_ACK

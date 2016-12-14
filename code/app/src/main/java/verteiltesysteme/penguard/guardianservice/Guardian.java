@@ -72,6 +72,10 @@ public class Guardian {
         return  this.lastSeenTimestamp;
     }
 
+    public boolean equals(Guardian guardian){
+        return this.getName() == guardian.getName();
+    }
+
     public String getIp() {
         return ip;
     }
