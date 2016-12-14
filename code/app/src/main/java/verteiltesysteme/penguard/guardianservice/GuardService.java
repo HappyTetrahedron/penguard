@@ -255,6 +255,7 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     public void kickGuardian(Guardian guardian, TwoPhaseCommitCallback callback){
+        guardians.remove(guardian);
         List<PenguardProto.PGPGuardian> newGuardians = ListHelper.convertToPGPGuardianList(guardians);
         newGuardians.remove(ListHelper.getPGPGuardianByName(newGuardians, guardian.getName()));
 
@@ -601,10 +602,44 @@ public class GuardService extends Service implements ListenerCallback{
             case GG_ACK:
                 // ignore
                 break;
+            case GG_KICK:
+                kickRecieved(parsedMessage);
+                break;
             default:
                 debug("Packet with unexpected type arrived");
                 break;
         }
+    }
+
+    private void kickRecieved(PenguardProto.PGPMessage message) {
+        //TODO
+        guardians.removeAllElements();
+        guardians.add(myself);
+        penguins.removeAllElements();
+        List<PenguardProto.PGPGuardian> onlyMe = ListHelper.convertToPGPGuardianList(guardians); //i'm the only member in the new group as i was kicked out of the old one
+        List<PenguardProto.PGPPenguin> noPenguins = ListHelper.convertToPGPPenguinList(penguins); //i have no penguins
+        int newSeqNo = Math.max(seqNo, message.getGroup().getSeqNo()) + 1; //Should we leave it like this or change to 0?
+        PenguardProto.Group newGroup = PenguardProto.Group.newBuilder()
+                .setSeqNo(newSeqNo)
+                .addAllGuardians(onlyMe)
+                .addAllPenguins(noPenguins)
+                .build();
+
+        //callback does nothing
+        TwoPhaseCommitCallback NotReallyUsefulCallback = new TwoPhaseCommitCallback() {
+            @Override
+            public void onCommit(String message) {
+                debug(message);
+            }
+
+            @Override
+            public void onAbort(String error) {
+                debug(error);
+            }
+        };
+        initiateGroupChange(newGroup, NotReallyUsefulCallback);
+
+
     }
 
     private void serverAckReceived(PenguardProto.PGPMessage message) {
