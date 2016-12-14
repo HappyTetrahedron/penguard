@@ -167,7 +167,7 @@ public class GGroupOverviewActivity extends AppCompatActivity  implements Notice
     public void onDialogPositiveClick(DialogFragment dialog) {
         //this is for the dialog buttons this is the delete guardian button
         deleteGuardian(selectedGuardian);
-
+        dialog.dismiss();
     }
 
     @Override
@@ -194,7 +194,7 @@ public class GGroupOverviewActivity extends AppCompatActivity  implements Notice
                     .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             // User cancelled the dialog
-                            mListener.onDialogPositiveClick(KickGuardianDialogFragment.this);
+                            mListener.onDialogNegativeClick(KickGuardianDialogFragment.this);
 
                         }
                     });
