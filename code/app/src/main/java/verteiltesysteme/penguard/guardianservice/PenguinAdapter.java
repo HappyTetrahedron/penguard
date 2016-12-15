@@ -46,15 +46,15 @@ class PenguinAdapter extends ArrayAdapter<Penguin> {
 
                 if (penguin.isSeen()){ //seen by myself
                     //icon.setBackgroundColor(Color.GREEN);
-                    icon.setImageTintList(ColorStateList.valueOf(Color.GREEN));
+                    icon.setImageTintList(ColorStateList.valueOf(0xff2f2f2f)); //2f2f2f
                     statusTV.setText("is seen by you");
                 }else if (penguin.isSeenByAnyone() && !penguin.isSeen()){
                     statusTV.setText("seen by someone else");
-                    icon.setImageTintList(ColorStateList.valueOf(Color.BLUE));
+                    icon.setImageTintList(ColorStateList.valueOf(0xffa8a8a8)); //a8a8a8
                 }else {
                     statusTV.setText("not seen by anyone");
                    //icon.setBackgroundColor(Color.RED);
-                    icon.setImageTintList(ColorStateList.valueOf(Color.RED));
+                    icon.setImageTintList(ColorStateList.valueOf(0xffff9109));
 
                 }
             }
