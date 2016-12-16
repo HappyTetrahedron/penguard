@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='msg.proto',
   package='penguard',
   syntax='proto2',
-  serialized_pb=_b('\n\tmsg.proto\x12\x08penguard\"\xe2\x04\n\nPGPMessage\x12\'\n\x04type\x18\x01 \x02(\x0e\x32\x19.penguard.PGPMessage.Type\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x1c\n\x03\x61\x63k\x18\x03 \x01(\x0b\x32\r.penguard.AckH\x00\x12 \n\x05\x65rror\x18\x04 \x01(\x0b\x32\x0f.penguard.ErrorH\x00\x12\x1e\n\x04ping\x18\x05 \x01(\x0b\x32\x0e.penguard.PingH\x00\x12&\n\x08mergeReq\x18\x06 \x01(\x0b\x32\x12.penguard.MergeReqH\x00\x12&\n\x08groupReq\x18\x07 \x01(\x0b\x32\x12.penguard.GroupReqH\x00\x12 \n\x05group\x18\x08 \x01(\x0b\x32\x0f.penguard.GroupH\x00\x12 \n\x05seqNo\x18\t \x01(\x0b\x32\x0f.penguard.SeqNoH\x00\x12$\n\x07goodbye\x18\n \x01(\x0b\x32\x11.penguard.GoodByeH\x00\"\xf7\x01\n\x04Type\x12\n\n\x06SG_ACK\x10\x00\x12\n\n\x06SG_ERR\x10\x01\x12\x10\n\x0cSG_MERGE_REQ\x10\x02\x12\x0f\n\x0bGS_REGISTER\x10\x03\x12\x11\n\rGS_DEREGISTER\x10\x04\x12\x0b\n\x07GS_PING\x10\x05\x12\x10\n\x0cGS_GROUP_REQ\x10\x06\x12\x14\n\x10GG_STATUS_UPDATE\x10\x07\x12\n\n\x06GG_ACK\x10\x08\x12\x11\n\rGG_GRP_CHANGE\x10\t\x12\r\n\tGG_COMMIT\x10\n\x12\x0c\n\x08GG_ABORT\x10\x0b\x12\x0f\n\x0bGG_VOTE_YES\x10\x0c\x12\x0e\n\nGG_VOTE_NO\x10\r\x12\x0f\n\x0bGG_GRP_INFO\x10\x0e\x42\t\n\x07\x63ontent\";\n\x03\x41\x63k\x12\x0c\n\x04uuid\x18\x01 \x02(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\n\n\x02ip\x18\x03 \x02(\t\x12\x0c\n\x04port\x18\x04 \x02(\x05\"\x16\n\x05\x45rror\x12\r\n\x05\x65rror\x18\x01 \x02(\t\"\x17\n\x07GoodBye\x12\x0c\n\x04uuid\x18\x01 \x02(\t\"\x14\n\x04Ping\x12\x0c\n\x04uuid\x18\x01 \x02(\t\"\x16\n\x05SeqNo\x12\r\n\x05seqno\x18\x01 \x02(\x05\"2\n\x08MergeReq\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\n\n\x02ip\x18\x02 \x02(\t\x12\x0c\n\x04port\x18\x03 \x02(\x05\"\x18\n\x08GroupReq\x12\x0c\n\x04name\x18\x01 \x02(\t\"5\n\nPGPPenguin\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x0b\n\x03mac\x18\x02 \x02(\t\x12\x0c\n\x04seen\x18\x03 \x01(\x08\"5\n\x0bPGPGuardian\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\n\n\x02ip\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\x05\"i\n\x05Group\x12\x0e\n\x06seq_no\x18\x01 \x02(\x05\x12(\n\tguardians\x18\x02 \x03(\x0b\x32\x15.penguard.PGPGuardian\x12&\n\x08penguins\x18\x03 \x03(\x0b\x32\x14.penguard.PGPPenguinB3\n\"verteiltesysteme.penguard.protobufB\rPenguardProto')
+  serialized_pb=_b('\n\tmsg.proto\x12\x08penguard\"\x99\x05\n\nPGPMessage\x12\'\n\x04type\x18\x01 \x02(\x0e\x32\x19.penguard.PGPMessage.Type\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x1c\n\x03\x61\x63k\x18\x03 \x01(\x0b\x32\r.penguard.AckH\x00\x12 \n\x05\x65rror\x18\x04 \x01(\x0b\x32\x0f.penguard.ErrorH\x00\x12\x1e\n\x04ping\x18\x05 \x01(\x0b\x32\x0e.penguard.PingH\x00\x12&\n\x08mergeReq\x18\x06 \x01(\x0b\x32\x12.penguard.MergeReqH\x00\x12&\n\x08groupReq\x18\x07 \x01(\x0b\x32\x12.penguard.GroupReqH\x00\x12 \n\x05group\x18\x08 \x01(\x0b\x32\x0f.penguard.GroupH\x00\x12 \n\x05seqNo\x18\t \x01(\x0b\x32\x0f.penguard.SeqNoH\x00\x12$\n\x07goodbye\x18\n \x01(\x0b\x32\x11.penguard.GoodByeH\x00\x12(\n\tgroupInfo\x18\x0b \x01(\x0b\x32\x13.penguard.GroupInfoH\x00\"\x84\x02\n\x04Type\x12\n\n\x06SG_ACK\x10\x00\x12\n\n\x06SG_ERR\x10\x01\x12\x10\n\x0cSG_MERGE_REQ\x10\x02\x12\x0f\n\x0bGS_REGISTER\x10\x03\x12\x11\n\rGS_DEREGISTER\x10\x04\x12\x0b\n\x07GS_PING\x10\x05\x12\x10\n\x0cGS_GROUP_REQ\x10\x06\x12\x14\n\x10GG_STATUS_UPDATE\x10\x07\x12\n\n\x06GG_ACK\x10\x08\x12\x11\n\rGG_GRP_CHANGE\x10\t\x12\r\n\tGG_COMMIT\x10\n\x12\x0c\n\x08GG_ABORT\x10\x0b\x12\x0f\n\x0bGG_VOTE_YES\x10\x0c\x12\x0e\n\nGG_VOTE_NO\x10\r\x12\x0f\n\x0bGG_GRP_INFO\x10\x0e\x12\x0b\n\x07GG_KICK\x10\x0f\x42\t\n\x07\x63ontent\";\n\x03\x41\x63k\x12\x0c\n\x04uuid\x18\x01 \x02(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\n\n\x02ip\x18\x03 \x02(\t\x12\x0c\n\x04port\x18\x04 \x02(\x05\"\x16\n\x05\x45rror\x12\r\n\x05\x65rror\x18\x01 \x02(\t\"\x17\n\x07GoodBye\x12\x0c\n\x04uuid\x18\x01 \x02(\t\"\x14\n\x04Ping\x12\x0c\n\x04uuid\x18\x01 \x02(\t\"\x16\n\x05SeqNo\x12\r\n\x05seqno\x18\x01 \x02(\x05\"2\n\x08MergeReq\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\n\n\x02ip\x18\x02 \x02(\t\x12\x0c\n\x04port\x18\x03 \x02(\x05\"\x18\n\x08GroupReq\x12\x0c\n\x04name\x18\x01 \x02(\t\"5\n\nPGPPenguin\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x0b\n\x03mac\x18\x02 \x02(\t\x12\x0c\n\x04seen\x18\x03 \x01(\x08\"5\n\x0bPGPGuardian\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\n\n\x02ip\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\x05\"i\n\x05Group\x12\x0e\n\x06seq_no\x18\x01 \x02(\x05\x12(\n\tguardians\x18\x02 \x03(\x0b\x32\x15.penguard.PGPGuardian\x12&\n\x08penguins\x18\x03 \x03(\x0b\x32\x14.penguard.PGPPenguin\"U\n\tGroupInfo\x12\x1e\n\x05group\x18\x01 \x02(\x0b\x32\x0f.penguard.Group\x12\x12\n\nrecieverIP\x18\x02 \x02(\t\x12\x14\n\x0crecieverPort\x18\x03 \x02(\x05\x42\x33\n\"verteiltesysteme.penguard.protobufB\rPenguardProto')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -91,11 +91,15 @@ _PGPMESSAGE_TYPE = _descriptor.EnumDescriptor(
       name='GG_GRP_INFO', index=14, number=14,
       options=None,
       type=None),
+    _descriptor.EnumValueDescriptor(
+      name='GG_KICK', index=15, number=15,
+      options=None,
+      type=None),
   ],
   containing_type=None,
   options=None,
-  serialized_start=376,
-  serialized_end=623,
+  serialized_start=418,
+  serialized_end=678,
 )
 _sym_db.RegisterEnumDescriptor(_PGPMESSAGE_TYPE)
 
@@ -177,6 +181,13 @@ _PGPMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='groupInfo', full_name='penguard.PGPMessage.groupInfo', index=10,
+      number=11, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -194,7 +205,7 @@ _PGPMESSAGE = _descriptor.Descriptor(
       index=0, containing_type=None, fields=[]),
   ],
   serialized_start=24,
-  serialized_end=634,
+  serialized_end=689,
 )
 
 
@@ -245,8 +256,8 @@ _ACK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=636,
-  serialized_end=695,
+  serialized_start=691,
+  serialized_end=750,
 )
 
 
@@ -276,8 +287,8 @@ _ERROR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=697,
-  serialized_end=719,
+  serialized_start=752,
+  serialized_end=774,
 )
 
 
@@ -307,8 +318,8 @@ _GOODBYE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=721,
-  serialized_end=744,
+  serialized_start=776,
+  serialized_end=799,
 )
 
 
@@ -338,8 +349,8 @@ _PING = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=746,
-  serialized_end=766,
+  serialized_start=801,
+  serialized_end=821,
 )
 
 
@@ -369,8 +380,8 @@ _SEQNO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=768,
-  serialized_end=790,
+  serialized_start=823,
+  serialized_end=845,
 )
 
 
@@ -414,8 +425,8 @@ _MERGEREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=792,
-  serialized_end=842,
+  serialized_start=847,
+  serialized_end=897,
 )
 
 
@@ -445,8 +456,8 @@ _GROUPREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=844,
-  serialized_end=868,
+  serialized_start=899,
+  serialized_end=923,
 )
 
 
@@ -490,8 +501,8 @@ _PGPPENGUIN = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=870,
-  serialized_end=923,
+  serialized_start=925,
+  serialized_end=978,
 )
 
 
@@ -535,8 +546,8 @@ _PGPGUARDIAN = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=925,
-  serialized_end=978,
+  serialized_start=980,
+  serialized_end=1033,
 )
 
 
@@ -580,8 +591,53 @@ _GROUP = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=980,
-  serialized_end=1085,
+  serialized_start=1035,
+  serialized_end=1140,
+)
+
+
+_GROUPINFO = _descriptor.Descriptor(
+  name='GroupInfo',
+  full_name='penguard.GroupInfo',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='group', full_name='penguard.GroupInfo.group', index=0,
+      number=1, type=11, cpp_type=10, label=2,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='recieverIP', full_name='penguard.GroupInfo.recieverIP', index=1,
+      number=2, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='recieverPort', full_name='penguard.GroupInfo.recieverPort', index=2,
+      number=3, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1142,
+  serialized_end=1227,
 )
 
 _PGPMESSAGE.fields_by_name['type'].enum_type = _PGPMESSAGE_TYPE
@@ -593,6 +649,7 @@ _PGPMESSAGE.fields_by_name['groupReq'].message_type = _GROUPREQ
 _PGPMESSAGE.fields_by_name['group'].message_type = _GROUP
 _PGPMESSAGE.fields_by_name['seqNo'].message_type = _SEQNO
 _PGPMESSAGE.fields_by_name['goodbye'].message_type = _GOODBYE
+_PGPMESSAGE.fields_by_name['groupInfo'].message_type = _GROUPINFO
 _PGPMESSAGE_TYPE.containing_type = _PGPMESSAGE
 _PGPMESSAGE.oneofs_by_name['content'].fields.append(
   _PGPMESSAGE.fields_by_name['ack'])
@@ -618,8 +675,12 @@ _PGPMESSAGE.fields_by_name['seqNo'].containing_oneof = _PGPMESSAGE.oneofs_by_nam
 _PGPMESSAGE.oneofs_by_name['content'].fields.append(
   _PGPMESSAGE.fields_by_name['goodbye'])
 _PGPMESSAGE.fields_by_name['goodbye'].containing_oneof = _PGPMESSAGE.oneofs_by_name['content']
+_PGPMESSAGE.oneofs_by_name['content'].fields.append(
+  _PGPMESSAGE.fields_by_name['groupInfo'])
+_PGPMESSAGE.fields_by_name['groupInfo'].containing_oneof = _PGPMESSAGE.oneofs_by_name['content']
 _GROUP.fields_by_name['guardians'].message_type = _PGPGUARDIAN
 _GROUP.fields_by_name['penguins'].message_type = _PGPPENGUIN
+_GROUPINFO.fields_by_name['group'].message_type = _GROUP
 DESCRIPTOR.message_types_by_name['PGPMessage'] = _PGPMESSAGE
 DESCRIPTOR.message_types_by_name['Ack'] = _ACK
 DESCRIPTOR.message_types_by_name['Error'] = _ERROR
@@ -631,6 +692,7 @@ DESCRIPTOR.message_types_by_name['GroupReq'] = _GROUPREQ
 DESCRIPTOR.message_types_by_name['PGPPenguin'] = _PGPPENGUIN
 DESCRIPTOR.message_types_by_name['PGPGuardian'] = _PGPGUARDIAN
 DESCRIPTOR.message_types_by_name['Group'] = _GROUP
+DESCRIPTOR.message_types_by_name['GroupInfo'] = _GROUPINFO
 
 PGPMessage = _reflection.GeneratedProtocolMessageType('PGPMessage', (_message.Message,), dict(
   DESCRIPTOR = _PGPMESSAGE,
@@ -708,6 +770,13 @@ Group = _reflection.GeneratedProtocolMessageType('Group', (_message.Message,), d
   # @@protoc_insertion_point(class_scope:penguard.Group)
   ))
 _sym_db.RegisterMessage(Group)
+
+GroupInfo = _reflection.GeneratedProtocolMessageType('GroupInfo', (_message.Message,), dict(
+  DESCRIPTOR = _GROUPINFO,
+  __module__ = 'msg_pb2'
+  # @@protoc_insertion_point(class_scope:penguard.GroupInfo)
+  ))
+_sym_db.RegisterMessage(GroupInfo)
 
 
 DESCRIPTOR.has_options = True

@@ -15,7 +15,8 @@ class PenguinServerProtocol:
                 PGPMessage.GS_REGISTER: self.register_client,
                 PGPMessage.GS_DEREGISTER: self.deregister_client,
                 PGPMessage.GS_PING: self.handle_ping,
-                PGPMessage.GS_GROUP_REQ: self.group_request}
+                PGPMessage.GS_GROUP_REQ: self.group_request,
+                PGPMessage.GG_GRP_INFO: self.group_info_forwarding}
         self.db = dataset.connect('sqlite:///penguard.db')
 
 
@@ -126,6 +127,13 @@ class PenguinServerProtocol:
 
         else:
             self.send_err('User with this name has not been found.', addr)
+
+    
+    def group_info_forwarding(self, msg, addr):
+        ip = msg.groupInfo.senderIP
+        port = msg.groupInfo.senderPort
+        self.send(msg, ip, addr)
+        
 
 
     # ============== helpers =================
