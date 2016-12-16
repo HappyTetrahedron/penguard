@@ -118,7 +118,10 @@ public class Penguin {
     }
 
     void setSeenBy(Guardian guardian, boolean newSeenStatus) {
-        if (newSeenStatus && !seenBy.contains(guardian)) seenBy.add(guardian);
+        if (newSeenStatus && !seenBy.contains(guardian)) {
+            seenBy.add(guardian);
+            userNotifiedOfMissing = false;
+        }
         if (!newSeenStatus && seenBy.contains(guardian)) seenBy.remove(guardian);
     }
 
