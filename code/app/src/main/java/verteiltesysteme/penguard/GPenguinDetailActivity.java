@@ -3,28 +3,20 @@ package verteiltesysteme.penguard;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.Arrays;
-
-import verteiltesysteme.penguard.Settings.SettingsActivity;
 
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 import verteiltesysteme.penguard.guardianservice.Penguin;
 import verteiltesysteme.penguard.guardianservice.TwoPhaseCommitCallback;
 
-public class GPenguinDetailActivity extends AppCompatActivity {
+public class GPenguinDetailActivity extends PenguardActivity {
 
-    private GuardianServiceConnection serviceConnection;
     private String penguinMac;
 
     public static final String EXTRA_PENGUIN_MAC = "penguin_mac";
@@ -113,33 +105,6 @@ public class GPenguinDetailActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_settings, menu);
-        getMenuInflater().inflate(R.menu.menu_howto, menu);
-        getMenuInflater().inflate(R.menu.menu_endservice, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case R.id.menu_settings:
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                return true;
-            case R.id.menu_howto:
-                Intent intent1 = new Intent(this, HowToActivity.class);
-                startActivity(intent1);
-                return true;
-            case R.id.menu_endService:
-                unbindAndKillService();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
     public void onClick(View view) {
         if (view.equals(removeButton)) {
             TwoPhaseCommitCallback callback = new TwoPhaseCommitCallback() {
@@ -170,27 +135,5 @@ public class GPenguinDetailActivity extends AppCompatActivity {
             intent.putExtra(EXTRA_PENGUIN_MAC, penguinMac);
             startActivityForResult(intent, PENGUIN_CALIBRATION_REQUEST);
         }
-    }
-
-
-    private void unbindAndKillService(){
-        Intent backToMainIntent = new Intent(this, MainActivity.class);
-        // clear the backstack when transitioning to main activity
-        backToMainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-        Intent stopServiceIntent = new Intent(this, GuardService.class);
-
-        unbindService(serviceConnection);
-        serviceConnection = null;
-        stopService(stopServiceIntent);
-        startActivity(backToMainIntent);
-    }
-
-    private void toast(String msg){
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-    }
-
-    private void debug(String msg) {
-        Log.d("GPenguinDetail", msg);
     }
 }

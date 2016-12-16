@@ -2,29 +2,20 @@ package verteiltesysteme.penguard;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import verteiltesysteme.penguard.Settings.SettingsActivity;
 import verteiltesysteme.penguard.guardianservice.GroupJoinCallback;
 import verteiltesysteme.penguard.guardianservice.GuardService;
-import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 
-public class GGroupJoinActivity extends AppCompatActivity {
+public class GGroupJoinActivity extends PenguardActivity {
 
     Button btn;
     TextView textView;
     EditText editText;
-
-    GuardianServiceConnection guardianServiceConnection = new GuardianServiceConnection();
 
     GroupJoinCallback joinCallback;
 
@@ -38,7 +29,7 @@ public class GGroupJoinActivity extends AppCompatActivity {
         editText = (EditText)findViewById(R.id.groupJoinET);
 
         Intent intent = new Intent(this, GuardService.class);
-        bindService(intent, guardianServiceConnection, Context.BIND_AUTO_CREATE);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,8 +76,8 @@ public class GGroupJoinActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (guardianServiceConnection != null && guardianServiceConnection.isConnected()) {
-            unbindService(guardianServiceConnection);
+        if (serviceConnection != null && serviceConnection.isConnected()) {
+            unbindService(serviceConnection);
         }
     }
 
@@ -99,58 +90,10 @@ public class GGroupJoinActivity extends AppCompatActivity {
         String groupUN = String.valueOf(editText.getText());
 
         //call the function in the serviceConnector
-        if (! guardianServiceConnection.joinGroup(groupUN, joinCallback)){
+        if (! serviceConnection.joinGroup(groupUN, joinCallback)){
             //something went wrong, so notify user and re-enable the button
             joinCallback.joinFailure(getString(R.string.toast_merge_failed_progress));
             btn.setEnabled(true);
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_settings, menu);
-        getMenuInflater().inflate(R.menu.menu_howto, menu);
-        getMenuInflater().inflate(R.menu.menu_endservice, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case R.id.menu_settings:
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                return true;
-            case R.id.menu_howto:
-                Intent intent1 = new Intent(this, HowToActivity.class);
-                startActivity(intent1);
-                return true;
-            case R.id.menu_endService:
-                unbindAndKillService();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private void unbindAndKillService(){
-        Intent backToMainIntent = new Intent(this, MainActivity.class);
-        // clear the backstack when transitioning to main activity
-        backToMainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-        Intent stopServiceIntent = new Intent(this, GuardService.class);
-
-        unbindService(guardianServiceConnection);
-        guardianServiceConnection = null;
-        stopService(stopServiceIntent);
-        startActivity(backToMainIntent);
-    }
-
-    private void toast(String msg){
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-    }
-
-    private void debug(String msg) {
-        Log.d("GGroupJoin", msg);
     }
 }

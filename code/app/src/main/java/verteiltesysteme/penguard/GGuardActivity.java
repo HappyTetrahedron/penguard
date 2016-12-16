@@ -3,29 +3,21 @@ package verteiltesysteme.penguard;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
-import verteiltesysteme.penguard.Settings.SettingsActivity;
 import verteiltesysteme.penguard.guardianservice.GuardService;
-import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 import verteiltesysteme.penguard.guardianservice.Penguin;
 
 //here the actual guarding happens in case that we will add calibration later there will be another activity between this one and the PenguinSearchActivity
 
-public class GGuardActivity extends AppCompatActivity {
+public class GGuardActivity extends PenguardActivity {
 
     private static final int UPDATE_DELAY = 500;
-
-    GuardianServiceConnection serviceConnection = new GuardianServiceConnection();
 
     Button loginB;
     ListView penguinList;
@@ -97,33 +89,6 @@ public class GGuardActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_settings, menu);
-        getMenuInflater().inflate(R.menu.menu_howto, menu);
-        getMenuInflater().inflate(R.menu.menu_endservice, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case R.id.menu_settings:
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                return true;
-            case R.id.menu_howto:
-                Intent intent1 = new Intent(this, HowToActivity.class);
-                startActivity(intent1);
-                return true;
-            case R.id.menu_endService:
-                unbindAndKillService();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
     public void onClick(View view) {
         if (view.equals(findViewById(R.id.addPenguinButton))) { // add new penguin
             Intent intent = new Intent(this, GPenguinSearchActivity.class);
@@ -146,19 +111,6 @@ public class GGuardActivity extends AppCompatActivity {
         }
     }
 
-    private void unbindAndKillService(){
-        Intent backToMainIntent = new Intent(this, MainActivity.class);
-        // clear the backstack when transitioning to main activity
-        backToMainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-        Intent stopServiceIntent = new Intent(this, GuardService.class);
-
-        unbindService(serviceConnection);
-        serviceConnection = null;
-        stopService(stopServiceIntent);
-        startActivity(backToMainIntent);
-    }
-
     private void updateLoginB(){
         if (serviceConnection.isRegistered()){
             loginB.setEnabled(false);
@@ -167,7 +119,4 @@ public class GGuardActivity extends AppCompatActivity {
         }
     }
 
-    private void debug(String msg) {
-        Log.d("GGuard", msg);
-    }
 }

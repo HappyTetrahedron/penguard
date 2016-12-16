@@ -4,27 +4,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import verteiltesysteme.penguard.Settings.SettingsActivity;
 import verteiltesysteme.penguard.guardianservice.GuardService;
-import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 import verteiltesysteme.penguard.guardianservice.LoginCallback;
 
 
 //this activity is used for login in the guard. It is called by the main activity. It receives an empty intent
 
-public class GLoginActivity extends AppCompatActivity {
-
-    GuardianServiceConnection serviceConnection = new GuardianServiceConnection();
+public class GLoginActivity extends PenguardActivity {
 
     String lastUUID;
     String lastUN;
@@ -89,7 +80,7 @@ public class GLoginActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 findViewById(R.id.loadingCircle).setVisibility(View.GONE);
-                                displayToast(error);
+                                toast(error);
                                 joinB.setEnabled(true);
                             }
                         });
@@ -112,7 +103,7 @@ public class GLoginActivity extends AppCompatActivity {
 
                     } else { // registration process did not start
                         debug("Registering as existing user");
-                        displayToast(getString(R.string.alreadyRegistered));
+                        toast(getString(R.string.alreadyRegistered));
                     }
 
                 }
@@ -124,7 +115,7 @@ public class GLoginActivity extends AppCompatActivity {
                         // Display loading circle.
                         findViewById(R.id.loadingCircle).setVisibility(View.VISIBLE);
                     } else { // registration process did not start
-                        displayToast(getString(R.string.alreadyRegistered));
+                        toast(getString(R.string.alreadyRegistered));
                     }
                 }
             }
@@ -146,53 +137,5 @@ public class GLoginActivity extends AppCompatActivity {
         if (serviceConnection != null && serviceConnection.isConnected()) {
             unbindService(serviceConnection);
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_settings, menu);
-        getMenuInflater().inflate(R.menu.menu_howto, menu);
-        getMenuInflater().inflate(R.menu.menu_endservice, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case R.id.menu_settings:
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                return true;
-            case R.id.menu_howto:
-                Intent intent1 = new Intent(this, HowToActivity.class);
-                startActivity(intent1);
-                return true;
-            case R.id.menu_endService:
-                unbindAndKillService();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private void unbindAndKillService(){
-        Intent backToMainIntent = new Intent(this, MainActivity.class);
-        // clear the backstack when transitioning to main activity
-        backToMainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-        Intent stopServiceIntent = new Intent(this, GuardService.class);
-
-        unbindService(serviceConnection);
-        serviceConnection = null;
-        stopService(stopServiceIntent);
-        startActivity(backToMainIntent);
-    }
-
-    private void displayToast(String text){
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
-    }
-
-    private void debug(String msg) {
-        Log.d("GLoginActivity", msg);
     }
 }

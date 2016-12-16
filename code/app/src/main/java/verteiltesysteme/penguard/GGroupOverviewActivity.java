@@ -8,28 +8,19 @@ import android.content.Intent;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
-import verteiltesysteme.penguard.Settings.SettingsActivity;
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.Guardian;
-import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
-import verteiltesysteme.penguard.guardianservice.Penguin;
 import verteiltesysteme.penguard.guardianservice.TwoPhaseCommitCallback;
 
-public class GGroupOverviewActivity extends AppCompatActivity  implements NoticeDialogListener{
+public class GGroupOverviewActivity extends PenguardActivity  implements NoticeDialogListener{
 
     ListView listView;
-    GuardianServiceConnection serviceConnection = new GuardianServiceConnection();
 
     Guardian selectedGuardian;
     KickGuardianDialogFragment dialog;
@@ -137,46 +128,6 @@ public class GGroupOverviewActivity extends AppCompatActivity  implements Notice
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_settings, menu);
-        getMenuInflater().inflate(R.menu.menu_howto, menu);
-        getMenuInflater().inflate(R.menu.menu_endservice, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case R.id.menu_settings:
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                return true;
-            case R.id.menu_howto:
-                Intent intent1 = new Intent(this, HowToActivity.class);
-                startActivity(intent1);
-                return true;
-            case R.id.menu_endService:
-                unbindAndKillService();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private void unbindAndKillService(){
-        Intent backToMainIntent = new Intent(this, MainActivity.class);
-        // clear the backstack when transitioning to main activity
-        backToMainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-        Intent stopServiceIntent = new Intent(this, GuardService.class);
-
-        unbindService(serviceConnection);
-        serviceConnection = null;
-        stopService(stopServiceIntent);
-        startActivity(backToMainIntent);
-    }
-
-    @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
         //this is for the dialog buttons this is the delete guardian button
         deleteGuardian(selectedGuardian);
@@ -236,13 +187,6 @@ public class GGroupOverviewActivity extends AppCompatActivity  implements Notice
         }
 
     }
-    private void toast(String msg){
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-    }
-    private void debug(String msg) {
-        Log.d("GGroupOverview", msg);
-    }
-
 
 }
 

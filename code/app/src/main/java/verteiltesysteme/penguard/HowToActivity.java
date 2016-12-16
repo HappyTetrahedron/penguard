@@ -1,9 +1,8 @@
 package verteiltesysteme.penguard;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class HowToActivity extends AppCompatActivity {
+public class HowToActivity extends PenguardActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
