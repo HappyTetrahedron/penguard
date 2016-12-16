@@ -37,6 +37,7 @@ message PGPMessage {
         Group group = 8;
         SeqNo seqNo = 9;
         GoodBye goodbye = 10;
+	GroupInfo groupInfo = 11;
     }
         
 }
@@ -90,4 +91,10 @@ message Group {
     required int32 seq_no = 1;
     repeated PGPGuardian guardians = 2;
     repeated PGPPenguin penguins = 3;
+}
+
+message GroupInfo {
+    required Group group = 1;
+    required string senderIP = 2;
+    required int32 senderPort = 3;
 }

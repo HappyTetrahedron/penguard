@@ -688,13 +688,13 @@ public class GuardService extends Service implements ListenerCallback{
     private void grpInfoReceived(PenguardProto.PGPMessage message){
         List<PenguardProto.PGPGuardian> mergedGuardians = ListHelper.mergeGuardiansList(
                 ListHelper.convertToPGPGuardianList(guardians),
-                message.getGroup().getGuardiansList()
+                message.getGroupInfo().getGroup().getGuardiansList()
         );
         List<PenguardProto.PGPPenguin> mergedPenguins = ListHelper.mergePenguinLists(
                 ListHelper.convertToPGPPenguinList(penguins),
-                message.getGroup().getPenguinsList()
+                message.getGroupInfo().getGroup().getPenguinsList()
         );
-        int newSeqNo = Math.max(seqNo, message.getGroup().getSeqNo()) + 1;
+        int newSeqNo = Math.max(seqNo, message.getGroupInfo().getGroup().getSeqNo()) + 1;
 
         debug("======MY GROUP=======");
         for (Guardian g : guardians ) debug(g.getName());
@@ -702,8 +702,8 @@ public class GuardService extends Service implements ListenerCallback{
         debug("======END MY GROUP=======");
 
         debug("======OTHER GROUP=======");
-        for (PenguardProto.PGPGuardian g : message.getGroup().getGuardiansList()) debug(g.toString());
-        for (PenguardProto.PGPPenguin g : message.getGroup().getPenguinsList()) debug(g.toString());
+        for (PenguardProto.PGPGuardian g : message.getGroupInfo().getGroup().getGuardiansList()) debug(g.toString());
+        for (PenguardProto.PGPPenguin g : message.getGroupInfo().getGroup().getPenguinsList()) debug(g.toString());
         debug("======END OTHER GROUP=======");
 
         debug("======NEW GROUP=======");
@@ -925,15 +925,24 @@ public class GuardService extends Service implements ListenerCallback{
                 .addAllPenguins(pgpPenguinVector)
                 .build();
 
+        PenguardProto.GroupInfo groupInfo = PenguardProto.GroupInfo.newBuilder()
+                .setSenderIP(myself.getIp())
+                .setSenderPort(myself.getPort())
+                .setGroup(group)
+                .build();
+
         PenguardProto.PGPMessage groupMessage = PenguardProto.PGPMessage.newBuilder()
 
                 .setType(PenguardProto.PGPMessage.Type.GG_GRP_INFO)
-                .setGroup(group)
+                .setGroupInfo(groupInfo)
                 .setName(myself.getName())
                 .build();
 
         debug("about to send group to: " + ip + ":" + port);
         dispatcher.sendPacket(groupMessage, ip, port);
+
+        //also sending it to the server for relay purposes
+        dispatcher.sendPacket(groupMessage, plsIp, plsPort);
     }
 
     /**

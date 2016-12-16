@@ -91,3 +91,11 @@ message Group {
     repeated PGPGuardian guardians = 2;
     repeated PGPPenguin penguins = 3;
 }
+
+message GroupInfo {
+    required int32 seq_no = 1;
+    repeated PGPGuardian guardians = 2;
+    repeated PGPPenguin penguins = 3;
+    required string senderIP = 4;
+    required int32 senderPort = 5;
+}
