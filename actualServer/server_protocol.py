@@ -132,7 +132,12 @@ class PenguinServerProtocol:
     def group_info_forwarding(self, msg, addr):
         ip = msg.groupInfo.recieverIP
         port = msg.groupInfo.recieverPort
-        self.send(msg, (ip, addr))
+
+        response = PGPMessage()
+        response.type = PGPMessage.GG_GRP_INFO
+        response.groupInfo = msg.groupInfo
+
+        self.send(response, (ip, addr))
         
 
 
