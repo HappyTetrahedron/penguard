@@ -926,8 +926,8 @@ public class GuardService extends Service implements ListenerCallback{
                 .build();
 
         PenguardProto.GroupInfo groupInfo = PenguardProto.GroupInfo.newBuilder()
-                .setSenderIP(myself.getIp())
-                .setSenderPort(myself.getPort())
+                .setRecieverIP(ip)
+                .setRecieverPort(port) //these are ip and port the server need to relay the message to
                 .setGroup(group)
                 .build();
 

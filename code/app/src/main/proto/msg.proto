@@ -95,6 +95,6 @@ message Group {
 
 message GroupInfo {
     required Group group = 1;
-    required string senderIP = 2;
-    required int32 senderPort = 3;
+    required string recieverIP = 2;
+    required int32 recieverPort = 3;
 }
