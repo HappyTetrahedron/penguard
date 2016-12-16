@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3f51b5</color>
-    <color name="colorPrimaryDark">#303f9f</color>
-    <color name="colorAccent">#ff4081</color>
+    <color name="colorPrimary">#4a4a4a</color>
+    <color name="colorPrimaryDark">#393939</color>
+    <color name="colorAccent">#ff9109</color>
 
     <item name="blue" type="color">#f6f6f6</item>
     <item name="purple" type="color">#FFAA66CC</item>
