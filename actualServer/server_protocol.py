@@ -123,7 +123,7 @@ class PenguinServerProtocol:
             # send to the requested guardian
             self.send(response, (guardian['ip'], guardian['port']))
 
-            print('Send merge request')
+            print('Send merge request to %s:%d' % (guardian['ip'], guardian['port']))
 
         else:
             self.send_err('User with this name has not been found.', addr)
