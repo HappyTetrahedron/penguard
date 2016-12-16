@@ -91,6 +91,8 @@ public class GGroupMergeRequestsActivity extends AppCompatActivity {
                                     mergeRequestAdapter.notifyDataSetChanged();
                                     serviceConnection.sendGroupTo(ip, port);
                                     dialogInterface.dismiss();
+                                    Intent intent = new Intent(getApplicationContext(), GGuardActivity.class);
+                                    startActivity(intent);
                                     GGroupMergeRequestsActivity.this.finish();
                                 }
                             });

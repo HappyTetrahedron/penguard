@@ -45,7 +45,13 @@
         <activity
             android:name=".Settings.SettingsActivity"
             android:label="@string/title_activity_settings" />
-        <activity android:name=".GGroupMergeRequestsActivity" />
+        <activity
+            android:name=".GGroupMergeRequestsActivity"
+            android:parentActivityName=".GGuardActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".GGuardActivity"/>
+        </activity>
         <activity android:name=".GPenguinDetailActivity" />
         <activity android:name=".GCalibrationActivity" />
         <activity android:name=".HowToActivity" />
