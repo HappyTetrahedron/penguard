@@ -56,6 +56,9 @@
     <string name="penguinAddSucceeded">Penguin added!</string>
     <string name="penguinAddFailed">Penguin could not be added, please try again</string>
     <string name="removeSelf">You cannot remove yourself</string>
+    <string name="pengSeenBySelf">is seen by you</string>
+    <string name="pengSeenByElse">seen by someone else</string>
+    <string name="pengNotSeen">not seen by anyone</string>
 
     <!-- Penguin missing -->
     <string name="notification_penguin_missing_title">Penguin missing!</string>
