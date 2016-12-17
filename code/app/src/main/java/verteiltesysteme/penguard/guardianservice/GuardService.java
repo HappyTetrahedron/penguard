@@ -605,7 +605,6 @@ public class GuardService extends Service implements ListenerCallback{
             case GG_STATUS_UPDATE:
                 if (sender != null) {
                     statusUpdateReceived(parsedMessage, address.getHostName(), port);
-                    debug("Dä Typ isch nöd bi üs i dä gruppa");
                 } // we only want to accept status updates from group members not formally kicked out people
                 break;
             case GG_GRP_CHANGE:
@@ -693,6 +692,12 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void grpInfoReceived(PenguardProto.PGPMessage message){
+        if (CommitmentState.STATE_COMMIT_REQ_SENT == commitState.state && message.getName().equals(commitState.initiantName)){
+            debug("dublicate message, do nothing");
+            return;
+        }
+
+
         List<PenguardProto.PGPGuardian> mergedGuardians = ListHelper.mergeGuardiansList(
                 ListHelper.convertToPGPGuardianList(guardians),
                 message.getGroupInfo().getGroup().getGuardiansList()
