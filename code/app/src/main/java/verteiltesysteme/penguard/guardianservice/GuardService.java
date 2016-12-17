@@ -313,9 +313,9 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void sendViaPls(PenguardProto.PGPMessage.Builder message, String host, int port) {
-            message.setRecipientPort(port);
-            message.setRecipientIp(host);
-            dispatcher.sendPacket(message.build(), plsIp, plsPort);
+        message.setRecipientPort(port);
+        message.setRecipientIp(host);
+        dispatcher.sendPacket(message.build(), plsIp, plsPort);
     }
 
     private void checkPenguinTimeouts() {
@@ -331,6 +331,7 @@ public class GuardService extends Service implements ListenerCallback{
 
         if (plsLastSeen - System.currentTimeMillis() > GUARDIAN_SEEN_TIMEOUT
             && !anyGuardianConnected()) {
+            debug("Can reach server but no other guardian, assuming bad nat");
             myself.setBadNat(true);
         }
     }
