@@ -12,26 +12,22 @@ public class CommitmentState {
     TwoPhaseCommitCallback commitCallback = null;
 
     PenguardProto.Group groupUpdate;
-    String initiantName;
-    String initiantHost;
-    int initiantPort;
+    PenguardProto.PGPGuardian initiant = null;
 
     boolean voteNoReceived = false;
     boolean voteYesReceived = false;
 
-    void commitReqReceived(PenguardProto.PGPMessage grpChangeMessage, String host, int port) {
-        initiantHost = host;
-        initiantPort = port;
-        initiantName = grpChangeMessage.getName();
+    void commitReqReceived(PenguardProto.PGPMessage grpChangeMessage, PenguardProto.PGPGuardian initiant) {
+        this.initiant = initiant;
 
         groupUpdate = grpChangeMessage.getGroup();
 
         state = STATE_VOTED_YES;
     }
 
-    void initiateCommit(PenguardProto.Group group, Guardian initiant, TwoPhaseCommitCallback callback) {
+    void initiateCommit(PenguardProto.Group group, PenguardProto.PGPGuardian initiant, TwoPhaseCommitCallback callback) {
         groupUpdate = group;
-        initiantName = initiant.getName();
+        this.initiant = initiant;
         state = STATE_COMMIT_REQ_SENT;
         commitCallback = callback;
     }
@@ -47,9 +43,7 @@ public class CommitmentState {
     }
 
     void reset() {
-        initiantHost = "";
-        initiantPort = 0;
-        initiantName = "";
+        initiant = null;
         groupUpdate = null;
         state = STATE_IDLE;
         voteNoReceived = false;

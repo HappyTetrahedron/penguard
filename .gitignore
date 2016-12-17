@@ -16,6 +16,8 @@ __pycache__
 *.swp
 *.db
 
+*.pdf
+
 *.toc
 *.log
 *.aux

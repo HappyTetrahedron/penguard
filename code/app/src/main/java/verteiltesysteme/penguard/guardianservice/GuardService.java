@@ -88,8 +88,6 @@ public class GuardService extends Service implements ListenerCallback{
     private GuardianAdapter guardianListAdapter;
     private SharedPreferences sharedPref;
 
-    private boolean badNat = false;
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -280,10 +278,44 @@ public class GuardService extends Service implements ListenerCallback{
 
         //send that guardian a kick message
         debug("kick sent");
-        PenguardProto.PGPMessage kick = PenguardProto.PGPMessage.newBuilder()
-                .setType(PenguardProto.PGPMessage.Type.GG_KICK)
-                .build();
-        dispatcher.sendPacket(kick, guardian.getIp(), guardian.getPort());
+        PenguardProto.PGPMessage.Builder kick = PenguardProto.PGPMessage.newBuilder()
+                .setType(PenguardProto.PGPMessage.Type.GG_KICK);
+        sendToGuardian(kick, guardian);
+    }
+
+    private void sendToGuardian(PenguardProto.PGPMessage.Builder message, Guardian guardian) {
+        if (myself.hasBadNat() || guardian.hasBadNat()) {
+            sendViaPls(message, guardian.getIp(), guardian.getPort());
+        }
+        else {
+            // send directly
+            dispatcher.sendPacket(message.build(), guardian.getIp(), guardian.getPort());
+        }
+    }
+
+    private void sendToGuardian(PenguardProto.PGPMessage.Builder message, PenguardProto.PGPGuardian guardian) {
+        if (myself.hasBadNat() || guardian.getBadNat()) {
+            sendViaPls(message, guardian.getIp(), guardian.getPort());
+        }
+        else {
+            // send directly
+            dispatcher.sendPacket(message.build(), guardian.getIp(), guardian.getPort());
+        }
+    }
+
+    private void checkNatAndSend(PenguardProto.PGPMessage.Builder message, String host, int port) {
+        if (myself.hasBadNat()) {
+            sendViaPls(message, host, port);
+        }
+        else {
+            dispatcher.sendPacket(message.build(), host, port);
+        }
+    }
+
+    private void sendViaPls(PenguardProto.PGPMessage.Builder message, String host, int port) {
+            message.setRecipientPort(port);
+            message.setRecipientIp(host);
+            dispatcher.sendPacket(message.build(), plsIp, plsPort);
     }
 
     private void checkPenguinTimeouts() {
@@ -299,7 +331,7 @@ public class GuardService extends Service implements ListenerCallback{
 
         if (plsLastSeen - System.currentTimeMillis() > GUARDIAN_SEEN_TIMEOUT
             && !anyGuardianConnected()) {
-            badNat = true;
+            myself.setBadNat(true);
         }
     }
 
@@ -327,14 +359,13 @@ public class GuardService extends Service implements ListenerCallback{
 
         // send status to other guardians if there are any
         if (!groupIsEmpty()) {
-            PenguardProto.PGPMessage status = PenguardProto.PGPMessage.newBuilder()
+            PenguardProto.PGPMessage.Builder status = PenguardProto.PGPMessage.newBuilder()
                     .setType(PenguardProto.PGPMessage.Type.GG_STATUS_UPDATE)
                     .setName(myself.getName())
                     .setGroup(PenguardProto.Group.newBuilder()
                             .setSeqNo(seqNo)
                             .addAllGuardians(ListHelper.convertToPGPGuardianList(guardians))
-                            .addAllPenguins(ListHelper.convertToPGPPenguinList(penguins)))
-                    .build();
+                            .addAllPenguins(ListHelper.convertToPGPPenguinList(penguins)));
 
             sendToAllGuardians(status);
         }
@@ -432,12 +463,11 @@ public class GuardService extends Service implements ListenerCallback{
         }
         else {
             // initiate 2 phase commit
-            commitState.initiateCommit(group, myself, callback);
-            PenguardProto.PGPMessage commit = PenguardProto.PGPMessage.newBuilder()
+            commitState.initiateCommit(group, myself.toProto(), callback);
+            PenguardProto.PGPMessage.Builder commit = PenguardProto.PGPMessage.newBuilder()
                     .setName(myself.getName())
                     .setType(PenguardProto.PGPMessage.Type.GG_GRP_CHANGE)
-                    .setGroup(group)
-                    .build();
+                    .setGroup(group);
             sendCommitToAllGuardians(commit);
 
             // check upon the commit after a timeout
@@ -477,22 +507,20 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void sendCommit() {
-        PenguardProto.PGPMessage commit = PenguardProto.PGPMessage.newBuilder()
+        PenguardProto.PGPMessage.Builder commit = PenguardProto.PGPMessage.newBuilder()
                 .setName(myself.getName())
                 .setType(PenguardProto.PGPMessage.Type.GG_COMMIT)
                 .setSeqNo(PenguardProto.SeqNo.newBuilder()
-                    .setSeqno(commitState.groupUpdate.getSeqNo()))
-                .build();
+                    .setSeqno(commitState.groupUpdate.getSeqNo()));
         sendCommitToAllGuardians(commit);
     }
 
     private void sendAbort() {
-        PenguardProto.PGPMessage abort = PenguardProto.PGPMessage.newBuilder()
+        PenguardProto.PGPMessage.Builder abort = PenguardProto.PGPMessage.newBuilder()
                 .setName(myself.getName())
                 .setType(PenguardProto.PGPMessage.Type.GG_ABORT)
                 .setSeqNo(PenguardProto.SeqNo.newBuilder()
-                        .setSeqno(commitState.groupUpdate.getSeqNo()))
-                .build();
+                        .setSeqno(commitState.groupUpdate.getSeqNo()));
         sendCommitToAllGuardians(abort);
     }
     void removePenguin(String mac, TwoPhaseCommitCallback callback) {
@@ -576,19 +604,19 @@ public class GuardService extends Service implements ListenerCallback{
        listView.setAdapter(guardianListAdapter);
     }
 
-    private void sendToAllGuardians(PenguardProto.PGPMessage message) {
+    private void sendToAllGuardians(PenguardProto.PGPMessage.Builder message) {
         for (Guardian g : guardians) {
             if (!g.equals(myself)) {
-                dispatcher.sendPacket(message, g.getIp(), g.getPort());
+                sendToGuardian(message, g);
             }
         }
     }
 
-    private void sendCommitToAllGuardians(PenguardProto.PGPMessage message) {
+    private void sendCommitToAllGuardians(PenguardProto.PGPMessage.Builder message) {
         List<PenguardProto.PGPGuardian> pgpGuardians = commitState.groupUpdate.getGuardiansList();
         for (PenguardProto.PGPGuardian g : pgpGuardians) {
             if (!g.getName().equals(myself.getName())){
-                dispatcher.sendPacket(message, g.getIp(), g.getPort());
+                sendToGuardian(message, g);
             }
         }
     }
@@ -607,11 +635,6 @@ public class GuardService extends Service implements ListenerCallback{
         //If the sender was one of the guardians from the group, update his state.
         Guardian sender = ListHelper.getGuardianByName(guardians, parsedMessage.getName());
         if (sender != null) {
-            if (parsedMessage.getType() != PenguardProto.PGPMessage.Type.GG_GRP_INFO) {
-                // GRP INFOS can be relayed over the PLS, so don't copy address for them
-                sender.setAddress(address);
-                sender.setPort(port);
-            }
             sender.updateTime();
         }
 
@@ -627,11 +650,11 @@ public class GuardService extends Service implements ListenerCallback{
                 break;
             case GG_STATUS_UPDATE:
                 if (sender != null) {
-                    statusUpdateReceived(parsedMessage, address.getHostName(), port);
+                    statusUpdateReceived(parsedMessage);
                 } // we only want to accept status updates from group members not formally kicked out people
                 break;
             case GG_GRP_CHANGE:
-                grpChangeReceived(parsedMessage, address.getHostName(), port);
+                grpChangeReceived(parsedMessage);
                 break;
             case GG_COMMIT:
                 commitReceived(parsedMessage);
@@ -704,7 +727,7 @@ public class GuardService extends Service implements ListenerCallback{
         }
 
         // update my information about myself.
-        if (myself.getIp().equals(message.getAck().getIp())) {
+        if (myself.getIp() != null && !myself.getIp().equals(message.getAck().getIp())) {
             onIpChanged();
         }
         myself.setPort(message.getAck().getPort());
@@ -719,7 +742,7 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void grpInfoReceived(PenguardProto.PGPMessage message){
-        if (CommitmentState.STATE_COMMIT_REQ_SENT == commitState.state && message.getName().equals(commitState.initiantName)){
+        if (CommitmentState.STATE_COMMIT_REQ_SENT == commitState.state && message.getName().equals(commitState.initiant.getName())){
             // duplicate message, do nothing
             return;
         }
@@ -760,7 +783,7 @@ public class GuardService extends Service implements ListenerCallback{
                     if (groupIsEmpty()) {
                         // We're alone, and we couldn't commit. One possible reason is a bad NAT.
                         debug("alone in group and commit failed - assuming bad nat");
-                        badNat = true;
+                        myself.setBadNat(true);
                     }
                     debug(error);
                 }
@@ -796,7 +819,7 @@ public class GuardService extends Service implements ListenerCallback{
         }
 
         if (commitState.state == CommitmentState.STATE_VOTED_YES
-                && commitState.initiantName.equals(message.getName())
+                && commitState.initiant.getName().equals(message.getName())
                 && commitState.groupUpdate.getSeqNo() == message.getSeqNo().getSeqno()) {
             debug("State update " + message.getSeqNo().getSeqno() + " aborted");
             commitState.reset();
@@ -809,7 +832,7 @@ public class GuardService extends Service implements ListenerCallback{
         }
 
         if (commitState.state == CommitmentState.STATE_VOTED_YES
-                && commitState.initiantName.equals(message.getName())
+                && commitState.initiant.getName().equals(message.getName())
                 && commitState.groupUpdate.getSeqNo() == message.getSeqNo().getSeqno()) {
             debug("Committing state number " + message.getSeqNo().getSeqno());
             updateStatus(commitState.groupUpdate);
@@ -817,52 +840,58 @@ public class GuardService extends Service implements ListenerCallback{
         }
     }
 
-    private void grpChangeReceived(PenguardProto.PGPMessage message, String host, int port){
+    private void grpChangeReceived(PenguardProto.PGPMessage message){
+        PenguardProto.PGPGuardian initiant = ListHelper.getPGPGuardianByName(
+                message.getGroup().getGuardiansList(),
+                message.getName()
+        );
+
+        if (initiant == null) return; // initiant is not in group. abort.
+
         if (commitState.state != CommitmentState.STATE_IDLE) { //We're already busy with a different commit
             debug("voting no because already in a different commit");
-            voteNo(message, host, port);
+            voteNo(message, initiant);
         }
         else if (message.getGroup().getSeqNo() <= seqNo) { // This update is older than our state. Heck no.
             debug("voting no because sequence number too small, " + message.getGroup().getSeqNo() + "<" + seqNo);
-            voteNo(message, host, port);
+            voteNo(message, initiant);
         }
         else { // No objections
             debug("Voted yes on status update " + message.getGroup().getSeqNo());
-            commitState.commitReqReceived(message, host, port);
-            voteYes(message, host, port);
+            commitState.commitReqReceived(message, initiant);
+            voteYes(message, initiant);
         }
 
     }
 
-    private void voteYes(PenguardProto.PGPMessage message, String host, int port){
-        PenguardProto.PGPMessage vote = PenguardProto.PGPMessage.newBuilder()
+    private void voteYes(PenguardProto.PGPMessage message, PenguardProto.PGPGuardian initiant){
+        PenguardProto.PGPMessage.Builder vote = PenguardProto.PGPMessage.newBuilder()
                 .setType(PenguardProto.PGPMessage.Type.GG_VOTE_YES)
                 .setName(myself.getName())
                 .setSeqNo(PenguardProto.SeqNo.newBuilder()
-                        .setSeqno(message.getGroup().getSeqNo()))
-                .build();
-        dispatcher.sendPacket(vote, host, port);
+                        .setSeqno(message.getGroup().getSeqNo()));
+        sendToGuardian(vote, initiant);
     }
 
-    private void voteNo(PenguardProto.PGPMessage message, String host, int port){
-        PenguardProto.PGPMessage vote = PenguardProto.PGPMessage.newBuilder()
+    private void voteNo(PenguardProto.PGPMessage message, PenguardProto.PGPGuardian initiant){
+        PenguardProto.PGPMessage.Builder vote = PenguardProto.PGPMessage.newBuilder()
                 .setType(PenguardProto.PGPMessage.Type.GG_VOTE_NO)
                 .setName(myself.getName())
                 .setSeqNo(PenguardProto.SeqNo.newBuilder()
-                        .setSeqno(message.getGroup().getSeqNo()))
-                .build();
-        dispatcher.sendPacket(vote, host, port);
+                        .setSeqno(message.getGroup().getSeqNo()));
+        sendToGuardian(vote, initiant);
     }
 
-    private void statusUpdateReceived(PenguardProto.PGPMessage message, String ip, int port){
+    private void statusUpdateReceived(PenguardProto.PGPMessage message){
         // Reply with an ACK
-        PenguardProto.PGPMessage ack = PenguardProto.PGPMessage.newBuilder()
+        PenguardProto.PGPMessage.Builder ack = PenguardProto.PGPMessage.newBuilder()
                 .setType(PenguardProto.PGPMessage.Type.GG_ACK)
-                .setName(myself.getName())
-                .build();
-        dispatcher.sendPacket(ack, ip, port);
+                .setName(myself.getName());
+
+        sendToGuardian(ack, ListHelper.getGuardianByName(guardians, message.getName()));
 
         updateSeenStatus(ListHelper.getGuardianByName(guardians, message.getName()), message.getGroup().getPenguinsList());
+        updateGuardianStatus(ListHelper.getPGPGuardianByName(message.getGroup().getGuardiansList(), message.getName()));
 
         if (message.getGroup().getSeqNo() > seqNo) { // The other guardian's status is newer!
             updateStatus(message.getGroup());
@@ -951,14 +980,13 @@ public class GuardService extends Service implements ListenerCallback{
                 .addAllPenguins(pgpPenguinVector)
                 .build();
 
-        PenguardProto.PGPMessage groupMessage = PenguardProto.PGPMessage.newBuilder()
+        PenguardProto.PGPMessage.Builder groupMessage = PenguardProto.PGPMessage.newBuilder()
 
                 .setType(PenguardProto.PGPMessage.Type.GG_GRP_INFO)
                 .setRecipientIp(ip)
                 .setRecipientPort(port)
                 .setName(myself.getName())
-                .setGroup(group)
-                .build();
+                .setGroup(group);
 
         final int oldGuardianCount = guardians.size();
         handler.postDelayed(new Runnable() {
@@ -968,16 +996,16 @@ public class GuardService extends Service implements ListenerCallback{
                     // Our group has not changed even though it should have.
                     // Assume bad nat.
                     debug("Sent group to other guardian, but group hasn't changed since. Assuming bad nat.");
-                    badNat = true;
+                    myself.setBadNat(true);
                 }
             }
         }, NETWORK_TIMEOUT * 2);
 
         debug("about to send group to: " + ip + ":" + port);
-        dispatcher.sendPacket(groupMessage, ip, port);
+        checkNatAndSend(groupMessage, ip, port);
 
         //also sending it to the server for relay purposes
-        dispatcher.sendPacket(groupMessage, plsIp, plsPort);
+        dispatcher.sendPacket(groupMessage.build(), plsIp, plsPort);
     }
 
     /**
@@ -989,6 +1017,17 @@ public class GuardService extends Service implements ListenerCallback{
         for (PenguardProto.PGPPenguin protoPenguin : penguinStatus) {
             Penguin p = ListHelper.getPenguinByAddress(penguins, protoPenguin.getMac());
             if (p != null) p.setSeenBy(guardian, protoPenguin.getSeen());
+        }
+    }
+
+    private void updateGuardianStatus(PenguardProto.PGPGuardian protoGuardian) {
+        if (protoGuardian != null) {
+            Guardian g = ListHelper.getGuardianByName(guardians, protoGuardian.getName());
+            if (g != null) {
+                g.setBadNat(protoGuardian.getBadNat());
+                g.setIp(protoGuardian.getIp());
+                g.setPort(protoGuardian.getPort());
+            }
         }
     }
 
@@ -1018,7 +1057,7 @@ public class GuardService extends Service implements ListenerCallback{
     private void onIpChanged() {
         // We could be in a good NAT again.
         debug("IP changed, assuming new NAT is good");
-        badNat = false;
+        myself.setBadNat(false);
     }
 
     // Binder used for communication with the service. Do not use directly. Use GuardianServiceConnection instead.

@@ -86,6 +86,7 @@ message PGPGuardian {
     optional string name = 1;
     optional string ip = 2;
     optional int32 port = 3;
+    optional bool badNat = 4;
 }
 
 message Group {

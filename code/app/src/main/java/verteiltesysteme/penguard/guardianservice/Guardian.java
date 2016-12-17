@@ -6,21 +6,23 @@ import android.util.Log;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import verteiltesysteme.penguard.protobuf.PenguardProto;
+
 public class Guardian {
 
-    private InetAddress address;
     private String ip;
+
+    private boolean hasBadNat = false;
 
     private int port;
 
     private String name;
 
-    private long lastSeenTimestamp; //TODO #62
+    private long lastSeenTimestamp;
 
     Guardian() {
         name = null;
         ip = null;
-        address = null;
         port = 0;
     }
 
@@ -30,42 +32,29 @@ public class Guardian {
         this.port = port;
     }
 
-    Guardian(String name, InetAddress address, int port) {
-        this.name = name;
-        this.address = address;
-        this.port = port;
-        this.ip = address.getHostName();
+    boolean hasBadNat() {
+        return hasBadNat;
     }
 
+    void setBadNat(boolean badNat) {
+        hasBadNat = badNat;
+    }
+
+    PenguardProto.PGPGuardian toProto() {
+        PenguardProto.PGPGuardian pgpguardian = PenguardProto.PGPGuardian.newBuilder()
+                .setName(getName())
+                .setIp(getIp())
+                .setPort(getPort())
+                .setBadNat(hasBadNat())
+                .build();
+        return pgpguardian;
+    }
     void updateTime() {
         lastSeenTimestamp = System.currentTimeMillis();
     }
 
     void setIp(String ip) {
         this.ip = ip;
-        try {
-            this.address = InetAddress.getByName(ip);
-        } catch (UnknownHostException e) {
-            debug("Unknown Host " + ip);
-        }
-    }
-
-    void setAddress(InetAddress address) {
-        this.address = address;
-        this.ip = address.getHostName();
-    }
-
-    public InetAddress getAddress() {
-        if (address != null) {
-            return address;
-        }
-        try {
-            address = InetAddress.getByName(ip);
-            return address;
-        } catch (UnknownHostException e) {
-            debug("Invalid address: " + e.getMessage());
-        }
-        return null;
     }
 
     public long getTimeStamp(){
