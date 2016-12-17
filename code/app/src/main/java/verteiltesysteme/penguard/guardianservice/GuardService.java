@@ -328,20 +328,25 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void checkBadNat() {
-
-        if (plsLastSeen - System.currentTimeMillis() > GUARDIAN_SEEN_TIMEOUT
-            && !anyGuardianConnected()) {
+        debug("Checking for bad nat");
+        debug("Pls last seen: " + plsLastSeen);
+        if (System.currentTimeMillis() - plsLastSeen < GUARDIAN_SEEN_TIMEOUT
+                && !groupIsEmpty()
+                && !anyGuardianConnected()) {
             debug("Can reach server but no other guardian, assuming bad nat");
             myself.setBadNat(true);
         }
     }
 
     private boolean anyGuardianConnected() {
+
         for (Guardian g : guardians) {
-            if (g.getTimeStamp() - System.currentTimeMillis() < GUARDIAN_SEEN_TIMEOUT) {
+            if (System.currentTimeMillis() - g.getTimeStamp() < GUARDIAN_SEEN_TIMEOUT) {
+                debug("Guardian " + g.getName() + " is connected");
                 return true;
             }
         }
+        debug("No guardian connected");
         return false;
     }
 
