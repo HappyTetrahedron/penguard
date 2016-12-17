@@ -74,7 +74,6 @@ public class GGroupMergeRequestsActivity extends PenguardActivity {
                             builder.setPositiveButton(R.string.dialog_ok_merge_request, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
-                                    debug("is service connection null? " + (serviceConnection == null));
                                     String ip = selectedmessage.getMergeReq().getIp();
                                     int port = selectedmessage.getMergeReq().getPort();
                                     debug("sending message with ip: " + ip + " and port: " + port);

@@ -27,6 +27,8 @@ message PGPMessage {
 
     required Type type = 1;
     optional string name = 2;
+    optional string recipientIp = 12;
+    optional int32 recipientPort = 13;
 
     oneof content {
         Ack ack = 3;
@@ -37,7 +39,6 @@ message PGPMessage {
         Group group = 8;
         SeqNo seqNo = 9;
         GoodBye goodbye = 10;
-	GroupInfo groupInfo = 11;
     }
         
 }
@@ -91,10 +92,4 @@ message Group {
     required int32 seq_no = 1;
     repeated PGPGuardian guardians = 2;
     repeated PGPPenguin penguins = 3;
-}
-
-message GroupInfo {
-    required Group group = 1;
-    required string recieverIP = 2;
-    required int32 recieverPort = 3;
 }
