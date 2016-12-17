@@ -43,11 +43,10 @@ public abstract class PenguardActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_settings, menu);
-        getMenuInflater().inflate(R.menu.menu_howto, menu);
         if(isMyServiceRunning(GuardService.class)) {
             getMenuInflater().inflate(R.menu.menu_endservice, menu);
         }
+        getMenuInflater().inflate(R.menu.menu_settings, menu);
         return true;
     }
 

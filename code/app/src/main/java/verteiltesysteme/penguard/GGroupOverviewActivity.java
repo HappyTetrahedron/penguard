@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
@@ -18,26 +17,21 @@ import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.Guardian;
 import verteiltesysteme.penguard.guardianservice.TwoPhaseCommitCallback;
 
-public class GGroupOverviewActivity extends PenguardActivity  implements NoticeDialogListener{
+public class GGroupOverviewActivity extends ListOverviewActivity  implements NoticeDialogListener {
 
     ListView listView;
 
     Guardian selectedGuardian;
     KickGuardianDialogFragment dialog;
 
-    Handler handler;
-    Runnable updateTask;
-
-    boolean paused = false;
-    private static final int UPDATE_DELAY = 500;
-
     int counter = 0;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ggroup_overview);
+        setCurrentIcon(2);
+        setUpToolbar();
 
         //bind the service
         Intent intent = new Intent(this, GuardService.class);
@@ -45,22 +39,6 @@ public class GGroupOverviewActivity extends PenguardActivity  implements NoticeD
 
         listView = (ListView)findViewById(R.id.groupOverviewListView);
         dialog = new KickGuardianDialogFragment();
-
-        handler = new Handler();
-
-        //show in the listview every guardian and when he was last seen via the timestamp
-        updateTask = new Runnable() {
-            @Override
-            public void run() {
-                if (serviceConnection != null && serviceConnection.isConnected()) {
-                    if (listView.getAdapter() == null) {
-                        serviceConnection.subscribeListViewToGuardianAdapter(listView);
-                    }
-                    ((ArrayAdapter<Guardian>) listView.getAdapter()).notifyDataSetChanged();
-                }
-                if (!paused) handler.postDelayed(this, UPDATE_DELAY);
-            }
-        };
 
         //show a dialog to give the user the option to delete a guardian
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -73,6 +51,17 @@ public class GGroupOverviewActivity extends PenguardActivity  implements NoticeD
                 }
             }
         });
+    }
+
+    @Override
+    void updateState() {
+        if (serviceConnection != null && serviceConnection.isConnected()) {
+            updateLoginB();
+            if (listView.getAdapter() == null) {
+                serviceConnection.subscribeListViewToGuardianAdapter(listView);
+            }
+            ((ArrayAdapter<Guardian>) listView.getAdapter()).notifyDataSetChanged();
+        }
     }
 
     private void deleteGuardian(Guardian guardian){

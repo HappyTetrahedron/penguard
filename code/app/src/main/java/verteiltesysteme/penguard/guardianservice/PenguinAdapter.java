@@ -38,7 +38,6 @@ class PenguinAdapter extends ArrayAdapter<Penguin> {
             TextView penguinName = (TextView) convertView.findViewById(R.id.penguinName);
             TextView statusTV = (TextView) convertView.findViewById(R.id.PenguinStatus);
             ImageView icon = (ImageView)convertView.findViewById(R.id.imageView);
-            icon.setImageResource(R.drawable.icon);
 
             penguinName.setText(penguin.getName());
 
