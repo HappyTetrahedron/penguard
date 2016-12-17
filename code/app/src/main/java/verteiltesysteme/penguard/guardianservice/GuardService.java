@@ -587,8 +587,11 @@ public class GuardService extends Service implements ListenerCallback{
         //If the sender was one of the guardians from the group, update his state.
         Guardian sender = ListHelper.getGuardianByName(guardians, parsedMessage.getName());
         if (sender != null) {
-            sender.setAddress(address);
-            sender.setPort(port);
+            if (parsedMessage.getType() != PenguardProto.PGPMessage.Type.GG_GRP_INFO) {
+                // GRP INFOS can be relayed over the PLS, so don't copy address for them
+                sender.setAddress(address);
+                sender.setPort(port);
+            }
             sender.updateTime();
         }
 
