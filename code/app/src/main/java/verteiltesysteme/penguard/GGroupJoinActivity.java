@@ -61,12 +61,12 @@ public class GGroupJoinActivity extends PenguardActivity {
             }
 
             @Override
-            public void joinFailure(String error) {
-                toast(error);
+            public void joinFailure(final String error) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         btn.setEnabled(true); //reenable to button
+                        toast(error);
                     }
                 });
             }
