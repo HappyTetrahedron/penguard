@@ -15,8 +15,7 @@ class PenguinServerProtocol:
                 PGPMessage.GS_REGISTER: self.register_client,
                 PGPMessage.GS_DEREGISTER: self.deregister_client,
                 PGPMessage.GS_PING: self.handle_ping,
-                PGPMessage.GS_GROUP_REQ: self.group_request,
-                PGPMessage.GG_GRP_INFO: self.group_info_forwarding}
+                PGPMessage.GS_GROUP_REQ: self.group_request}
         self.db = dataset.connect('sqlite:///penguard.db')
 
 
@@ -52,7 +51,14 @@ class PenguinServerProtocol:
 
     # =================== HANDLERS ===================
     def default_handler(self, msg, addr):
-        self.send_err('No handler found for this message type.', addr)
+        ip = msg.recipientIp
+        port = msg.recipientPort
+
+        if ip != 0:
+            # Just forward what we received
+            self.send(msg, (ip, port))
+        else:
+            self.send_err('No handler found for this message type.', addr)
 
 
     def register_client(self, msg, addr):
