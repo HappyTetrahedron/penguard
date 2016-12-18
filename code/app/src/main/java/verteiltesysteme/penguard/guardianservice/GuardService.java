@@ -1074,7 +1074,7 @@ public class GuardService extends Service implements ListenerCallback{
 
     private boolean isAnyPenguinSoundingAlarm() {
         for (Penguin p : penguins) {
-            if (p.isMissing() && !p.isUserNotifiedOfMissing()) {
+            if (p.needsAlarm()) {
                 return true;
             }
         }

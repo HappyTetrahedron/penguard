@@ -121,6 +121,7 @@ public class Penguin {
     void setSeenBy(Guardian guardian, boolean newSeenStatus) {
         if (newSeenStatus && !seenBy.contains(guardian)) {
             seenBy.add(guardian);
+            seenCallback.penguinRediscovered(Penguin.this);
         }
         else if (!newSeenStatus && seenBy.contains(guardian)) {
             seenBy.remove(guardian);
@@ -128,12 +129,12 @@ public class Penguin {
     }
 
     boolean needsAlarm() {
-        return isMissing() && lastSeenTimestamp != 0 && !userNotifiedOfMissing;
+        return isMissing() && !userNotifiedOfMissing;
     }
 
-    boolean isMissing(){
+    private boolean isMissing(){
         debug("Penguin " + getName() + " last seen " + ((System.currentTimeMillis() - lastSeenTimestamp) / 1000.0) + " seconds ago");
-        return (System.currentTimeMillis() - lastSeenTimestamp ) / 1000.0 > penguinMissingThreshold;
+        return ((System.currentTimeMillis() - lastSeenTimestamp ) / 1000.0 > penguinMissingThreshold) && seenBy.isEmpty();
     }
 
     boolean isInitialized() {
