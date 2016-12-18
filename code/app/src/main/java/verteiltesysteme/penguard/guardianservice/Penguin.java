@@ -29,7 +29,7 @@ public class Penguin {
      */
     private final double RSSI_SEEN_THRESHOLD_LEVERAGE = 1.2;
     // Amount of seconds after which penguin is reported missing.
-    private final double PENGUIN_MISSING_THRESHOLD = 20;
+    private final double PENGUIN_MISSING_THRESHOLD = 5;
     private boolean userNotifiedOfMissing = false;
 
     /* In case you're wondering why this boolean suddenly turned into a class, it's because the alternative (keeping it a simple boolean)
@@ -207,6 +207,10 @@ public class Penguin {
 
     private void debug(String msg) {
         Log.d("PenguinClass", msg);
+    }
+
+    int getNotificationId(){
+        return (GuardService.ALARM_NOTIFICATION_ID + getAddress()).hashCode();
     }
 
     void setUserNotifiedOfMissing(boolean userNotifiedOfMissing){

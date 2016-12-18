@@ -36,6 +36,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     private OnPreferenceChangeListenerImpl onPreferenceChangeListener = new OnPreferenceChangeListenerImpl();
     protected static final ArrayList<String> listOfServerSettings = new ArrayList<>(asList("server_address", "port", "username"));
+    protected static final ArrayList<String> listOfPenguinSettings = new ArrayList<>(asList("timeout"));
     private class OnPreferenceChangeListenerImpl implements Preference.OnPreferenceChangeListener {
 
         // This method gets called directly after the user has changed a preference. We just always accept the change.

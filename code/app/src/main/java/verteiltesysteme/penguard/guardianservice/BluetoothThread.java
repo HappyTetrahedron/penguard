@@ -16,12 +16,12 @@ class BluetoothThread extends Thread{
     private boolean paused = false;
 
     private final static int SCAN_INTERVAL_SECONDS = 5;
-    private final Vector<Penguin> penguins;
+    private final PenguinList penguins;
     private GuardService service;
     private BluetoothManager manager;
     private BluetoothBroadcastReceiver bluetoothBroadcastReceiver;
 
-    BluetoothThread(final Vector<Penguin> penguins, GuardService service) {
+    BluetoothThread(final PenguinList penguins, GuardService service) {
         this.penguins = penguins;
         this.service = service;
         this.manager = (BluetoothManager) service.getSystemService(Context.BLUETOOTH_SERVICE);
