@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Paint;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Handler;
@@ -487,7 +488,7 @@ public class GuardService extends Service implements ListenerCallback{
             @Override
             public void run() {
                 if (joinState.groupUN.equals(groupUN) && joinState.state == JoinState.STATE_JOIN_REQ_SENT) {
-                    joinState.joinFailed("Your friend did not accept your join.");
+                    joinState.joinFailed("");
                 }
             }
         }, JOIN_REQ_TIMEOUT);
@@ -787,11 +788,17 @@ public class GuardService extends Service implements ListenerCallback{
             // error during registration
             regState.registrationFailed(message.getError().getError());
         }
+
+        if (joinState.state == JoinState.STATE_JOIN_REQ_SENT) {
+            // error during join
+            joinState.joinFailed(message.getError().getError());
+        }
     }
 
     private void grpInfoReceived(PenguardProto.PGPMessage message){
-        if (CommitmentState.STATE_COMMIT_REQ_SENT == commitState.state && message.getName().equals(commitState.initiant.getName())){
+        if (CommitmentState.STATE_COMMIT_REQ_SENT == commitState.state){
             // duplicate message, do nothing
+            debug("duplicate message");
             return;
         }
 
@@ -813,6 +820,8 @@ public class GuardService extends Service implements ListenerCallback{
                 .build();
         debug("Starting big big commit for group merge.");
 
+
+        debug(" committment state is " + commitState.state);
         if ((commitState.state != CommitmentState.STATE_IDLE)){
             joinState.joinFailed(getString(R.string.toast_merge_failed_busy));
         }
@@ -823,11 +832,12 @@ public class GuardService extends Service implements ListenerCallback{
             TwoPhaseCommitCallback callback = new TwoPhaseCommitCallback() {
                 @Override
                 public void onCommit(String message) {
-                    // do nothing
+                    joinState.joinSuccessful();
                 }
 
                 @Override
                 public void onAbort(String error) {
+                    joinState.joinFailed(error);
                     if (groupIsEmpty()) {
                         // We're alone, and we couldn't commit. One possible reason is a bad NAT.
                         debug("alone in group and commit failed - assuming bad nat");

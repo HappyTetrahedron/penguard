@@ -14,12 +14,12 @@
     <string name="title_activity_settings">Settings</string>
     <string name="penguard_active">Penguard is active</string>
     <string name="group_join_Text">Please enter the name of a member of the group you want to join</string>
-    <string name="guard_without_login">Guard without login</string>
+    <string name="guard_without_login">skip</string>
     <string name="login">Login</string>
     <string name="group_join_wait">Attempting to join the group, please wait</string>
     <string name="guard">I\'m a Guardian</string>
     <string name="penguin">I\'m a Penguin</string>
-    <string name="Welcome">Welcome to Penguard! \nPlease choose whether you are a Guardian or a Penguin, i.e. a device to be protected. For further information please read the Help.</string>
+    <string name="Welcome">Welcome to Penguard! \nPlease choose whether you are a Guardian or a Penguin. For further information, please read the Help.</string>
     <string name="login_text">Please login to the server with a unique username. You can also guard alone without loging in. However you cannot join others in guarding if you are not loged in</string>
     <string name="groupUN">Name of a group member: </string>
     <string name="penguinName_text">How do you want to name your penguin?</string>
@@ -31,7 +31,7 @@
     <string name="penguinName_empty">Please choose a name for your penguin</string>
     <string name="endService">End Service</string>
     <string name="joinSuc">Join successful.</string>
-    <string name="joinAcept">Your Join request was accepted. Updating group…</string>
+    <string name="joinAcept">Your Join request was accepted. Please wait while the group list is updated.</string>
     <string name="joinFail">Unable to join group</string>
     <string name="alreadyRegistered">You are already registered</string>
     <string name="sendingTo">Sending to </string>
@@ -48,9 +48,9 @@
     <string name="groupOverviewBTN">Group overview</string>
     <string name="delete">Kick</string>
     <string name="cancel">Cancel</string>
-    <string name="deleteQuestion">Do you want to kick that guardian from the group? </string>
-    <string name="removeGuardianSuc">Guardian successfuly removed</string>
-    <string name="removeGuardianFail">Guardian coul not be removed</string>
+    <string name="deleteQuestion">Do you want to kick this guardian from the group? </string>
+    <string name="removeGuardianSuc">Guardian successfully removed</string>
+    <string name="removeGuardianFail">Guardian could not be removed</string>
     <string name="penguinRemoveSucceeded">Penguin removed!</string>
     <string name="penguinRemoveFailed">Penguin could not be removed, please try again</string>
     <string name="penguinAddSucceeded">Penguin added!</string>
@@ -82,8 +82,8 @@
     <string name="dialog_text_merge_request">Do you want to merge your group with </string>
     <string name="dialog_ok_merge_request">merge</string>
     <string name="dialog_cancel_merge_request">abort</string>
-    <string name="notification_merge_request_title">New mergerequest</string>
-    <string name="notification_merge_request_text">Someone wants to merge groups.</string>
+    <string name="notification_merge_request_title">Somebody wants to join your group</string>
+    <string name="notification_merge_request_text">Click here to accept the join request</string>
     <string name="toast_merge_failed_progress">Merge not initiated because another one is in progress</string>
     <string name="toast_merge_failed_abort">Merge failed. Probably some member of a group is unreachable or merging with another group.</string>
     <string name="toast_merge_failed_busy">Merging groups failed. You\'re already busy joining another group!</string>

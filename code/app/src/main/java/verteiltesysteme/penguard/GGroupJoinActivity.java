@@ -66,7 +66,9 @@ public class GGroupJoinActivity extends PenguardActivity {
                     @Override
                     public void run() {
                         btn.setEnabled(true); //reenable to button
-                        toast(error);
+                        if (error.length() > 0) {
+                            toast(error);
+                        }
                     }
                 });
             }
