@@ -214,13 +214,7 @@ final class ListHelper {
     static Vector<PenguardProto.PGPGuardian> convertToPGPGuardianList(Vector<Guardian> guardianlist){
         Vector<PenguardProto.PGPGuardian> pgpguardianlist = new Vector<>();
         for (Guardian g : guardianlist){
-            PenguardProto.PGPGuardian pgpguardian = PenguardProto.PGPGuardian.newBuilder()
-                    .setName(g.getName())
-                    .setIp(g.getIp())
-                    .setPort(g.getPort())
-                    .build();
-
-            pgpguardianlist.add(pgpguardian);
+            pgpguardianlist.add(g.toProto());
         }
         return pgpguardianlist;
     }

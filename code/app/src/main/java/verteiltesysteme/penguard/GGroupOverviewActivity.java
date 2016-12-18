@@ -5,48 +5,33 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
-import verteiltesysteme.penguard.Settings.SettingsActivity;
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.Guardian;
-import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
-import verteiltesysteme.penguard.guardianservice.Penguin;
 import verteiltesysteme.penguard.guardianservice.TwoPhaseCommitCallback;
 
-public class GGroupOverviewActivity extends AppCompatActivity  implements NoticeDialogListener{
+public class GGroupOverviewActivity extends ListOverviewActivity  implements NoticeDialogListener {
 
     ListView listView;
-    GuardianServiceConnection serviceConnection = new GuardianServiceConnection();
 
     Guardian selectedGuardian;
     KickGuardianDialogFragment dialog;
 
-    Handler handler;
-    Runnable updateTask;
-
-    boolean paused = false;
-    private static final int UPDATE_DELAY = 500;
-
     int counter = 0;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ggroup_overview);
+        setCurrentIcon(2);
+        setUpToolbar();
 
         //bind the service
         Intent intent = new Intent(this, GuardService.class);
@@ -54,22 +39,6 @@ public class GGroupOverviewActivity extends AppCompatActivity  implements Notice
 
         listView = (ListView)findViewById(R.id.groupOverviewListView);
         dialog = new KickGuardianDialogFragment();
-
-        handler = new Handler();
-
-        //show in the listview every guardian and when he was last seen via the timestamp
-        updateTask = new Runnable() {
-            @Override
-            public void run() {
-                if (serviceConnection != null && serviceConnection.isConnected()) {
-                    if (listView.getAdapter() == null) {
-                        serviceConnection.subscribeListViewToGuardianAdapter(listView);
-                    }
-                    ((ArrayAdapter<Guardian>) listView.getAdapter()).notifyDataSetChanged();
-                }
-                if (!paused) handler.postDelayed(this, UPDATE_DELAY);
-            }
-        };
 
         //show a dialog to give the user the option to delete a guardian
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -82,6 +51,17 @@ public class GGroupOverviewActivity extends AppCompatActivity  implements Notice
                 }
             }
         });
+    }
+
+    @Override
+    void updateState() {
+        if (serviceConnection != null && serviceConnection.isConnected()) {
+            updateLoginB();
+            if (listView.getAdapter() == null) {
+                serviceConnection.subscribeListViewToGuardianAdapter(listView);
+            }
+            ((ArrayAdapter<Guardian>) listView.getAdapter()).notifyDataSetChanged();
+        }
     }
 
     private void deleteGuardian(Guardian guardian){
@@ -134,46 +114,6 @@ public class GGroupOverviewActivity extends AppCompatActivity  implements Notice
         if (serviceConnection != null && serviceConnection.isConnected()) {
             unbindService(serviceConnection);
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_settings, menu);
-        getMenuInflater().inflate(R.menu.menu_howto, menu);
-        getMenuInflater().inflate(R.menu.menu_endservice, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case R.id.menu_settings:
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                return true;
-            case R.id.menu_howto:
-                Intent intent1 = new Intent(this, HowToActivity.class);
-                startActivity(intent1);
-                return true;
-            case R.id.menu_endService:
-                unbindAndKillService();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private void unbindAndKillService(){
-        Intent backToMainIntent = new Intent(this, MainActivity.class);
-        // clear the backstack when transitioning to main activity
-        backToMainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-        Intent stopServiceIntent = new Intent(this, GuardService.class);
-
-        unbindService(serviceConnection);
-        serviceConnection = null;
-        stopService(stopServiceIntent);
-        startActivity(backToMainIntent);
     }
 
     @Override
@@ -236,13 +176,6 @@ public class GGroupOverviewActivity extends AppCompatActivity  implements Notice
         }
 
     }
-    private void toast(String msg){
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-    }
-    private void debug(String msg) {
-        Log.d("GGroupOverview", msg);
-    }
-
 
 }
 

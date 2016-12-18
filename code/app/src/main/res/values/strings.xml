@@ -46,7 +46,7 @@
     <string name="joinGroupBTN">Join group</string>
     <string name="name">Name</string>
     <string name="groupOverviewBTN">Group overview</string>
-    <string name="delete">Kick guardian from the group</string>
+    <string name="delete">Kick</string>
     <string name="cancel">Cancel</string>
     <string name="deleteQuestion">Do you want to kick that guardian from the group? </string>
     <string name="removeGuardianSuc">Guardian successfuly removed</string>
@@ -56,6 +56,10 @@
     <string name="penguinAddSucceeded">Penguin added!</string>
     <string name="penguinAddFailed">Penguin could not be added, please try again</string>
     <string name="removeSelf">You cannot remove yourself</string>
+    <string name="pengSeenBySelf">is seen by you</string>
+    <string name="pengSeenByElse">seen by someone else</string>
+    <string name="pengNotSeen">not seen by anyone</string>
+    <string name="no_penguins">You aren\'t guarding any penguins</string>
 
     <!-- Penguin missing -->
     <string name="notification_penguin_missing_title">Penguin missing!</string>
@@ -82,6 +86,14 @@
     <string name="toast_merge_failed_progress">Merge not initiated because another one is in progress</string>
     <string name="toast_merge_failed_abort">Merge failed. Probably some member of a group is unreachable or merging with another group.</string>
     <string name="toast_merge_failed_busy">Merging groups failed. You\'re already busy joining another group!</string>
+
+    <string name="action_add_penguin">Add penguin</string>
+    <string name="action_group_overview">Group overview</string>
+    <string name="action_penguin_overview">Penguin overview</string>
+    <string name="action_join_group">Join group</string>
+    <string name="action_stop_service">Stop service</string>
+    <string name="action_login">Log in</string>
+
 
     <!-- Strings related to Settings -->
 

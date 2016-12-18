@@ -11,6 +11,7 @@
     tools:context="verteiltesysteme.penguard.GPenguinDetailActivity"
     android:background="@color/blue">
 
+    <!--the magic strings are kept because they are templates and the text will be replaced in the activity-->
     <TextView
         android:text="TextView"
         android:layout_width="wrap_content"

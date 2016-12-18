@@ -16,31 +16,24 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import verteiltesysteme.penguard.Settings.SettingsActivity;
 import verteiltesysteme.penguard.guardianservice.GuardService;
-import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 import verteiltesysteme.penguard.guardianservice.Penguin;
 import verteiltesysteme.penguard.guardianservice.TwoPhaseCommitCallback;
 
 
 //here we search for bluetooth devices and the guard can pick a penguin to guard and then go on to the GGuardActivity
 
-public class GPenguinSearchActivity extends AppCompatActivity {
+public class GPenguinSearchActivity extends PenguardActivity {
     static final int SCAN_PERIOD = 10000; // scan period in ms
     static final String EXTRA_DEVICE = "device"; //aka the penguin
     static final String EXTRA_Name = "newName";
@@ -67,8 +60,6 @@ public class GPenguinSearchActivity extends AppCompatActivity {
     Button restartScanButton;
     ScanSettings scanSettings;
     List<ScanFilter> scanFilters;
-
-    GuardianServiceConnection serviceConnection = new GuardianServiceConnection();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -290,53 +281,5 @@ public class GPenguinSearchActivity extends AppCompatActivity {
             scanResultsList.add(device);
             scanResultsAdapter.notifyDataSetChanged();
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_settings, menu);
-        getMenuInflater().inflate(R.menu.menu_howto, menu);
-        getMenuInflater().inflate(R.menu.menu_endservice, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case R.id.menu_settings:
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                return true;
-            case R.id.menu_howto:
-                Intent intent1 = new Intent(this, HowToActivity.class);
-                startActivity(intent1);
-                return true;
-            case R.id.menu_endService:
-                unbindAndKillService();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private void unbindAndKillService(){
-        Intent backToMainIntent = new Intent(this, MainActivity.class);
-        // clear the backstack when transitioning to main activity
-        backToMainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-        Intent stopServiceIntent = new Intent(this, GuardService.class);
-
-        unbindService(serviceConnection);
-        serviceConnection = null;
-        stopService(stopServiceIntent);
-        startActivity(backToMainIntent);
-    }
-
-
-    private void debug(String msg) {
-        Log.d("GPenguinSearch", msg);
-    }
-    private void toast(String msg){
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 }
