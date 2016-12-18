@@ -46,6 +46,9 @@ public class GLoginActivity extends PenguardActivity {
 
             @Override
             public void onClick(final View view) {
+                if (usernameET.getText().toString().equals("")) {
+                    return;
+                }
 
                // Create a callback for the registration process
                 LoginCallback loginCallback = new LoginCallback() {
