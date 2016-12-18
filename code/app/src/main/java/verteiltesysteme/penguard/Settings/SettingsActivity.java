@@ -1,7 +1,6 @@
 package verteiltesysteme.penguard.Settings;
 
 
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,13 +11,13 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import verteiltesysteme.penguard.AppCompatPreferenceActivity;
 import verteiltesysteme.penguard.R;
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 
-import static android.R.attr.settingsActivity;
 import static java.util.Arrays.asList;
 
 /**
@@ -57,7 +56,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         listOfServerSettings = new ArrayList<>(asList(getString(R.string.pref_key_server_address),
                 getString(R.string.pref_key_port),
                 getString(R.string.pref_key_username)));
-        listOfPenguinSettings = new ArrayList<>(asList(getString(R.string.pref_key_penguin_missing_delay)));
+        listOfPenguinSettings = new ArrayList<>(Collections.singletonList(getString(R.string.pref_key_penguin_missing_delay)));
 
         final PreferenceFragmentImpl preferenceFragment = new PreferenceFragmentImpl();
         preferenceFragment.setSettingsActivity(this);

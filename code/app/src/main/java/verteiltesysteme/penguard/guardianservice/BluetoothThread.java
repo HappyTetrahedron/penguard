@@ -8,8 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import java.util.Vector;
-
 class BluetoothThread extends Thread{
 
     private boolean running = true;

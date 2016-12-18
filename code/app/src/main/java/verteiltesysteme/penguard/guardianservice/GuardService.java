@@ -41,7 +41,6 @@ import verteiltesysteme.penguard.protobuf.PenguardProto;
 
 public class GuardService extends Service implements ListenerCallback{
 
-    private final boolean SHUTUP = false;
 
     // Extras
     final static String EXTRA_IP = "RequestIP";
@@ -1173,7 +1172,7 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void debug(String msg) {
-        if (! SHUTUP) Log.d("GuardService", msg);
+        Log.d("GuardService", msg);
     }
 
 }

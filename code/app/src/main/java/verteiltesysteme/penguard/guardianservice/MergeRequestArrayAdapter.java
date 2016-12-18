@@ -33,8 +33,12 @@ public class MergeRequestArrayAdapter extends ArrayAdapter<PenguardProto.PGPMess
             LayoutInflater layoutInflater = LayoutInflater.from(getContext());
             convertView = layoutInflater.inflate(layoutResource, null);
         }
-
-        PenguardProto.MergeReq request = getItem(position).getMergeReq();
+        PenguardProto.MergeReq request;
+        if (getItem(position)!= null){
+           request  = getItem(position).getMergeReq();
+        }else {
+            request = null;
+        }
 
 
         if (request != null) {

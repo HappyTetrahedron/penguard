@@ -6,7 +6,6 @@ import android.preference.PreferenceFragment;
 import android.util.Log;
 
 import verteiltesysteme.penguard.R;
-import verteiltesysteme.penguard.guardianservice.GuardService;
 
 public class PreferenceFragmentImpl extends PreferenceFragment {
 

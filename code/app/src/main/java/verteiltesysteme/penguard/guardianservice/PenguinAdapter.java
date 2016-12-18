@@ -2,7 +2,6 @@ package verteiltesysteme.penguard.guardianservice;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +10,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.Collection;
 import java.util.List;
 
 import verteiltesysteme.penguard.R;
@@ -42,19 +40,16 @@ class PenguinAdapter extends ArrayAdapter<Penguin> {
 
             penguinName.setText(penguin.getName());
 
-            if (penguinName != null) {
+            if (penguin.isSeen()){ //seen by myself
+                icon.setImageTintList(ColorStateList.valueOf(0xff2f2f2f)); //2f2f2f
+                statusTV.setText(getContext().getString(R.string.pengSeenBySelf));
+            }else if (penguin.isSeenByAnyone() && !penguin.isSeen()){
+                statusTV.setText(getContext().getString(R.string.pengSeenByElse));
+                icon.setImageTintList(ColorStateList.valueOf(0xffa8a8a8)); //a8a8a8
+            }else {
+                statusTV.setText(getContext().getString(R.string.pengNotSeen));
+                icon.setImageTintList(ColorStateList.valueOf(0xffff9109));
 
-                if (penguin.isSeen()){ //seen by myself
-                    icon.setImageTintList(ColorStateList.valueOf(0xff2f2f2f)); //2f2f2f
-                    statusTV.setText(getContext().getString(R.string.pengSeenBySelf));
-                }else if (penguin.isSeenByAnyone() && !penguin.isSeen()){
-                    statusTV.setText(getContext().getString(R.string.pengSeenByElse));
-                    icon.setImageTintList(ColorStateList.valueOf(0xffa8a8a8)); //a8a8a8
-                }else {
-                    statusTV.setText(getContext().getString(R.string.pengNotSeen));
-                    icon.setImageTintList(ColorStateList.valueOf(0xffff9109));
-
-                }
             }
         }
 

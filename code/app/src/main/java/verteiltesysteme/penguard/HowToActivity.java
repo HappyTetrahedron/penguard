@@ -8,6 +8,5 @@ public class HowToActivity extends PenguardActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_how_to);
-        //TODO #49
     }
 }

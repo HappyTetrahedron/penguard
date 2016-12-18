@@ -9,8 +9,6 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.util.Log;
 
-import java.security.Guard;
-import java.util.Date;
 import java.util.Vector;
 
 import verteiltesysteme.penguard.R;

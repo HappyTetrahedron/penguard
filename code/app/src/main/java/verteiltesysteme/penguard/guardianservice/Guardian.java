@@ -3,8 +3,7 @@ package verteiltesysteme.penguard.guardianservice;
 
 import android.util.Log;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.util.Objects;
 
 import verteiltesysteme.penguard.protobuf.PenguardProto;
 
@@ -65,7 +64,7 @@ public class Guardian {
     }
 
     public boolean equals(Guardian guardian){
-        return this.getName() == guardian.getName();
+        return Objects.equals(this.getName(), guardian.getName());
     }
 
     public String getIp() {

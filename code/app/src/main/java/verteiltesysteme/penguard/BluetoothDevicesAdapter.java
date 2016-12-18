@@ -17,8 +17,8 @@ public class BluetoothDevicesAdapter extends ArrayAdapter<BluetoothDevice> {
     private int layoutResource;
 
     public BluetoothDevicesAdapter(Context context, int layoutResource, List<BluetoothDevice> deviceList) {
-        super(context, layoutResource, deviceList);
-        this.layoutResource = layoutResource;
+        super(context, R.layout.penguin_search_list, deviceList);
+        this.layoutResource = R.layout.penguin_search_list;
     }
 
     @NonNull
