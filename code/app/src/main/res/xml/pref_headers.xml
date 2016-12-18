@@ -25,4 +25,12 @@
         android:inputType="text"
         android:title="@string/username" />
 
+    <EditTextPreference
+        android:defaultValue="@string/pref_default_penguin_missing_delay"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:key="@string/pref_key_penguin_missing_delay"
+        android:inputType="number"
+        android:title="@string/pref_title_penguin_missing_delay" />
+
 </PreferenceScreen>

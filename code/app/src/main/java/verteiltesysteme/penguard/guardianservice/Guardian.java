@@ -20,6 +20,9 @@ public class Guardian {
 
     private long lastSeenTimestamp;
 
+    // Amount of seconds after which guardian is assumed as missing. This influences the penguin alarm behaviour.
+    private final double GUARDIAN_MISSING_THRESHOLD = 20;
+
     Guardian() {
         name = null;
         ip = null;
@@ -83,6 +86,10 @@ public class Guardian {
 
     void setName(String name) {
         this.name = name;
+    }
+
+    boolean isGuardianMissing(){
+        return (System.currentTimeMillis() - lastSeenTimestamp) / 1000.0 > GUARDIAN_MISSING_THRESHOLD;
     }
 
     private void debug(String msg) {

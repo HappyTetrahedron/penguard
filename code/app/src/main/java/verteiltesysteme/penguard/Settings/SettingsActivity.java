@@ -35,8 +35,8 @@ import static java.util.Arrays.asList;
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
     private OnPreferenceChangeListenerImpl onPreferenceChangeListener = new OnPreferenceChangeListenerImpl();
-    protected static final ArrayList<String> listOfServerSettings = new ArrayList<>(asList("server_address", "port", "username"));
-    protected static final ArrayList<String> listOfPenguinSettings = new ArrayList<>(asList("timeout"));
+    protected static ArrayList<String> listOfServerSettings;
+    protected static ArrayList<String> listOfPenguinSettings;
     private class OnPreferenceChangeListenerImpl implements Preference.OnPreferenceChangeListener {
 
         // This method gets called directly after the user has changed a preference. We just always accept the change.
@@ -53,6 +53,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        listOfServerSettings = new ArrayList<>(asList(getString(R.string.pref_key_server_address),
+                getString(R.string.pref_key_port),
+                getString(R.string.pref_key_username)));
+        listOfPenguinSettings = new ArrayList<>(asList(getString(R.string.pref_key_penguin_missing_delay)));
+
         final PreferenceFragmentImpl preferenceFragment = new PreferenceFragmentImpl();
         preferenceFragment.setSettingsActivity(this);
 

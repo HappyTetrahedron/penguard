@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.util.Log;
 
+import java.security.Guard;
 import java.util.Date;
 import java.util.Vector;
 
@@ -230,8 +231,14 @@ public class Penguin {
         return userNotifiedOfMissing;
     }
 
+    // Returns true iff there is a guardian who sees the penguin and that we have communicated with recently, OR if we see the penguin ourselves.
     boolean isSeenByAnyone() {
-        return !seenBy.isEmpty() || seen.isSeen();
+        for (Guardian g : seenBy){
+            if (!g.isGuardianMissing()) {
+                return true;
+            }
+        }
+        return seen.isSeen();
     }
 
     private void updateTimestamp() {
