@@ -219,7 +219,7 @@ public class GuardService extends Service implements ListenerCallback{
                     @Override
                     public void run() {
                         // Stop playing the alarm if one is playing.
-                        if(alarmPlayer.isPlaying()) {
+                        if(alarmPlayer != null && alarmPlayer.isPlaying()) {
                             alarmPlayer.stop();
                             Looper.prepare();
                         }
@@ -673,12 +673,14 @@ public class GuardService extends Service implements ListenerCallback{
 
     @Override
     public void onReceive(PenguardProto.PGPMessage parsedMessage, InetAddress address, int port) {
+
+        // debug only the not-so-common messages
         if (parsedMessage.getType() != PenguardProto.PGPMessage.Type.SG_ACK
                 && parsedMessage.getType() != PenguardProto.PGPMessage.Type.GG_ACK
                 && parsedMessage.getType() != PenguardProto.PGPMessage.Type.GG_STATUS_UPDATE)
             debug(parsedMessage.toString());
 
-        //If the sender was one of the guardians from the group, update his state.
+        //If the sender was one of the guardians from the group, update his timestamp.
         Guardian sender = ListHelper.getGuardianByName(guardians, parsedMessage.getName());
         if (sender != null) {
             sender.updateTime();
