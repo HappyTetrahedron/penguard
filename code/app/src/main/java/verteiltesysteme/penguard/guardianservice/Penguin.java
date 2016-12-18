@@ -91,9 +91,13 @@ public class Penguin {
                 context.getResources().getString(R.string.pref_default_penguin_missing_delay)));
     }
 
-    public Penguin(String address, String name) {
+    public Penguin(String address, String name, Context context) {
         this.name = name;
         this.address = address;
+        this.context = context;
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        penguinMissingThreshold = Double.parseDouble(sharedPreferences.getString(context.getString(R.string.pref_key_penguin_missing_delay),
+                context.getResources().getString(R.string.pref_default_penguin_missing_delay)));
     }
 
     public void registerSeenCallback(PenguinSeenCallback callback) {
@@ -115,9 +119,6 @@ public class Penguin {
     }
 
     void setSeenBy(Guardian guardian, boolean newSeenStatus) {
-        if(newSeenStatus) {
-            updateTimestamp();
-        }
         if (newSeenStatus && !seenBy.contains(guardian)) {
             seenBy.add(guardian);
         }
@@ -131,8 +132,7 @@ public class Penguin {
     }
 
     boolean isMissing(){
-        debug("Checking if missing...");
-        debug("Penguin last seen " + ((System.currentTimeMillis() - lastSeenTimestamp) / 1000.0) + " seconds ago");
+        debug("Penguin " + getName() + " last seen " + ((System.currentTimeMillis() - lastSeenTimestamp) / 1000.0) + " seconds ago");
         return (System.currentTimeMillis() - lastSeenTimestamp ) / 1000.0 > penguinMissingThreshold;
     }
 
@@ -141,7 +141,7 @@ public class Penguin {
     }
 
     public boolean isSeen() {
-        return (System.currentTimeMillis() - lastSeenTimestamp) / 1000 < penguinMissingThreshold;
+        return (System.currentTimeMillis() - lastSeenTimestamp) / 1000.0 < penguinMissingThreshold;
     }
 
     /** Returns a String that states which guardians see the penguin.
@@ -212,7 +212,7 @@ public class Penguin {
     }
 
     private void debug(String msg) {
-        Log.d("PenguinClass", msg);
+        Log.d("Penguin", msg);
     }
 
     int getNotificationId(){
@@ -243,6 +243,5 @@ public class Penguin {
             seenCallback.penguinRediscovered(Penguin.this);
         }
         setUserNotifiedOfMissing(false);
-        debug("Last seen: " + (System.currentTimeMillis() - lastSeenTimestamp) / 1000.0 + " seconds ago");
     }
 }

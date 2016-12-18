@@ -47,10 +47,10 @@ public class ListHelperTest {
 
     PenguinList createTestPenguinArray() {
         Vector<Penguin> penguins = new Vector<>();
-        penguins.add(new Penguin("C1:D4:E4:00:00:00", "tux"));
-        penguins.add(new Penguin("C2:D4:E4:00:00:00", "tix"));
-        penguins.add(new Penguin("C3:D4:E4:00:00:00", "tex"));
-        penguins.add(new Penguin("C4:D4:E4:00:00:00", "tox"));
+        penguins.add(new Penguin("C1:D4:E4:00:00:00", "tux", null));
+        penguins.add(new Penguin("C2:D4:E4:00:00:00", "tix", null));
+        penguins.add(new Penguin("C3:D4:E4:00:00:00", "tex", null));
+        penguins.add(new Penguin("C4:D4:E4:00:00:00", "tox", null));
         PenguinList penguinList = new PenguinList();
         penguinList.addAll(penguins);
         return penguinList;
@@ -97,7 +97,7 @@ public class ListHelperTest {
     @Test
     public void testFindPenguinByName() {
         PenguinList penguins = createTestPenguinArray();
-        Penguin sirup = new Penguin("AA:BB:CC:DD:EE:FF", "sirup");
+        Penguin sirup = new Penguin("AA:BB:CC:DD:EE:FF", "sirup", null);
         penguins.add(sirup);
         Penguin sirup2 = ListHelper.getPenguinByAddress(penguins, "AA:BB:CC:DD:EE:FF");
         Assert.assertEquals(sirup, sirup2);
@@ -132,7 +132,7 @@ public class ListHelperTest {
         PenguinList penguins = createTestPenguinArray();
         List<PenguardProto.PGPPenguin> protos = createTestProtoPenguinArray();
 
-        ListHelper.copyPenguinListFromProtobufList(penguins, protos);
+        ListHelper.copyPenguinListFromProtobufList(penguins, protos, null);
 
         Assert.assertNotNull(ListHelper.getPenguinByAddress(penguins, "C1:D4:E4:00:00:00"));
         Assert.assertNotNull(ListHelper.getPenguinByAddress(penguins, "C2:D4:E4:00:00:00"));
