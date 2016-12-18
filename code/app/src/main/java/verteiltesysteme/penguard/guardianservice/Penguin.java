@@ -15,6 +15,9 @@ import java.util.Vector;
 
 import verteiltesysteme.penguard.R;
 
+import static verteiltesysteme.penguard.R.raw.alarm;
+import static verteiltesysteme.penguard.R.string.penguin;
+
 //this class is for the penguins
 
 public class Penguin {
@@ -35,7 +38,7 @@ public class Penguin {
     private final double RSSI_SEEN_THRESHOLD_LEVERAGE = 1.2;
     // Amount of seconds after which penguin is reported missing.
     private double penguinMissingThreshold = 30;
-    private boolean userNotifiedOfMissing = false;
+    private boolean userNotifiedOfMissing = true;
 
     private Vector<Guardian> seenBy = new Vector<>();
 
@@ -121,7 +124,7 @@ public class Penguin {
     void setSeenBy(Guardian guardian, boolean newSeenStatus) {
         if (newSeenStatus && !seenBy.contains(guardian)) {
             seenBy.add(guardian);
-            seenCallback.penguinRediscovered(Penguin.this);
+            penguinVisibleAgain();
         }
         else if (!newSeenStatus && seenBy.contains(guardian)) {
             seenBy.remove(guardian);
@@ -129,12 +132,14 @@ public class Penguin {
     }
 
     boolean needsAlarm() {
-        return isMissing() && !userNotifiedOfMissing;
-    }
+        if(isSeenByAnyone()){
+            debug(getName() + " is seen by someone, needs no alarm");
+        }
 
-    private boolean isMissing(){
-        debug("Penguin " + getName() + " last seen " + ((System.currentTimeMillis() - lastSeenTimestamp) / 1000.0) + " seconds ago");
-        return ((System.currentTimeMillis() - lastSeenTimestamp ) / 1000.0 > penguinMissingThreshold) && seenBy.isEmpty();
+        if(userNotifiedOfMissing) {
+            debug("User known " + getName() + " is missing, needs no alarm.");
+        }
+        return !(isSeenByAnyone() || userNotifiedOfMissing);
     }
 
     boolean isInitialized() {
@@ -240,6 +245,10 @@ public class Penguin {
 
     private void updateTimestamp() {
         lastSeenTimestamp = System.currentTimeMillis();
+        penguinVisibleAgain();
+    }
+
+    private void penguinVisibleAgain() {
         if (seenCallback != null) {
             seenCallback.penguinRediscovered(Penguin.this);
         }
