@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -13,7 +14,7 @@ import android.widget.TextView;
 import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.Penguin;
 
-public class GGuardActivity extends ListOverviewActivity implements View.OnClickListener {
+public class GGuardActivity extends StatusToolbarActivity implements View.OnClickListener {
 
     ListView penguinList;
 
@@ -21,7 +22,6 @@ public class GGuardActivity extends ListOverviewActivity implements View.OnClick
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gguard);
-        setCurrentIcon(1);
         setUpToolbar();
 
         penguinList = (ListView) findViewById(R.id.penguinListView);
@@ -54,9 +54,24 @@ public class GGuardActivity extends ListOverviewActivity implements View.OnClick
             if (penguinList.getAdapter() == null) {
                 serviceConnection.subscribeListViewToPenguinAdapter(penguinList);
             }
-            updateLoginB();
+            setButtonVisible(4, !serviceConnection.isRegistered());
             ((ArrayAdapter<Penguin>) penguinList.getAdapter()).notifyDataSetChanged();
         }
+    }
+
+    @Override
+    int getCurrentIconId() {
+        return 1;
+    }
+
+    @Override
+    int getMenuLayoutResource() {
+        return R.menu.toolbar;
+    }
+
+    @Override
+    Toolbar.OnMenuItemClickListener getOnMenuItemClickListener() {
+        return new MainToolbarOnMenuItemClickListener(this);
     }
 
     @Override

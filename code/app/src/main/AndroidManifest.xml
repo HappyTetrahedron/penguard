@@ -38,16 +38,15 @@
         <activity android:name=".GGuardActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
 
         <service
             android:name=".guardianservice.GuardService"
             android:enabled="true"
             android:exported="true" />
-
         <service
             android:name=".guardianservice.StopAlarmService"
             android:enabled="true"
@@ -62,15 +61,19 @@
             android:parentActivityName=".GGuardActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".GGuardActivity"/>
+                android:value=".GGuardActivity" />
         </activity>
         <activity android:name=".GCalibrationActivity" />
         <activity android:name=".HowToActivity" />
-        <activity android:name=".GGroupOverviewActivity" /><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
-     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
+        <activity android:name=".GGroupOverviewActivity" />
+        <!--
+ ATTENTION: This was auto-generated to add Google Play services to your project for
+     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.
+        -->
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
     </application>
 
 </manifest>

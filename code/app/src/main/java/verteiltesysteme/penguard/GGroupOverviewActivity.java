@@ -5,9 +5,11 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -17,7 +19,7 @@ import verteiltesysteme.penguard.guardianservice.GuardService;
 import verteiltesysteme.penguard.guardianservice.Guardian;
 import verteiltesysteme.penguard.guardianservice.TwoPhaseCommitCallback;
 
-public class GGroupOverviewActivity extends ListOverviewActivity  implements NoticeDialogListener {
+public class GGroupOverviewActivity extends StatusToolbarActivity implements NoticeDialogListener {
 
     ListView listView;
 
@@ -30,7 +32,6 @@ public class GGroupOverviewActivity extends ListOverviewActivity  implements Not
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ggroup_overview);
-        setCurrentIcon(2);
         setUpToolbar();
 
         //bind the service
@@ -60,7 +61,8 @@ public class GGroupOverviewActivity extends ListOverviewActivity  implements Not
     @Override
     void updateState() {
         if (serviceConnection != null && serviceConnection.isConnected()) {
-            updateLoginB();
+            setButtonVisible(4, !serviceConnection.isRegistered());
+            // button 4 is the login button
             if (listView.getAdapter() == null) {
                 serviceConnection.subscribeListViewToGuardianAdapter(listView);
             }
@@ -94,6 +96,21 @@ public class GGroupOverviewActivity extends ListOverviewActivity  implements Not
             debug("you are trying to remove yourself");
             toast(getString(R.string.removeSelf));
         }
+    }
+
+    @Override
+    int getCurrentIconId() {
+        return 2;
+    }
+
+    @Override
+    int getMenuLayoutResource() {
+        return R.menu.toolbar;
+    }
+
+    @Override
+    Toolbar.OnMenuItemClickListener getOnMenuItemClickListener() {
+        return new MainToolbarOnMenuItemClickListener(this);
     }
 
     private void showDeleteDialog(){
@@ -140,6 +157,7 @@ public class GGroupOverviewActivity extends ListOverviewActivity  implements Not
         Guardian guardian;
 
         @Override
+        @NonNull
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Use the Builder class for convenient dialog construction
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

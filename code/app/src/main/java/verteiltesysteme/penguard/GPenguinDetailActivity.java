@@ -2,7 +2,6 @@ package verteiltesysteme.penguard;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -15,7 +14,7 @@ import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 import verteiltesysteme.penguard.guardianservice.Penguin;
 import verteiltesysteme.penguard.guardianservice.TwoPhaseCommitCallback;
 
-public class GPenguinDetailActivity extends PenguardActivity {
+public class GPenguinDetailActivity extends StatusActivity {
 
     private String penguinMac;
 
@@ -27,13 +26,6 @@ public class GPenguinDetailActivity extends PenguardActivity {
     private Button calibrateButton;
     private Button removeButton;
     private Penguin penguin;
-
-    private Handler handler;
-    private Runnable updateTask;
-
-    private boolean paused = true;
-
-    private final int UPDATE_DELAY = 2000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,34 +55,16 @@ public class GPenguinDetailActivity extends PenguardActivity {
         penguinInfo = (TextView) findViewById(R.id.penguinInfoTV);
         calibrateButton = (Button) findViewById(R.id.calibrationBtn);
         removeButton = (Button) findViewById(R.id.removePenguinBtn);
+    }
 
-        handler = new Handler();
-
-        updateTask = new Runnable() {
-            @Override
-            public void run() {
-                if (serviceConnection != null && serviceConnection.isConnected()) {
-                    if (penguin != null) {
-                        penguinName.setText(penguin.getName());
-                        penguinInfo.setText(serviceConnection.getPenguinSeenByString(penguinMac));
-                    }
-                }
-                if (!paused) handler.postDelayed(this, UPDATE_DELAY);
+    @Override
+    void updateState() {
+        if (serviceConnection != null && serviceConnection.isConnected()) {
+            if (penguin != null) {
+                penguinName.setText(penguin.getName());
+                penguinInfo.setText(serviceConnection.getPenguinSeenByString(penguinMac));
             }
-        };
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        paused = false;
-        handler.post(updateTask);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        paused = true;
+        }
     }
 
     @Override
