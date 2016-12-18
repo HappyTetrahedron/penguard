@@ -563,14 +563,10 @@ public class GuardService extends Service implements ListenerCallback{
         Guardian sender = ListHelper.getGuardianByName(guardians, parsedMessage.getName());
         if (sender != null) {
             sender.updateTime();
-            Vector<Guardian> missingGuardians = new Vector<Guardian>();
-            for (Guardian guardian : guardians) {
-                if (guardian.isGuardianMissing()) {
-                    missingGuardians.add(guardian);
-                }
-            }
+
+            // Remove all missing guardians from penguins.
             for (Penguin penguin : penguins) {
-                penguin.removeMissingGuardiansFromSeenBy(missingGuardians);
+                penguin.removeMissingGuardiansFromSeenBy();
             }
         }
 

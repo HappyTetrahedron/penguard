@@ -17,6 +17,7 @@ import verteiltesysteme.penguard.R;
 
 import static verteiltesysteme.penguard.R.raw.alarm;
 import static verteiltesysteme.penguard.R.string.penguin;
+import static verteiltesysteme.penguard.R.string.sendingTo;
 
 //this class is for the penguins
 
@@ -258,7 +259,13 @@ public class Penguin {
         setUserNotifiedOfMissing(false);
     }
 
-    void removeMissingGuardiansFromSeenBy(Vector<Guardian> missingGuardians) {
-        seenBy.removeAll(missingGuardians);
+    void removeMissingGuardiansFromSeenBy() {
+        for (int i = 0; i < seenBy.size(); i++) {
+            Guardian guardian = seenBy.get(i);
+            if (guardian.isGuardianMissing()) {
+                debug("removed some guardian from seenBy.");
+                seenBy.remove(i);
+            }
+        }
     }
 }
