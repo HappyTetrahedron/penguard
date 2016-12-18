@@ -39,6 +39,8 @@ import verteiltesysteme.penguard.lowLevelNetworking.UDPDispatcher;
 import verteiltesysteme.penguard.lowLevelNetworking.UDPListener;
 import verteiltesysteme.penguard.protobuf.PenguardProto;
 
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
+
 public class GuardService extends Service implements ListenerCallback{
 
 
@@ -186,6 +188,7 @@ public class GuardService extends Service implements ListenerCallback{
                     }
                     doJobSendPings();
                     doJobCheckPenguinTimeouts();
+                    doJobCheckGuardianTimeouts();
                     doJobCheckBadNat();
                 }
                 onJobThreadEnded();
@@ -257,6 +260,13 @@ public class GuardService extends Service implements ListenerCallback{
             if (penguin.needsAlarm()) {
                 penguinGoneMissing(penguin);
             }
+        }
+    }
+
+    private void doJobCheckGuardianTimeouts() {
+        // Remove all missing guardians from penguins.
+        for (Penguin penguin : penguins) {
+            penguin.removeMissingGuardiansFromSeenBy();
         }
     }
 
@@ -484,12 +494,6 @@ public class GuardService extends Service implements ListenerCallback{
         return ListHelper.getPenguinByAddress(penguins, mac);
     }
 
-    String interfaceGetPenguinName(String mac) {
-        Penguin p = ListHelper.getPenguinByAddress(penguins, mac);
-        if (p != null) return p.getName();
-        else return getString(R.string.unknownPenguin);
-    }
-
     String interfaceGetPenguinSeenByString(String mac) {
         Penguin p = ListHelper.getPenguinByAddress(penguins, mac);
         if (p != null) return p.getSeenByInfo();
@@ -626,6 +630,7 @@ public class GuardService extends Service implements ListenerCallback{
                 .addAllGuardians(onlyMe)
                 .addAllPenguins(noPenguins)
                 .build();
+
 
         initiateGroupChange(newGroup, null);
     }
@@ -859,7 +864,9 @@ public class GuardService extends Service implements ListenerCallback{
         if (group.getGuardiansList().size() == 1 && group.getGuardiansList().get(0).getName().equals(myself.getName())) {
             // The new group consists of myself only. Skip the 2 phase commit.
             updateStatus(group);
-            callback.onCommit("");
+            if (callback!=null) {
+                callback.onCommit("");
+            }
         }
         else {
             // initiate 2 phase commit
@@ -1026,7 +1033,7 @@ public class GuardService extends Service implements ListenerCallback{
 // =================================================================================================
 
     private void penguinGoneMissing(Penguin penguin) {
-        debug("Penguin missing, derpo");;
+        debug(penguin.getName() + " missing, derpo");
         // When the user clicks the notification, switch to PenguinDetailActivity. The PenguinDetailActivity is responsible for stopping the alarm.
         Intent resultIntent = new Intent(this, GPenguinDetailActivity.class);
         resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -1077,7 +1084,7 @@ public class GuardService extends Service implements ListenerCallback{
 
     private boolean isAnyPenguinSoundingAlarm() {
         for (Penguin p : penguins) {
-            if (p.isMissing() && !p.isUserNotifiedOfMissing()) {
+            if (p.needsAlarm()) {
                 return true;
             }
         }
@@ -1124,7 +1131,7 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void updateStatus(PenguardProto.Group group) {
-        ListHelper.copyPenguinListFromProtobufList(penguins, group.getPenguinsList());
+        ListHelper.copyPenguinListFromProtobufList(penguins, group.getPenguinsList(), this, penguinSeenCallback);
         ListHelper.copyGuardianListFromProtobufList(guardians, group.getGuardiansList());
         this.seqNo = group.getSeqNo();
     }

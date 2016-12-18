@@ -5,6 +5,8 @@
 * **Penguard Guardian Service**, PGS
 * **Penguard Liaison Server**, PLS
 
+*There is an official PLS at: penguard.vsos.ethz.ch*
+
 ## Message structure
 
 Each PGPMessage contains a type and the name of the sender as well as port and

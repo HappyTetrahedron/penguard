@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_gpenguin_detail"
     android:layout_width="match_parent"
@@ -21,15 +22,25 @@
         android:id="@+id/penguinNameTV"
         android:layout_alignParentEnd="true" />
 
-    <Button
-        android:text="@string/removePenguin"
+    <TextView
+        android:text="MAC-Address:"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:onClick="onClick"
-        android:id="@+id/removePenguinBtn"
-        android:backgroundTint="@color/orange" />
+        android:layout_marginTop="30dp"
+        android:id="@+id/penguinMacTitle"
+        android:layout_below="@+id/penguinName"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"/>
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:id="@+id/penguinMacTV"
+        android:layout_below="@+id/penguinMacTitle"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"/>
 
     <TextView
         android:text="TextView"
@@ -37,9 +48,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:id="@+id/penguinInfoTV"
-        android:layout_below="@+id/penguinNameTV"
+        android:layout_below="@+id/penguinMacTV"
         android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"/>
 
     <Button
         android:text="@string/calibrate"
@@ -51,4 +62,23 @@
         android:id="@+id/calibrationBtn"
         android:onClick="onClick"
         android:backgroundTint="@color/orange" />
+
+    <Button
+        android:text="@string/removePenguin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:onClick="onClick"
+        android:id="@+id/removePenguinBtn"
+        android:backgroundTint="@color/orange" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_penguin"
+        android:layout_marginTop="45dp"
+        android:layout_marginBottom="45dp"
+        android:id="@+id/detailIcon"
+        android:layout_centerInParent="true"/>
 </RelativeLayout>

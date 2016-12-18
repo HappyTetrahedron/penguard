@@ -15,6 +15,10 @@ import java.util.Vector;
 
 import verteiltesysteme.penguard.R;
 
+import static verteiltesysteme.penguard.R.raw.alarm;
+import static verteiltesysteme.penguard.R.string.penguin;
+import static verteiltesysteme.penguard.R.string.sendingTo;
+
 //this class is for the penguins
 
 public class Penguin {
@@ -35,7 +39,7 @@ public class Penguin {
     private final double RSSI_SEEN_THRESHOLD_LEVERAGE = 1.2;
     // Amount of seconds after which penguin is reported missing.
     private double penguinMissingThreshold = 30;
-    private boolean userNotifiedOfMissing = false;
+    private boolean userNotifiedOfMissing = true;
 
     private Vector<Guardian> seenBy = new Vector<>();
 
@@ -69,14 +73,13 @@ public class Penguin {
                 updateTimestamp();
                 return;
             }
-            else{
+            else {
                 debug("minDistanceRssi: " + minDistanceRssi);
                 debug("maxDistanceRssi: " + maxDistanceRssi);
-            }
-
-            // distance threshold set
-            if (rssiValue >= Penguin.this.getRssiSeenThreshold()) {
-                updateTimestamp();
+                // distance threshold set
+                if (rssiValue >= Penguin.this.getRssiSeenThreshold()) {
+                    updateTimestamp();
+                }
             }
         }
     };
@@ -87,13 +90,17 @@ public class Penguin {
         this.name = name;
         this.context = context;
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        penguinMissingThreshold = sharedPreferences.getInt(context.getString(R.string.pref_key_penguin_missing_delay),
-                context.getResources().getInteger(R.integer.pref_default_penguin_missing_delay));
+        penguinMissingThreshold = Double.parseDouble(sharedPreferences.getString(context.getString(R.string.pref_key_penguin_missing_delay),
+                context.getResources().getString(R.string.pref_default_penguin_missing_delay)));
     }
 
-    public Penguin(String address, String name) {
+    public Penguin(String address, String name, Context context) {
         this.name = name;
         this.address = address;
+        this.context = context;
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        penguinMissingThreshold = Double.parseDouble(sharedPreferences.getString(context.getString(R.string.pref_key_penguin_missing_delay),
+                context.getResources().getString(R.string.pref_default_penguin_missing_delay)));
     }
 
     public void registerSeenCallback(PenguinSeenCallback callback) {
@@ -115,11 +122,9 @@ public class Penguin {
     }
 
     void setSeenBy(Guardian guardian, boolean newSeenStatus) {
-        if(newSeenStatus) {
-            updateTimestamp();
-        }
         if (newSeenStatus && !seenBy.contains(guardian)) {
             seenBy.add(guardian);
+            penguinVisibleAgain();
         }
         else if (!newSeenStatus && seenBy.contains(guardian)) {
             seenBy.remove(guardian);
@@ -127,21 +132,21 @@ public class Penguin {
     }
 
     boolean needsAlarm() {
-        return isMissing() && lastSeenTimestamp != 0 && !userNotifiedOfMissing;
-    }
-
-    boolean isMissing(){
-        debug("Checking if missing...");
-        debug("Penguin last seen " + ((System.currentTimeMillis() - lastSeenTimestamp) / 1000.0) + " seconds ago");
-        return (System.currentTimeMillis() - lastSeenTimestamp ) / 1000.0 > penguinMissingThreshold;
+        if(isSeenByAnyone()){
+            debug(getName() + " is seen by someone, needs no alarm");
+        }
+        if(userNotifiedOfMissing) {
+            debug("User knows " + getName() + " is missing, needs no alarm.");
+        }
+        return !(isSeenByAnyone() || userNotifiedOfMissing);
     }
 
     boolean isInitialized() {
         return this.device != null && this.bluetoothManager != null;
     }
 
-    boolean isSeen() {
-        return (System.currentTimeMillis() - lastSeenTimestamp) / 1000 < penguinMissingThreshold;
+    public boolean isSeen() {
+        return (System.currentTimeMillis() - lastSeenTimestamp) / 1000.0 < penguinMissingThreshold;
     }
 
     /** Returns a String that states which guardians see the penguin.
@@ -189,6 +194,7 @@ public class Penguin {
     public void setCalibratedValues(int[] calibratedValues){
         minDistanceRssi = calibratedValues[0];
         maxDistanceRssi = calibratedValues[1];
+        debug("Calibrating penguin " + name + " to values " + minDistanceRssi + ", " + maxDistanceRssi);
     }
 
     BluetoothGatt getGatt() {
@@ -212,7 +218,7 @@ public class Penguin {
     }
 
     private void debug(String msg) {
-        Log.d("PenguinClass", msg);
+        Log.d("Penguin", msg);
     }
 
     int getNotificationId(){
@@ -228,7 +234,7 @@ public class Penguin {
     }
 
     // Returns true iff there is a guardian who sees the penguin and that we have communicated with recently, OR if we see the penguin ourselves.
-    boolean isSeenByAnyone() {
+    public boolean isSeenByAnyone() {
         for (Guardian g : seenBy){
             if (!g.isGuardianMissing()) {
                 return true;
@@ -239,10 +245,27 @@ public class Penguin {
 
     private void updateTimestamp() {
         lastSeenTimestamp = System.currentTimeMillis();
+        penguinVisibleAgain();
+    }
+
+    private void penguinVisibleAgain() {
+        debug(getName() + " HAS BECOME VISIBLE AGAIN.");
         if (seenCallback != null) {
             seenCallback.penguinRediscovered(Penguin.this);
         }
+        else {
+            debug("Callback is null!");
+        }
         setUserNotifiedOfMissing(false);
-        debug("Last seen: " + (System.currentTimeMillis() - lastSeenTimestamp) / 1000.0 + " seconds ago");
+    }
+
+    void removeMissingGuardiansFromSeenBy() {
+        for (int i = 0; i < seenBy.size(); i++) {
+            Guardian guardian = seenBy.get(i);
+            if (guardian.isGuardianMissing()) {
+                debug("removed some guardian from seenBy.");
+                seenBy.remove(i);
+            }
+        }
     }
 }

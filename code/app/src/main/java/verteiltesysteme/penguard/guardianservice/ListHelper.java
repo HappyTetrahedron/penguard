@@ -1,5 +1,6 @@
 package verteiltesysteme.penguard.guardianservice;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 
 import java.util.List;
@@ -120,7 +121,7 @@ final class ListHelper {
      * @param penguinList The list of Penguins to copy to
      * @param protobufList The list of PGPPenguins to copy from
      */
-    static void copyPenguinListFromProtobufList(PenguinList penguinList, List<PenguardProto.PGPPenguin> protobufList) {
+    static void copyPenguinListFromProtobufList(PenguinList penguinList, List<PenguardProto.PGPPenguin> protobufList, Context context, PenguinSeenCallback callback) {
         // first, delete all penguins from the list that are not in the protobuf
         for (int i = 0; i < penguinList.size(); i++) {
             Penguin penguin = penguinList.get(i);
@@ -133,7 +134,10 @@ final class ListHelper {
         // now, add all penguins from the protobuf that are not in the list.
         for (PenguardProto.PGPPenguin proto : protobufList) {
             if (getPenguinByAddress(penguinList, proto.getMac()) == null) { //No corresponding penguin in penguinList
-                penguinList.add(new Penguin(proto.getMac(), proto.getName()));
+                Penguin penguin = new Penguin(proto.getMac(), proto.getName(), context);
+                penguin.registerSeenCallback(callback);
+                penguinList.add(penguin);
+
             }
         }
     }

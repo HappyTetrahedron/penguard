@@ -2,9 +2,14 @@ package verteiltesysteme.penguard;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.os.Handler;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Arrays;
@@ -22,10 +27,12 @@ public class GPenguinDetailActivity extends StatusActivity {
     private static final int PENGUIN_CALIBRATION_REQUEST = 1;
 
     private TextView penguinName;
+    private TextView penguinMacTV;
     private TextView penguinInfo;
     private Button calibrateButton;
     private Button removeButton;
     private Penguin penguin;
+    private ImageView detailicon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,17 +59,35 @@ public class GPenguinDetailActivity extends StatusActivity {
         penguinMac = callingIntent.getStringExtra(EXTRA_PENGUIN_MAC);
 
         penguinName = (TextView) findViewById(R.id.penguinNameTV);
+        penguinMacTV = (TextView) findViewById(R.id.penguinMacTV);
         penguinInfo = (TextView) findViewById(R.id.penguinInfoTV);
         calibrateButton = (Button) findViewById(R.id.calibrationBtn);
         removeButton = (Button) findViewById(R.id.removePenguinBtn);
+        detailicon = (ImageView) findViewById(R.id.detailIcon);
     }
+
 
     @Override
     void updateState() {
         if (serviceConnection != null && serviceConnection.isConnected()) {
             if (penguin != null) {
                 penguinName.setText(penguin.getName());
-                penguinInfo.setText(serviceConnection.getPenguinSeenByString(penguinMac));
+                penguinName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+                penguinName.setTextColor(ContextCompat.getColor(getApplication(), R.color.orange));
+                penguinMacTV.setText(penguinMac);
+                if (penguin.isSeenByAnyone()) {
+                    penguinInfo.setText(serviceConnection.getPenguinSeenByString(penguinMac));
+                } else{
+                    penguinInfo.setText(R.string.seen_by_no_one);
+                }
+                if (penguin.isSeen()){ //seen by myself
+                    detailicon.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplication(), R.color.darkgreen))); //(0xff2f2f2f)); //2f2f2f
+                }else if (penguin.isSeenByAnyone() && !penguin.isSeen()){
+                    detailicon.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplication(), R.color.orange))); //a8a8a8
+                }else {
+                    detailicon.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplication(), R.color.red))); //darker grey 0xff606060
+
+                }
             }
         }
     }

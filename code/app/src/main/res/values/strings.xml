@@ -64,6 +64,7 @@
 
     <!-- "seen by..."-strings in penguin overview listing. -->
     <string name="seen_by_no_one_else">Seen by no one else.</string>
+    <string name="seen_by_no_one">Not sighted recently!</string>
     <string name="seen_by">Seen by</string>
     <string name="you_dativ">you</string>
     <string name="comma">,</string>
@@ -80,7 +81,7 @@
     <!-- Strings related to calibration -->
     <string name="button_calibration_start">Start Calibration</string>
     <string name="button_calibration_end">End Calibration</string>
-    <string name="calibration_description">Bring the penguin as close as possible, then press Start</string>
+    <string name="calibration_description">Bring the penguin as close as possible, then press Start. After that, walk away slowly until you reach the desired distance, and press the button again.</string>
     <string name="calibrate">Calibrate</string>
     <string name="calibrationToggle">calibrationToggle</string>
 
@@ -126,7 +127,7 @@
     <string name="pref_default_uuid"></string>
     <string name="pref_default_server">penguard.vsos.ethz.ch</string>
     <string name="pref_default_username" />
-    <integer name="pref_default_penguin_missing_delay">30</integer>
+    <string name="pref_default_penguin_missing_delay">30</string>
 
     <string name="please_logout_to_change">Please log out to change server settings.</string>
 

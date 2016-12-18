@@ -58,6 +58,7 @@ public class GCalibrationActivity extends PenguardActivity {
                 Intent result = new Intent();
                 result.putExtra(CALIBRATION_INTENT_IDENTIFIER, calibratedValues);
                 setResult(RESULT_OK, result);
+                finish();
             }
         }
     }
