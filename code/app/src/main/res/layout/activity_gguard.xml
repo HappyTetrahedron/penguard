@@ -47,9 +47,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:id="@+id/penguinListView"
-        android:layout_below="@+id/empty"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="20dp"
-        android:layout_marginTop="323dp" />
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/toolbar" />
 
 </RelativeLayout>
