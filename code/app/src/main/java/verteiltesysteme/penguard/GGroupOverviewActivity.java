@@ -47,7 +47,11 @@ public class GGroupOverviewActivity extends ListOverviewActivity  implements Not
                 selectedGuardian = (Guardian)adapterView.getItemAtPosition(i);
                 if (counter ==0) {
                     counter++;
-                    showDeleteDialog();
+                    if (!selectedGuardian.equals(serviceConnection.getMyself())){
+                        showDeleteDialog();
+                    }else {
+                        toast(getString(R.string.removeSelf));
+                    }
                 }
             }
         });
@@ -86,6 +90,7 @@ public class GGroupOverviewActivity extends ListOverviewActivity  implements Not
             debug("guardian trying to remove is not yourself");
             serviceConnection.kickGuardian(guardian,callback);
         }else {
+            //this state should never be reached
             debug("you are trying to remove yourself");
             toast(getString(R.string.removeSelf));
         }
