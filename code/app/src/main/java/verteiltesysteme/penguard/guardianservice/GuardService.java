@@ -188,6 +188,7 @@ public class GuardService extends Service implements ListenerCallback{
                     }
                     doJobSendPings();
                     doJobCheckPenguinTimeouts();
+                    doJobCheckGuardianTimeouts();
                     doJobCheckBadNat();
                 }
                 onJobThreadEnded();
@@ -259,6 +260,13 @@ public class GuardService extends Service implements ListenerCallback{
             if (penguin.needsAlarm()) {
                 penguinGoneMissing(penguin);
             }
+        }
+    }
+
+    private void doJobCheckGuardianTimeouts() {
+        // Remove all missing guardians from penguins.
+        for (Penguin penguin : penguins) {
+            penguin.removeMissingGuardiansFromSeenBy();
         }
     }
 
@@ -563,11 +571,6 @@ public class GuardService extends Service implements ListenerCallback{
         Guardian sender = ListHelper.getGuardianByName(guardians, parsedMessage.getName());
         if (sender != null) {
             sender.updateTime();
-
-            // Remove all missing guardians from penguins.
-            for (Penguin penguin : penguins) {
-                penguin.removeMissingGuardiansFromSeenBy();
-            }
         }
 
         switch(parsedMessage.getType()){
