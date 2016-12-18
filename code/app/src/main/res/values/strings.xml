@@ -126,7 +126,7 @@
     <string name="pref_default_uuid"></string>
     <string name="pref_default_server">penguard.vsos.ethz.ch</string>
     <string name="pref_default_username" />
-    <string name="pref_default_penguin_missing_delay">10</string>
+    <integer name="pref_default_penguin_missing_delay">30</integer>
 
     <string name="please_logout_to_change">Please log out to change server settings.</string>
 

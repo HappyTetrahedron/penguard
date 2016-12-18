@@ -492,7 +492,7 @@ public class GuardService extends Service implements ListenerCallback{
 
     String interfaceGetPenguinSeenByString(String mac) {
         Penguin p = ListHelper.getPenguinByAddress(penguins, mac);
-        if (p != null) return p.getSeenByInfo(getApplicationContext());
+        if (p != null) return p.getSeenByInfo();
         else return getString(R.string.unknown);
     }
 

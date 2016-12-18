@@ -7,6 +7,8 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.Vector;
@@ -21,6 +23,7 @@ public class Penguin {
     private BluetoothDevice device = null;
     private BluetoothGatt gatt;
     private BluetoothManager bluetoothManager;
+    private Context context;
     private int rssiValue;
     private int minDistanceRssi;
     private int maxDistanceRssi;
@@ -31,7 +34,7 @@ public class Penguin {
      */
     private final double RSSI_SEEN_THRESHOLD_LEVERAGE = 1.2;
     // Amount of seconds after which penguin is reported missing.
-    private final double PENGUIN_MISSING_THRESHOLD = 30;
+    private double penguinMissingThreshold = 30;
     private boolean userNotifiedOfMissing = false;
 
     private Vector<Guardian> seenBy = new Vector<>();
@@ -78,10 +81,14 @@ public class Penguin {
         }
     };
 
-    public Penguin(BluetoothDevice device, String name){
+    public Penguin(BluetoothDevice device, String name, Context context){
         this.device = device;
         this.address = device.getAddress();
         this.name = name;
+        this.context = context;
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        penguinMissingThreshold = sharedPreferences.getInt(context.getString(R.string.pref_key_penguin_missing_delay),
+                context.getResources().getInteger(R.integer.pref_default_penguin_missing_delay));
     }
 
     public Penguin(String address, String name) {
@@ -126,7 +133,7 @@ public class Penguin {
     boolean isMissing(){
         debug("Checking if missing...");
         debug("Penguin last seen " + ((System.currentTimeMillis() - lastSeenTimestamp) / 1000.0) + " seconds ago");
-        return (System.currentTimeMillis() - lastSeenTimestamp ) / 1000.0 > PENGUIN_MISSING_THRESHOLD;
+        return (System.currentTimeMillis() - lastSeenTimestamp ) / 1000.0 > penguinMissingThreshold;
     }
 
     boolean isInitialized() {
@@ -134,13 +141,12 @@ public class Penguin {
     }
 
     boolean isSeen() {
-        return (System.currentTimeMillis() - lastSeenTimestamp) / 1000 < PENGUIN_MISSING_THRESHOLD;
+        return (System.currentTimeMillis() - lastSeenTimestamp) / 1000 < penguinMissingThreshold;
     }
 
     /** Returns a String that states which guardians see the penguin.
-     * @param context A context for retrieving strings from the resource files.
      */
-    String getSeenByInfo(Context context){
+    String getSeenByInfo(){
         String response = context.getString(R.string.seen_by) + " ";
         if (isSeen()) response += context.getString(R.string.you_dativ) + context.getString(R.string.comma) + " ";
         for (Guardian g : seenBy) {
@@ -233,11 +239,10 @@ public class Penguin {
 
     private void updateTimestamp() {
         lastSeenTimestamp = System.currentTimeMillis();
-        if(seenCallback != null){
+        if (seenCallback != null) {
             seenCallback.penguinRediscovered(Penguin.this);
         }
         setUserNotifiedOfMissing(false);
-        debug("Last seen: " + (System.currentTimeMillis() - lastSeenTimestamp) / 1000.0  + " seconds ago");
+        debug("Last seen: " + (System.currentTimeMillis() - lastSeenTimestamp) / 1000.0 + " seconds ago");
     }
-
 }
