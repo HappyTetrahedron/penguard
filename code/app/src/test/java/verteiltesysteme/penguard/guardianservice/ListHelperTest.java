@@ -132,7 +132,7 @@ public class ListHelperTest {
         PenguinList penguins = createTestPenguinArray();
         List<PenguardProto.PGPPenguin> protos = createTestProtoPenguinArray();
 
-        ListHelper.copyPenguinListFromProtobufList(penguins, protos, null);
+        ListHelper.copyPenguinListFromProtobufList(penguins, protos, null, null);
 
         Assert.assertNotNull(ListHelper.getPenguinByAddress(penguins, "C1:D4:E4:00:00:00"));
         Assert.assertNotNull(ListHelper.getPenguinByAddress(penguins, "C2:D4:E4:00:00:00"));

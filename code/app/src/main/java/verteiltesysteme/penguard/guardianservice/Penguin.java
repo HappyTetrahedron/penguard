@@ -135,9 +135,8 @@ public class Penguin {
         if(isSeenByAnyone()){
             debug(getName() + " is seen by someone, needs no alarm");
         }
-
         if(userNotifiedOfMissing) {
-            debug("User known " + getName() + " is missing, needs no alarm.");
+            debug("User knows " + getName() + " is missing, needs no alarm.");
         }
         return !(isSeenByAnyone() || userNotifiedOfMissing);
     }
@@ -249,8 +248,12 @@ public class Penguin {
     }
 
     private void penguinVisibleAgain() {
+        debug(getName() + " has become visible again.");
         if (seenCallback != null) {
             seenCallback.penguinRediscovered(Penguin.this);
+        }
+        else {
+            debug("Callback is null!");
         }
         setUserNotifiedOfMissing(false);
     }

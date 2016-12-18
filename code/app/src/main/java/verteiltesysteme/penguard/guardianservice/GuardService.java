@@ -1121,7 +1121,7 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void updateStatus(PenguardProto.Group group) {
-        ListHelper.copyPenguinListFromProtobufList(penguins, group.getPenguinsList(), this);
+        ListHelper.copyPenguinListFromProtobufList(penguins, group.getPenguinsList(), this, penguinSeenCallback);
         ListHelper.copyGuardianListFromProtobufList(guardians, group.getGuardiansList());
         this.seqNo = group.getSeqNo();
     }
