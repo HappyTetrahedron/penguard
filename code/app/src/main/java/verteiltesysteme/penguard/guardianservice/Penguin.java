@@ -140,7 +140,7 @@ public class Penguin {
         return this.device != null && this.bluetoothManager != null;
     }
 
-    boolean isSeen() {
+    public boolean isSeen() {
         return (System.currentTimeMillis() - lastSeenTimestamp) / 1000 < penguinMissingThreshold;
     }
 
@@ -228,7 +228,7 @@ public class Penguin {
     }
 
     // Returns true iff there is a guardian who sees the penguin and that we have communicated with recently, OR if we see the penguin ourselves.
-    boolean isSeenByAnyone() {
+    public boolean isSeenByAnyone() {
         for (Guardian g : seenBy){
             if (!g.isGuardianMissing()) {
                 return true;
