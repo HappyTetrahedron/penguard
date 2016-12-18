@@ -52,7 +52,7 @@ public class ListHelperTest {
         penguins.add(new Penguin("C3:D4:E4:00:00:00", "tex"));
         penguins.add(new Penguin("C4:D4:E4:00:00:00", "tox"));
         PenguinList penguinList = new PenguinList();
-        penguins.addAll(penguins);
+        penguinList.addAll(penguins);
         return penguinList;
     }
 
