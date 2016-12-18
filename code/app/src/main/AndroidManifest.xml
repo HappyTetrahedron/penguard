@@ -34,10 +34,21 @@
         <activity android:name=".GGroupJoinActivity" />
         <activity android:name=".GPenguinSearchActivity" />
         <activity android:name=".GPenguinNameActivity" />
-        <activity android:name=".GGuardActivity" />
+        <activity android:name=".GGuardActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
 
         <service
             android:name=".guardianservice.GuardService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <service
+            android:name=".guardianservice.StopAlarmService"
             android:enabled="true"
             android:exported="true" />
 
@@ -45,10 +56,15 @@
             android:name=".Settings.SettingsActivity"
             android:label="@string/title_activity_settings" />
         <activity android:name=".GGroupMergeRequestsActivity" />
-        <activity android:name=".GPenguinDetailActivity" />
+        <activity
+            android:name=".GPenguinDetailActivity"
+            android:parentActivityName=".GGuardActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".GGuardActivity"/>
+        </activity>
         <activity android:name=".GCalibrationActivity" />
         <activity android:name=".HowToActivity" />
-        >>>>>>> refs/remotes/origin/devel
         <activity android:name=".GGroupOverviewActivity"></activity>
     </application>
 

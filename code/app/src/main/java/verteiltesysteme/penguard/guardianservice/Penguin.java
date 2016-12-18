@@ -27,7 +27,7 @@ public class Penguin {
      */
     private final double RSSI_SEEN_THRESHOLD_LEVERAGE = 1.2;
 
-    private boolean userNotifiedOfMissing = true;
+    private boolean userNotifiedOfMissing = false;
 
     /* In case you're wondering why this boolean suddenly turned into a class, it's because the alternative (keeping it a simple boolean)
      * would lead to bugs with absolute certainty, since we're at least once going to forget setting userNotifiedOfMissing to false every time seen is

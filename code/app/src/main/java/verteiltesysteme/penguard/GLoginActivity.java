@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -146,6 +148,7 @@ public class GLoginActivity extends AppCompatActivity {
         if (serviceConnection != null && serviceConnection.isConnected()) {
             unbindService(serviceConnection);
         }
+        closeContextMenu();
     }
 
     @Override
@@ -178,7 +181,7 @@ public class GLoginActivity extends AppCompatActivity {
     private void unbindAndKillService(){
         Intent backToMainIntent = new Intent(this, MainActivity.class);
         // clear the backstack when transitioning to main activity
-        backToMainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        backToMainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         Intent stopServiceIntent = new Intent(this, GuardService.class);
 
@@ -186,6 +189,7 @@ public class GLoginActivity extends AppCompatActivity {
         serviceConnection = null;
         stopService(stopServiceIntent);
         startActivity(backToMainIntent);
+        finish();
     }
 
     private void displayToast(String text){

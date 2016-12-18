@@ -30,12 +30,15 @@ import java.util.Vector;
 
 import verteiltesysteme.penguard.GGroupMergeRequestsActivity;
 import verteiltesysteme.penguard.GGuardActivity;
+import verteiltesysteme.penguard.GLoginActivity;
 import verteiltesysteme.penguard.GPenguinDetailActivity;
 import verteiltesysteme.penguard.R;
 import verteiltesysteme.penguard.lowLevelNetworking.ListenerCallback;
 import verteiltesysteme.penguard.lowLevelNetworking.UDPDispatcher;
 import verteiltesysteme.penguard.lowLevelNetworking.UDPListener;
 import verteiltesysteme.penguard.protobuf.PenguardProto;
+
+import static android.app.PendingIntent.getService;
 
 public class GuardService extends Service implements ListenerCallback{
 
@@ -49,7 +52,6 @@ public class GuardService extends Service implements ListenerCallback{
     private final Vector<Penguin> penguins = new Vector<>();
     private final Vector<Guardian> guardians = new Vector<>();
     private int seqNo = 0;
-    private final int MERGE_NOTIFICATION_ID = 123;
     private Vector<PenguardProto.PGPMessage> pendingMergeRequests = new Vector<>();
 
     private Guardian myself = new Guardian();
@@ -62,13 +64,15 @@ public class GuardService extends Service implements ListenerCallback{
     // Networking constants
     private final static int SOCKETS_TO_TRY = 5;
     private final static int NETWORK_TIMEOUT = 5000; // Network timeout in ms
-    private final static int JOIN_REQ_TIMEOUT = 20 * 1000; // Timeout for join requests. Should be upped to 5 minutes.
+    private final static int JOIN_REQ_TIMEOUT = 20 * 1000; // Timeout for join requests. TODO Should be upped to 5 minutes.
     private final static int PING_INTERVAL = 5000;
 
     private String plsIp = "";
     private int plsPort = 0;
 
     private final static int NOTIFICATION_ID = 1;
+    private final int MERGE_NOTIFICATION_ID = 123;
+    private final int ALARM_NOTIFICATION_ID = 124;
 
     private RegistrationState regState = new RegistrationState();
     private JoinState joinState = new JoinState();
@@ -838,20 +842,29 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void penguinGoneMissing(Penguin penguin) {
+        // When the user clicks the notification, switch to PenguinDetailActivity. The PenguinDetailActivity is responsible for stopping the alarm.
         Intent resultIntent = new Intent(this, GPenguinDetailActivity.class);
         resultIntent.putExtra(GPenguinDetailActivity.EXTRA_PENGUIN_MAC, penguin.getAddress());
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(GGroupMergeRequestsActivity.class);
-        stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultpendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        TaskStackBuilder stackBuilderResult = TaskStackBuilder.create(this);
+        stackBuilderResult.addParentStack(GPenguinDetailActivity.class);
+        stackBuilderResult.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent = stackBuilderResult.getPendingIntent(0, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        // When the user dismisses the notification, start a service via intent to stop the alarm.
+        Intent dismissIntent = new Intent(this, StopAlarmService.class);
+        dismissIntent.putExtra(GPenguinDetailActivity.EXTRA_PENGUIN_MAC, penguin.getAddress());
+        PendingIntent dismissPendingIntent = PendingIntent.getService(this, 1, dismissIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         // Build penguin-missing notification.
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.icon)
                 .setColor(ContextCompat.getColor(this, R.color.orange))
                 .setContentTitle(getText(R.string.notification_penguin_missing_title))
-                .setContentIntent(resultpendingIntent)
-                .setAutoCancel(true);
+                .setContentIntent(resultPendingIntent)
+                .setAutoCancel(true)
+                .setDeleteIntent(dismissPendingIntent);
+
+        // Set the notification text
         if (Math.random() < 0.98) {
             mBuilder.setContentText(penguin.getName() + " " + getText(R.string.notification_penguin_missing));
         }
@@ -861,18 +874,20 @@ public class GuardService extends Service implements ListenerCallback{
 
         // Activate notification.
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(MERGE_NOTIFICATION_ID, mBuilder.build());
+        mNotificationManager.notify(ALARM_NOTIFICATION_ID, mBuilder.build());
 
+        // Start ringing the alarm. Just to make sure, we stop the player before, so that we don't run into issues where to alarms are playing at once.
         if (alarmPlayer == null) {
             alarmPlayer = MediaPlayer.create(this, R.raw.alarm);
         }
         alarmPlayer.setVolume(1.0f, 1.0f);
         alarmPlayer.setLooping(true);
-        debug("alaaarm");
+        alarmPlayer.stop();
         alarmPlayer.start();
     }
 
     protected void stopAlarm(Penguin penguin) {
+        debug("Stopped alarm.");
         if (alarmPlayer != null) {
             alarmPlayer.setLooping(false);
         }

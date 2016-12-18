@@ -1,6 +1,7 @@
 package verteiltesysteme.penguard.guardianservice;
 
 import android.content.ComponentName;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
@@ -84,7 +85,7 @@ public class GuardianServiceConnection implements ServiceConnection {
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
-       this.service = ((GuardService.PenguinGuardBinder) service).getService();
+        this.service = ((GuardService.PenguinGuardBinder) service).getService();
         for (Runnable r : serviceConnectedCallbacks){
             r.run();
         }
@@ -101,6 +102,7 @@ public class GuardianServiceConnection implements ServiceConnection {
     @Override
     public void onServiceDisconnected(ComponentName name) {
         this.service = null;
+        debug("SERVICE DISCONNECTED");
     }
 
     public void sendGroupTo(String ip, int port){
@@ -114,5 +116,9 @@ public class GuardianServiceConnection implements ServiceConnection {
 
     public void unregisterServiceConnectedCallback(Runnable serviceConnectedCallback){
         serviceConnectedCallbacks.remove(serviceConnectedCallback);
+    }
+
+    private void debug(String msg) {
+        Log.d("GuardianServiceConnecti", msg);
     }
 }
