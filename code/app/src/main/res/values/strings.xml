@@ -57,10 +57,15 @@
     <string name="penguinAddFailed">Penguin could not be added, please try again</string>
     <string name="removeSelf">You cannot remove yourself</string>
     <string name="pengSeenBySelf">is seen by you</string>
-    <string name="pengSeenByElse">seen by someone else</string>
-    <string name="pengNotSeen">not seen by anyone</string>
+    <string name="pengSeenByElse">Seen by someone else</string>
+    <string name="pengNotSeen">Not seen by anyone</string>
     <string name="no_penguins">You aren\'t guarding any penguins</string>
     <string name="howToDesc">Penguard is an antitheft app that helps you guard various bluetooth devices. You can do this either alone or with your friends. If you wish to guard together with others you have to log in to the server with a unique username.</string>
+
+    <!-- "seen by..."-strings in penguin overview listing. -->
+    <string name="seen_by_no_one_else">Seen by no one else.</string>
+    <string name="seen_by">Seen by</string>
+
 
     <!-- Penguin missing -->
     <string name="notification_penguin_missing_title">Penguin missing!</string>
