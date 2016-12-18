@@ -45,13 +45,15 @@ public class ListHelperTest {
         return group.getGuardiansList();
     }
 
-    Vector<Penguin> createTestPenguinArray() {
+    PenguinList createTestPenguinArray() {
         Vector<Penguin> penguins = new Vector<>();
         penguins.add(new Penguin("C1:D4:E4:00:00:00", "tux"));
         penguins.add(new Penguin("C2:D4:E4:00:00:00", "tix"));
         penguins.add(new Penguin("C3:D4:E4:00:00:00", "tex"));
         penguins.add(new Penguin("C4:D4:E4:00:00:00", "tox"));
-        return penguins;
+        PenguinList penguinList = new PenguinList();
+        penguins.addAll(penguins);
+        return penguinList;
     }
 
     List<PenguardProto.PGPPenguin> createTestProtoPenguinArray() {
@@ -94,7 +96,7 @@ public class ListHelperTest {
 
     @Test
     public void testFindPenguinByName() {
-        Vector<Penguin> penguins = createTestPenguinArray();
+        PenguinList penguins = createTestPenguinArray();
         Penguin sirup = new Penguin("AA:BB:CC:DD:EE:FF", "sirup");
         penguins.add(sirup);
         Penguin sirup2 = ListHelper.getPenguinByAddress(penguins, "AA:BB:CC:DD:EE:FF");
@@ -104,7 +106,7 @@ public class ListHelperTest {
 
     @Test
     public void testFindPenguinByNameNoMatch() {
-        Vector<Penguin> penguins = createTestPenguinArray();
+        PenguinList penguins = createTestPenguinArray();
         Penguin sirup2 = ListHelper.getPenguinByAddress(penguins, "AA:BB:CC:DD:EE:FF");
         Assert.assertNull(sirup2);
     }
@@ -127,7 +129,7 @@ public class ListHelperTest {
 
     @Test
     public void testPenguinCopy() {
-        Vector<Penguin> penguins = createTestPenguinArray();
+        PenguinList penguins = createTestPenguinArray();
         List<PenguardProto.PGPPenguin> protos = createTestProtoPenguinArray();
 
         ListHelper.copyPenguinListFromProtobufList(penguins, protos);
