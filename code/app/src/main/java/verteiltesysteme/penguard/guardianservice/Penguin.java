@@ -248,7 +248,7 @@ public class Penguin {
     }
 
     private void penguinVisibleAgain() {
-        debug(getName() + " has become visible again.");
+        debug(getName() + " HAS BECOME VISIBLE AGAIN.");
         if (seenCallback != null) {
             seenCallback.penguinRediscovered(Penguin.this);
         }
@@ -256,5 +256,9 @@ public class Penguin {
             debug("Callback is null!");
         }
         setUserNotifiedOfMissing(false);
+    }
+
+    void removeMissingGuardiansFromSeenBy(Vector<Guardian> missingGuardians) {
+        seenBy.removeAll(missingGuardians);
     }
 }

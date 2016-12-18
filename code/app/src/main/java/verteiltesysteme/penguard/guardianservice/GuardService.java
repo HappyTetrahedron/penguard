@@ -39,6 +39,8 @@ import verteiltesysteme.penguard.lowLevelNetworking.UDPDispatcher;
 import verteiltesysteme.penguard.lowLevelNetworking.UDPListener;
 import verteiltesysteme.penguard.protobuf.PenguardProto;
 
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
+
 public class GuardService extends Service implements ListenerCallback{
 
 
@@ -561,6 +563,15 @@ public class GuardService extends Service implements ListenerCallback{
         Guardian sender = ListHelper.getGuardianByName(guardians, parsedMessage.getName());
         if (sender != null) {
             sender.updateTime();
+            Vector<Guardian> missingGuardians = new Vector<Guardian>();
+            for (Guardian guardian : guardians) {
+                if (guardian.isGuardianMissing()) {
+                    missingGuardians.add(guardian);
+                }
+            }
+            for (Penguin penguin : penguins) {
+                penguin.removeMissingGuardiansFromSeenBy(missingGuardians);
+            }
         }
 
         switch(parsedMessage.getType()){
@@ -1023,7 +1034,7 @@ public class GuardService extends Service implements ListenerCallback{
 // =================================================================================================
 
     private void penguinGoneMissing(Penguin penguin) {
-        debug("Penguin missing, derpo");;
+        debug(penguin.getName() + " missing, derpo");
         // When the user clicks the notification, switch to PenguinDetailActivity. The PenguinDetailActivity is responsible for stopping the alarm.
         Intent resultIntent = new Intent(this, GPenguinDetailActivity.class);
         resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
