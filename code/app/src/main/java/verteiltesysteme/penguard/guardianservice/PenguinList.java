@@ -30,7 +30,7 @@ public class PenguinList implements Iterable<Penguin>{
     void remove(Penguin p){
         // Be careful when reordering this remove call, penguinHasBeenRemoved in GuardService may depend on this execution order!
         penguins.remove(p);
-        guardService.penguinHasBeenRemoved(p);
+        guardService.cancelAlarmAndNotificationForPenguin(p);
     }
 
     void removeAllElements(){
@@ -45,7 +45,7 @@ public class PenguinList implements Iterable<Penguin>{
          */
         Penguin toBeRemoved = penguins.get(i);
         penguins.remove(i);
-        guardService.penguinHasBeenRemoved(toBeRemoved);
+        guardService.cancelAlarmAndNotificationForPenguin(toBeRemoved);
     }
 
     @Override

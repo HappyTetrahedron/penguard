@@ -121,4 +121,8 @@ public class GuardianServiceConnection implements ServiceConnection {
     private void debug(String msg) {
         Log.d("GuardianServiceConnecti", msg);
     }
+
+    public PenguinSeenCallback getPenguinSeenCallback(){
+        return service.getPenguinSeenCallback();
+    }
 }

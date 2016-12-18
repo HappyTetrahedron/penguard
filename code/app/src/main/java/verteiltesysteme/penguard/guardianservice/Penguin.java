@@ -40,20 +40,26 @@ public class Penguin {
     private class Seen {
         private boolean seen = false;
 
-        private void updateSeen(boolean seen){
-            this.seen = seen;
-            if (seen) {
+        private void updateSeen(boolean newSeenStatus){
+
+            // Update the timestamp
+            if(newSeenStatus){
                 updateTimestamp();
                 userNotifiedOfMissing = false;
             }
+            seen = newSeenStatus;
         }
 
         private boolean isSeen() {
             return seen;
         }
     }
-
     private Vector<Guardian> seenBy = new Vector<>();
+
+    /* A callback provided the GuardService, that gets executed every time the penguins status gets set to seen.
+     * This callback is used to cancel notifications and alarms.
+     */
+    private PenguinSeenCallback seenCallback;
 
     final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
         @Override
@@ -107,6 +113,9 @@ public class Penguin {
         this.address = address;
     }
 
+    public void registerSeenCallback(PenguinSeenCallback callback) {
+        seenCallback = callback;
+    }
 
     void initialize(BluetoothManager bm) {
         this.bluetoothManager = bm;
@@ -227,6 +236,9 @@ public class Penguin {
 
     private void updateTimestamp() {
         lastSeenTimestamp = System.currentTimeMillis();
+        if(seenCallback != null){
+            seenCallback.penguinRediscovered(Penguin.this);
+        }
         debug("Last seen: " + (System.currentTimeMillis() - lastSeenTimestamp) / 1000.0);
     }
 }

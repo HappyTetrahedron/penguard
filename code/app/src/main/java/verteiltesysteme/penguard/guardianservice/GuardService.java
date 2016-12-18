@@ -93,6 +93,13 @@ public class GuardService extends Service implements ListenerCallback{
     private GuardianAdapter guardianListAdapter;
     private SharedPreferences sharedPref;
 
+    private PenguinSeenCallback penguinSeenCallback = new PenguinSeenCallback() {
+        @Override
+        public void penguinRediscovered(Penguin p) {
+            cancelAlarmAndNotificationForPenguin(p);
+        }
+    };
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -1014,6 +1021,18 @@ public class GuardService extends Service implements ListenerCallback{
         return false;
     }
 
+    // Cancel any missing-notifications and alarm this penguin causes.
+    protected void cancelAlarmAndNotificationForPenguin(Penguin p){
+        int notificationId = p.getNotificationId();
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(notificationId);
+        if (alarmPlayer != null) {
+            if (!isAnyPenguinSoundingAlarm()){
+                alarmPlayer.setLooping(false);
+            }
+        }
+    }
+
     protected void stopAlarm(Penguin penguin) {
         debug("Stopped alarm.");
         penguin.setUserNotifiedOfMissing(true);
@@ -1022,15 +1041,6 @@ public class GuardService extends Service implements ListenerCallback{
             if (!isAnyPenguinSoundingAlarm()){
                 alarmPlayer.setLooping(false);
             }
-        }
-    }
-
-    // Gets called every time a penguin has been removed. We use it to cancel alarm notifications and ongoing alarm sounds.
-    protected void penguinHasBeenRemoved(Penguin p){
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(p.getNotificationId());
-        if (!isAnyPenguinSoundingAlarm()) {
-            alarmPlayer.setLooping(false);
         }
     }
 
@@ -1164,6 +1174,10 @@ public class GuardService extends Service implements ListenerCallback{
 
     private void debug(String msg) {
         if (! SHUTUP) Log.d("GuardService", msg);
+    }
+
+    PenguinSeenCallback getPenguinSeenCallback(){
+        return penguinSeenCallback;
     }
 
 }
