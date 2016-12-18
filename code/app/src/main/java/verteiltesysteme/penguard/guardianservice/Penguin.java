@@ -87,8 +87,8 @@ public class Penguin {
         this.name = name;
         this.context = context;
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        penguinMissingThreshold = sharedPreferences.getInt(context.getString(R.string.pref_key_penguin_missing_delay),
-                context.getResources().getInteger(R.integer.pref_default_penguin_missing_delay));
+        penguinMissingThreshold = Double.parseDouble(sharedPreferences.getString(context.getString(R.string.pref_key_penguin_missing_delay),
+                context.getResources().getString(R.string.pref_default_penguin_missing_delay)));
     }
 
     public Penguin(String address, String name) {
