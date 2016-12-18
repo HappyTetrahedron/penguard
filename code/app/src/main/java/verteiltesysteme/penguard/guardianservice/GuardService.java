@@ -621,6 +621,7 @@ public class GuardService extends Service implements ListenerCallback{
                 .addAllPenguins(noPenguins)
                 .build();
 
+
         initiateGroupChange(newGroup, null);
     }
 
@@ -853,7 +854,9 @@ public class GuardService extends Service implements ListenerCallback{
         if (group.getGuardiansList().size() == 1 && group.getGuardiansList().get(0).getName().equals(myself.getName())) {
             // The new group consists of myself only. Skip the 2 phase commit.
             updateStatus(group);
-            callback.onCommit("");
+            if (callback!=null) {
+                callback.onCommit("");
+            }
         }
         else {
             // initiate 2 phase commit

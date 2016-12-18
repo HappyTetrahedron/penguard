@@ -41,7 +41,7 @@ class PenguinAdapter extends ArrayAdapter<Penguin> {
             penguinName.setText(penguin.getName());
 
             if (penguin.isSeen()){ //seen by myself
-                icon.setImageTintList(ColorStateList.valueOf(0xff00cc00)); //2f2f2f
+                icon.setImageTintList(ColorStateList.valueOf(0xff2f2f2f)); //2f2f2f
                 statusTV.setText(getContext().getString(R.string.pengSeenBySelf));
             }else if (penguin.isSeenByAnyone() && !penguin.isSeen()){
                 statusTV.setText(getContext().getString(R.string.pengSeenByElse));
