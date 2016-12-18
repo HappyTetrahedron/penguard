@@ -176,7 +176,7 @@ public class GPenguinSearchActivity extends PenguardActivity {
                         });
                     }
                 };
-                Penguin penguin = new Penguin(device, penguinName, getApplicationContext());
+                Penguin penguin = new Penguin(device, penguinName, serviceConnection.getContext());
                 penguin.registerSeenCallback(serviceConnection.getPenguinSeenCallback());
                 serviceConnection.addPenguin(penguin, callback);
                 Intent intent = new Intent(this, GGuardActivity.class);

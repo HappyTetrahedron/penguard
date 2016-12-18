@@ -1,6 +1,7 @@
 package verteiltesysteme.penguard.guardianservice;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
@@ -184,6 +185,10 @@ public class GuardianServiceConnection implements ServiceConnection {
 
     private void debug(String msg) {
         Log.d("GuardianServiceConnecti", msg);
+    }
+
+    public Context getContext(){
+        return service;
     }
 
 }
