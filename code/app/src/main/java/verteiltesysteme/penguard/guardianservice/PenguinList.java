@@ -15,6 +15,8 @@ public class PenguinList implements Iterable<Penguin>{
         this.guardService = guardService;
     }
 
+    public PenguinList(){}
+
     boolean contains(Penguin p){
         return penguins.contains(p);
     }
@@ -30,7 +32,9 @@ public class PenguinList implements Iterable<Penguin>{
     void remove(Penguin p){
         // Be careful when reordering this remove call, penguinHasBeenRemoved in GuardService may depend on this execution order!
         penguins.remove(p);
-        guardService.cancelAlarmAndNotificationForPenguin(p);
+        if(guardService != null){
+            guardService.cancelAlarmAndNotificationForPenguin(p);
+        }
     }
 
     void removeAllElements(){
@@ -39,13 +43,19 @@ public class PenguinList implements Iterable<Penguin>{
         }
     }
 
+    void addAll(Vector<Penguin> p){
+        penguins.addAll(p);
+    }
+
     void remove(int i){
         /* Be very careful when reordering method calls in here, since penguinHasBeenRemoved can depend on execution order.
          * In particular it may depend on whether a penguin has already been removed from a list or not.
          */
         Penguin toBeRemoved = penguins.get(i);
         penguins.remove(i);
-        guardService.cancelAlarmAndNotificationForPenguin(toBeRemoved);
+        if(guardService != null){
+            guardService.cancelAlarmAndNotificationForPenguin(toBeRemoved);
+        }
     }
 
     @Override
