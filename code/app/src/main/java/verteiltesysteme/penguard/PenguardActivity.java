@@ -17,6 +17,7 @@ import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 public abstract class PenguardActivity extends AppCompatActivity {
 
     protected GuardianServiceConnection serviceConnection = new GuardianServiceConnection();
+    private final static int SHORT_TOAST_THRESHOLD = 35;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +41,18 @@ public abstract class PenguardActivity extends AppCompatActivity {
     }
 
     protected void toast(String msg){
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        toast(msg, this);
+    }
+
+    public static void toast(String msg, Context context){
+        int toastLength;
+        if (msg.length() > SHORT_TOAST_THRESHOLD) {
+            toastLength = Toast.LENGTH_LONG;
+        }
+        else {
+            toastLength = Toast.LENGTH_SHORT;
+        }
+        Toast.makeText(context, msg, toastLength).show();
     }
 
     protected void debug(String msg) {
@@ -77,6 +89,7 @@ public abstract class PenguardActivity extends AppCompatActivity {
 
     protected void unbindAndKillService(){
         Intent backToMainIntent = new Intent(this, MainActivity.class);
+
         // clear the backstack when transitioning to main activity
         backToMainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 

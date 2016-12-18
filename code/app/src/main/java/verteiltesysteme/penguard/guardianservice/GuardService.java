@@ -14,6 +14,7 @@ import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
@@ -28,11 +29,13 @@ import java.net.SocketException;
 import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
+import java.util.concurrent.Future;
 
 import verteiltesysteme.penguard.GGroupMergeRequestsActivity;
 import verteiltesysteme.penguard.GGuardActivity;
 import verteiltesysteme.penguard.GLoginActivity;
 import verteiltesysteme.penguard.GPenguinDetailActivity;
+import verteiltesysteme.penguard.PenguardActivity;
 import verteiltesysteme.penguard.R;
 import verteiltesysteme.penguard.lowLevelNetworking.ListenerCallback;
 import verteiltesysteme.penguard.lowLevelNetworking.UDPDispatcher;
@@ -190,8 +193,47 @@ public class GuardService extends Service implements ListenerCallback{
         try {
             listener.join();
         } catch (InterruptedException e) {
-            // do nothing
+            // pass
         }
+
+
+        /* We NEED to join the ping thread so we don't have trailing jobs. This is important for e.g. cancelling the alarm notification.
+         * If we cancel it normally, the pingThread will make it reappear.
+         * We also need to do it asynchronously, so we don't block UI. I can't remember if Java already has a function for a callback on Thread join.
+         * In case it does: Whoops.
+         */
+        final Context applicationContext = getApplicationContext();
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                // Wait for pingThread to join.
+                try {
+                    pingThread.join();
+                } catch (InterruptedException e) {
+                    // pass
+                }
+
+                // Cleanup code that has to be executed after pingThread join goes here.
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        // Stop playing the alarm if one is playing.
+                        if(alarmPlayer.isPlaying()) {
+                            alarmPlayer.stop();
+                            Looper.prepare();
+                        }
+
+                        // Remove any leftover alarm notifications.
+                        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                        notificationManager.cancel(ALARM_NOTIFICATION_ID);
+
+                    }
+                }.run();
+            }
+
+        }).start();
+
 
         bluetoothThread.stopScanning();
 
@@ -934,8 +976,8 @@ public class GuardService extends Service implements ListenerCallback{
         }
 
         // Activate notification.
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(ALARM_NOTIFICATION_ID, mBuilder.build());
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(ALARM_NOTIFICATION_ID, mBuilder.build());
 
         // Start ringing the alarm.
         if (alarmPlayer == null) {
@@ -1046,7 +1088,6 @@ public class GuardService extends Service implements ListenerCallback{
     }
 
     private void updateStatus(PenguardProto.Group group) {
-        ListHelper.copyGuardianListFromProtobufList(guardians, group.getGuardiansList());
         ListHelper.copyPenguinListFromProtobufList(penguins, group.getPenguinsList());
         this.seqNo = group.getSeqNo();
     }

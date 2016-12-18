@@ -65,6 +65,7 @@
     <string name="notification_penguin_missing_title">Penguin missing!</string>
     <string name="notification_penguin_missing">has gone missing!</string>
     <string name="notification_penguin_missing2">is missing. Grab your fishsticks, we\'re going to war!</string>
+    <string name="toast_warning_termination">Warning: Penguard was stopped while a penguin was still missing!</string>
 
 
     <!-- Strings related to calibration -->
