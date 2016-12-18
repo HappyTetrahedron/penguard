@@ -103,7 +103,9 @@ public class GuardService extends Service implements ListenerCallback{
 
         handler = new Handler();
 
-        // create ongoing notification needed to be able to make this a foreground service
+        // Create ongoing notification needed to be able to make this a foreground service
+        Intent notificationIntent = new Intent(getApplicationContext(), GGuardActivity.class);
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         Context appContext = getApplicationContext();
         NotificationCompat.Builder builder = new NotificationCompat.Builder(appContext)
                 .setContentTitle(getString(R.string.penguard_active))
@@ -111,7 +113,7 @@ public class GuardService extends Service implements ListenerCallback{
                 .setOngoing(true)
                 .setColor(ContextCompat.getColor(this, R.color.orange))
                 .setContentIntent(PendingIntent.getActivity(appContext, 0,
-                        new Intent(appContext, GGuardActivity.class), 0));
+                        notificationIntent, 0));
 
         // make this service a foreground service, supplying the notification
         startForeground(NOTIFICATION_ID, builder.build());
@@ -156,7 +158,6 @@ public class GuardService extends Service implements ListenerCallback{
         penguinListAdapter = new PenguinAdapter(this, penguins);
 
         //create guard array adapter
-        //TODO change the layout
         guardianListAdapter = new GuardianAdapter(this, guardians, myself);
 
         pingThread = new Thread(new Runnable() {
@@ -171,7 +172,6 @@ public class GuardService extends Service implements ListenerCallback{
                     sendPings();
                     checkPenguinTimeouts();
                     checkBadNat();
-
                 }
             }
         });
@@ -208,7 +208,6 @@ public class GuardService extends Service implements ListenerCallback{
             turnOnBluetooth();
         }
 
-        //detect whether thread is already started. Only re-start it if not. See issue #25
         if (!bluetoothThread.isAlive()) {
             bluetoothThread.start();
             debug("BluetoothThread started");
@@ -905,6 +904,7 @@ public class GuardService extends Service implements ListenerCallback{
     private void penguinGoneMissing(Penguin penguin) {
         // When the user clicks the notification, switch to PenguinDetailActivity. The PenguinDetailActivity is responsible for stopping the alarm.
         Intent resultIntent = new Intent(this, GPenguinDetailActivity.class);
+        resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         resultIntent.putExtra(GPenguinDetailActivity.EXTRA_PENGUIN_MAC, penguin.getAddress());
         TaskStackBuilder stackBuilderResult = TaskStackBuilder.create(this);
         stackBuilderResult.addParentStack(GPenguinDetailActivity.class);
