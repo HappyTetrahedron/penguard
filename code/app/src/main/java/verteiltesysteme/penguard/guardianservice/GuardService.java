@@ -703,21 +703,33 @@ public class GuardService extends Service implements ListenerCallback{
                 } // we only want to accept status updates from group members not formally kicked out people
                 break;
             case GG_GRP_CHANGE:
+                debug("recieved grp change from ");
+                if (sender!=null) debug(sender.getName()+sender.getIp());
                 grpChangeReceived(parsedMessage);
                 break;
             case GG_COMMIT:
+                debug("recieved commit from ");
+                if (sender!=null) debug(sender.getName()+sender.getIp());
                 commitReceived(parsedMessage);
                 break;
             case GG_ABORT:
+                debug("recieved abort from ");
+                if (sender!=null) debug(sender.getName()+sender.getIp());
                 abortReceived(parsedMessage);
                 break;
             case GG_VOTE_YES:
+                debug("recieved vote yes from ");
+                if (sender!=null) debug(sender.getName()+sender.getIp());
                 voteYesReceived(parsedMessage);
                 break;
             case GG_VOTE_NO:
+                debug("recieved vote no from ");
+                if (sender!=null) debug(sender.getName()+sender.getIp());
                 voteNoReceived(parsedMessage);
                 break;
             case GG_GRP_INFO:
+                debug("recieved grp info from ");
+                if (sender!=null) debug(sender.getName()+sender.getIp());
                 grpInfoReceived(parsedMessage);
                 break;
             case GG_ACK:
@@ -1006,7 +1018,9 @@ public class GuardService extends Service implements ListenerCallback{
         if (alarmPlayer != null) {
             alarmPlayer.setLooping(false);
         }
-        penguin.setUserNotifiedOfMissing(true);
+        if (penguin!=null) {
+            penguin.setUserNotifiedOfMissing(true);
+        }
     }
 
     private void mergeReqReceived(PenguardProto.PGPMessage message){

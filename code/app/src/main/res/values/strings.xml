@@ -60,6 +60,7 @@
     <string name="pengSeenByElse">seen by someone else</string>
     <string name="pengNotSeen">not seen by anyone</string>
     <string name="no_penguins">You aren\'t guarding any penguins</string>
+    <string name="howToDesc">Penguard is an antitheft app that helps you guard various bluetooth devices. You can do this either alone or with your friends. If you wish to guard together with others you have to log in to the server with a unique username.</string>
 
     <!-- Penguin missing -->
     <string name="notification_penguin_missing_title">Penguin missing!</string>
