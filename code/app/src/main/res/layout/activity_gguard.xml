@@ -9,12 +9,6 @@
     tools:context="verteiltesysteme.penguard.GGuardActivity"
     android:backgroundTint="@color/blue">
 
-    <ListView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/penguinListView" />
-
     <android.support.v7.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -35,10 +29,10 @@
         android:src="@drawable/ic_plus"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
-        android:layout_marginBottom="66dp"
+        android:layout_marginBottom="76dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="13dp" />
+        android:layout_marginEnd="18dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -48,5 +42,14 @@
         android:layout_alignParentTop="true"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:id="@+id/penguinListView"
+        android:layout_below="@+id/empty"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="323dp" />
 
 </RelativeLayout>

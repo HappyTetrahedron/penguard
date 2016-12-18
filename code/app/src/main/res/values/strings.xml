@@ -65,6 +65,9 @@
     <!-- "seen by..."-strings in penguin overview listing. -->
     <string name="seen_by_no_one_else">Seen by no one else.</string>
     <string name="seen_by">Seen by</string>
+    <string name="you_dativ">you</string>
+    <string name="comma">,</string>
+    <string name="nobody">nobody</string>
 
 
     <!-- Penguin missing -->

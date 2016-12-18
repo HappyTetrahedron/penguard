@@ -55,7 +55,7 @@ public class GuardService extends Service implements ListenerCallback{
     // Networking constants
     private final static int SOCKETS_TO_TRY = 5;
     private final static int NETWORK_TIMEOUT = 5000; // Network timeout in ms
-    private final static int JOIN_REQ_TIMEOUT = 20 * 1000; // Timeout for join requests. TODO Should be upped to 5 minutes.
+    private final static int JOIN_REQ_TIMEOUT = 20 * 1000; // Timeout for join requests.
     private final static int PING_INTERVAL = 5000;
     private final static int GUARDIAN_SEEN_TIMEOUT = 30 * 1000; // After this many milliseconds, we assume that we don't have connection to a guardian.
 
@@ -254,8 +254,7 @@ public class GuardService extends Service implements ListenerCallback{
     private void doJobCheckPenguinTimeouts() {
         // Check if any penguins have gone missing. If so, ring the alarm.
         for (Penguin penguin : penguins) {
-            debug("Checking if penguin missing");
-            if (penguin.isMissing() && !penguin.isUserNotifiedOfMissing()) {
+            if (penguin.needsAlarm()) {
                 penguinGoneMissing(penguin);
             }
         }
@@ -1027,6 +1026,7 @@ public class GuardService extends Service implements ListenerCallback{
 // =================================================================================================
 
     private void penguinGoneMissing(Penguin penguin) {
+        debug("Penguin missing, derpo");;
         // When the user clicks the notification, switch to PenguinDetailActivity. The PenguinDetailActivity is responsible for stopping the alarm.
         Intent resultIntent = new Intent(this, GPenguinDetailActivity.class);
         resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
