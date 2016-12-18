@@ -45,7 +45,12 @@ public class GPenguinDetailActivity extends PenguardActivity {
             @Override
             public void run() {
                 penguin = serviceConnection.getPenguinById(penguinMac);
-                serviceConnection.stopAlarm(penguin);
+                if (penguin != null) {
+                    serviceConnection.stopAlarm(penguin);
+                }
+                else {// penguin was removed in the meantime. nothing left to do here.
+                    finish();
+                }
             }
         });
         Intent intent = new Intent(this, GuardService.class);
@@ -65,8 +70,10 @@ public class GPenguinDetailActivity extends PenguardActivity {
             @Override
             public void run() {
                 if (serviceConnection != null && serviceConnection.isConnected()) {
-                    penguinName.setText(penguin.getName());
-                    penguinInfo.setText(serviceConnection.getPenguinSeenByString(penguinMac));
+                    if (penguin != null) {
+                        penguinName.setText(penguin.getName());
+                        penguinInfo.setText(serviceConnection.getPenguinSeenByString(penguinMac));
+                    }
                 }
                 if (!paused) handler.postDelayed(this, UPDATE_DELAY);
             }
