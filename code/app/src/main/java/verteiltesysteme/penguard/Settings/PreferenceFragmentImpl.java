@@ -30,14 +30,20 @@ public class PreferenceFragmentImpl extends PreferenceFragment {
 
         // We add the server-related settings in one bunch for extensibility.
         for (String s : SettingsActivity.listOfServerSettings) {
-            debug(s);
             Preference preference = findPreference(s);
             settingsActivity.bindPreferenceSummaryToValue(preference);
             if (isUserRegistered){
                 preference.setEnabled(false);
             }
         }
+
+        for(String s : SettingsActivity.listOfPenguinSettings) {
+            Preference preference = findPreference(s);
+            settingsActivity.bindPreferenceSummaryToValue(preference);
+            preference.setEnabled(true);
+        }
     }
+
 
     private void debug(String msg) {
         Log.d("PreferenceFragmentImpl", msg);

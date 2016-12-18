@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Collection;
 import java.util.List;
 
 import verteiltesysteme.penguard.R;
@@ -19,8 +20,8 @@ class PenguinAdapter extends ArrayAdapter<Penguin> {
 
     private int layoutResource;
 
-    PenguinAdapter(Context context, List<Penguin> penguinList) {
-        super(context, R.layout.list_penguins, penguinList);
+    PenguinAdapter(Context context, List<Penguin> unmodifiablePenguinList) {
+        super(context, R.layout.list_penguins, unmodifiablePenguinList);
         this.layoutResource = R.layout.list_penguins;
     }
 

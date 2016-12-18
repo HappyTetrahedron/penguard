@@ -30,20 +30,17 @@ import java.net.SocketException;
 import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
-import java.util.concurrent.Future;
 
 import verteiltesysteme.penguard.GGroupMergeRequestsActivity;
 import verteiltesysteme.penguard.GGuardActivity;
-import verteiltesysteme.penguard.GLoginActivity;
 import verteiltesysteme.penguard.GPenguinDetailActivity;
-import verteiltesysteme.penguard.PenguardActivity;
 import verteiltesysteme.penguard.R;
 import verteiltesysteme.penguard.lowLevelNetworking.ListenerCallback;
 import verteiltesysteme.penguard.lowLevelNetworking.UDPDispatcher;
 import verteiltesysteme.penguard.lowLevelNetworking.UDPListener;
 import verteiltesysteme.penguard.protobuf.PenguardProto;
 
-import static android.app.PendingIntent.getService;
+import static android.R.id.message;
 
 public class GuardService extends Service implements ListenerCallback{
 
@@ -54,7 +51,7 @@ public class GuardService extends Service implements ListenerCallback{
     final static String EXTRA_NAME = "RequestedName";
 
     // group state: penguins, guardians, and state sequence number
-    private final Vector<Penguin> penguins = new Vector<>();
+    private final PenguinList penguins = new PenguinList(this);
     private final Vector<Guardian> guardians = new Vector<>();
     private int seqNo = 0;
     private Vector<PenguardProto.PGPMessage> pendingMergeRequests = new Vector<>();
@@ -78,8 +75,8 @@ public class GuardService extends Service implements ListenerCallback{
     private long plsLastSeen = 0;
 
     private final static int NOTIFICATION_ID = 1;
-    private final int MERGE_NOTIFICATION_ID = 123;
-    private final int ALARM_NOTIFICATION_ID = 124;
+    private final static int MERGE_NOTIFICATION_ID = 123;
+    protected final static int ALARM_NOTIFICATION_ID = 124;
 
     private RegistrationState regState = new RegistrationState();
     private JoinState joinState = new JoinState();
@@ -159,7 +156,7 @@ public class GuardService extends Service implements ListenerCallback{
         listener.start();
 
         // create penguin array adapter
-        penguinListAdapter = new PenguinAdapter(this, penguins);
+        penguinListAdapter = new PenguinAdapter(this, penguins.getUnmodifiableList());
 
         //create guard array adapter
         guardianListAdapter = new GuardianAdapter(this, guardians, myself);
@@ -227,7 +224,10 @@ public class GuardService extends Service implements ListenerCallback{
 
                         // Remove any leftover alarm notifications.
                         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                        notificationManager.cancel(ALARM_NOTIFICATION_ID);
+                        for (Penguin p : penguins) {
+                            String mac = p.getAddress();
+                            notificationManager.cancel(p.getNotificationId());
+                        }
 
                     }
                 }.run();
@@ -703,33 +703,21 @@ public class GuardService extends Service implements ListenerCallback{
                 } // we only want to accept status updates from group members not formally kicked out people
                 break;
             case GG_GRP_CHANGE:
-                debug("recieved grp change from ");
-                if (sender!=null) debug(sender.getName()+sender.getIp());
                 grpChangeReceived(parsedMessage);
                 break;
             case GG_COMMIT:
-                debug("recieved commit from ");
-                if (sender!=null) debug(sender.getName()+sender.getIp());
                 commitReceived(parsedMessage);
                 break;
             case GG_ABORT:
-                debug("recieved abort from ");
-                if (sender!=null) debug(sender.getName()+sender.getIp());
                 abortReceived(parsedMessage);
                 break;
             case GG_VOTE_YES:
-                debug("recieved vote yes from ");
-                if (sender!=null) debug(sender.getName()+sender.getIp());
                 voteYesReceived(parsedMessage);
                 break;
             case GG_VOTE_NO:
-                debug("recieved vote no from ");
-                if (sender!=null) debug(sender.getName()+sender.getIp());
                 voteNoReceived(parsedMessage);
                 break;
             case GG_GRP_INFO:
-                debug("recieved grp info from ");
-                if (sender!=null) debug(sender.getName()+sender.getIp());
                 grpInfoReceived(parsedMessage);
                 break;
             case GG_ACK:
@@ -1000,26 +988,49 @@ public class GuardService extends Service implements ListenerCallback{
             mBuilder.setContentText(penguin.getName() + " " + getText(R.string.notification_penguin_missing2));
         }
 
-        // Activate notification.
+        // Activate notification. We hash the penguin address to get unique notifications for each missing penguin.
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(ALARM_NOTIFICATION_ID, mBuilder.build());
+        notificationManager.notify(penguin.getNotificationId(), mBuilder.build());
 
-        // Start ringing the alarm.
+        // Initialize alarmPlayer if not done already.
         if (alarmPlayer == null) {
             alarmPlayer = MediaPlayer.create(this, R.raw.alarm);
+            alarmPlayer.setVolume(1.0f, 1.0f);
         }
-        alarmPlayer.setVolume(1.0f, 1.0f);
-        alarmPlayer.setLooping(true);
-        alarmPlayer.start();
+
+        // Start ringing the alarm. We only ring the alarm if it isn't already ringing, otherwise the alarm sounds stack.
+        if (!alarmPlayer.isPlaying()) {
+            alarmPlayer.setLooping(true);
+            alarmPlayer.start();
+        }
+    }
+
+    private boolean isAnyPenguinSoundingAlarm() {
+        for (Penguin p : penguins) {
+            if (p.isMissing() && !p.isUserNotifiedOfMissing()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected void stopAlarm(Penguin penguin) {
         debug("Stopped alarm.");
+        penguin.setUserNotifiedOfMissing(true);
+
         if (alarmPlayer != null) {
-            alarmPlayer.setLooping(false);
+            if (!isAnyPenguinSoundingAlarm()){
+                alarmPlayer.setLooping(false);
+            }
         }
-        if (penguin!=null) {
-            penguin.setUserNotifiedOfMissing(true);
+    }
+
+    // Gets called every time a penguin has been removed. We use it to cancel alarm notifications and ongoing alarm sounds.
+    protected void penguinHasBeenRemoved(Penguin p){
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(p.getNotificationId());
+        if (!isAnyPenguinSoundingAlarm()) {
+            alarmPlayer.setLooping(false);
         }
     }
 
