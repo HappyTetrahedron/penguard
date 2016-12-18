@@ -19,9 +19,22 @@
         android:id="@+id/mergeRequestList"/>
 
     <TextView
+        android:text="@string/mergeRequest"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
         android:id="@+id/textPendingMergeRequests" />
+
+    <Button
+        android:text="@string/backToOverview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:id="@+id/backButton"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:onClick="back"
+        android:layout_alignParentStart="true"
+        android:backgroundTint="@color/orange"/>
 </RelativeLayout>

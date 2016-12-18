@@ -6,23 +6,43 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.Vector;
 
+import verteiltesysteme.penguard.R;
+
 //this class is for the penguins
 
 public class Penguin {
-    private int rssiValue;
     private String name;
     private String address;
     private BluetoothDevice device = null;
     private BluetoothGatt gatt;
     private BluetoothManager bluetoothManager;
+    private Context context;
+    private int rssiValue;
+    private int minDistanceRssi;
+    private int maxDistanceRssi;
+    private long lastSeenTimestamp;
 
-    private boolean seen = false;
+    /* Couldn't come up with a good name. This factor determines how much lower than the maxDistanceRssi
+     * a Penguin's RSSI can be to still be qualified as 'seen'.
+     */
+    private final double RSSI_SEEN_THRESHOLD_LEVERAGE = 1.2;
+    // Amount of seconds after which penguin is reported missing.
+    private double penguinMissingThreshold = 30;
+    private boolean userNotifiedOfMissing = false;
 
     private Vector<Guardian> seenBy = new Vector<>();
+
+    /* A callback provided by the GuardService, that gets executed every time the penguins status gets set to seen.
+     * This callback is used to cancel notifications and alarms.
+     */
+    private PenguinSeenCallback seenCallback;
 
     final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
         @Override
@@ -30,31 +50,54 @@ public class Penguin {
             super.onConnectionStateChange(gatt, status, newState);
             if (newState == BluetoothProfile.STATE_CONNECTED){
                 debug(name + " connected");
+                updateTimestamp();
                 gatt.readRemoteRssi();
             }
             if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                seen = false;
                 debug(name + " disconnected");
             }
         }
+
         @Override
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
             super.onReadRemoteRssi(gatt, rssi, status);
             debug(name + " has RSSI " + (float)rssi);
             Penguin.this.rssiValue = rssi;
-            seen = true;
+
+            if(maxDistanceRssi == 0 && minDistanceRssi == 0) { // distance threshold not set
+                debug("Penguin seen");
+                updateTimestamp();
+                return;
+            }
+            else{
+                debug("minDistanceRssi: " + minDistanceRssi);
+                debug("maxDistanceRssi: " + maxDistanceRssi);
+            }
+
+            // distance threshold set
+            if (rssiValue >= Penguin.this.getRssiSeenThreshold()) {
+                updateTimestamp();
+            }
         }
     };
 
-    public Penguin(BluetoothDevice device, String name){
+    public Penguin(BluetoothDevice device, String name, Context context){
         this.device = device;
         this.address = device.getAddress();
         this.name = name;
+        this.context = context;
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        penguinMissingThreshold = sharedPreferences.getInt(context.getString(R.string.pref_key_penguin_missing_delay),
+                context.getResources().getInteger(R.integer.pref_default_penguin_missing_delay));
     }
 
     public Penguin(String address, String name) {
-            this.name = name;
-            this.address = address;
+        this.name = name;
+        this.address = address;
+    }
+
+    public void registerSeenCallback(PenguinSeenCallback callback) {
+        seenCallback = callback;
     }
 
     void initialize(BluetoothManager bm) {
@@ -67,9 +110,30 @@ public class Penguin {
         }
     }
 
+    private double getRssiSeenThreshold() {
+        return (minDistanceRssi - RSSI_SEEN_THRESHOLD_LEVERAGE * (minDistanceRssi - maxDistanceRssi));
+    }
+
     void setSeenBy(Guardian guardian, boolean newSeenStatus) {
-        if (newSeenStatus && !seenBy.contains(guardian)) seenBy.add(guardian);
-        if (!newSeenStatus && seenBy.contains(guardian)) seenBy.remove(guardian);
+        if(newSeenStatus) {
+            updateTimestamp();
+        }
+        if (newSeenStatus && !seenBy.contains(guardian)) {
+            seenBy.add(guardian);
+        }
+        else if (!newSeenStatus && seenBy.contains(guardian)) {
+            seenBy.remove(guardian);
+        }
+    }
+
+    boolean needsAlarm() {
+        return isMissing() && lastSeenTimestamp != 0 && !userNotifiedOfMissing;
+    }
+
+    boolean isMissing(){
+        debug("Checking if missing...");
+        debug("Penguin last seen " + ((System.currentTimeMillis() - lastSeenTimestamp) / 1000.0) + " seconds ago");
+        return (System.currentTimeMillis() - lastSeenTimestamp ) / 1000.0 > penguinMissingThreshold;
     }
 
     boolean isInitialized() {
@@ -77,31 +141,34 @@ public class Penguin {
     }
 
     boolean isSeen() {
-        //debug(name + (seen ? " is visible." : " is gone."));
-        return seen;
-
-        // TODO also report 'false' if RSSI is under threshold, see issue #23
-        // TODO take other guardians into account
+        return (System.currentTimeMillis() - lastSeenTimestamp) / 1000 < penguinMissingThreshold;
     }
 
+    /** Returns a String that states which guardians see the penguin.
+     */
     String getSeenByInfo(){
-        if (seenBy.size() == 0) return "seen by noone else";
-
-        String answer = "seen by ";
+        String response = context.getString(R.string.seen_by) + " ";
+        if (isSeen()) response += context.getString(R.string.you_dativ) + context.getString(R.string.comma) + " ";
         for (Guardian g : seenBy) {
-            answer += g.getName();
-            answer += ", ";
+            if (!g.isGuardianMissing()) {
+                response += g.getName();
+                response += context.getString(R.string.comma) + " ";
+            }
         }
-        answer = answer.substring(0, -2);
-        return answer;
+
+        if (response.indexOf(context.getString(R.string.comma)) < 0) {
+            response += context.getString(R.string.nobody);
+        }
+        else {
+            response = response.substring(0, response.length() - context.getString(R.string.comma).length() - 1);
+        }
+
+        return response;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Penguin){
-            return this.address.equals(((Penguin) obj).address);
-        }
-        return false;
+        return obj instanceof Penguin && this.address.equals(((Penguin) obj).address);
     }
 
     void disconnect() {
@@ -119,6 +186,11 @@ public class Penguin {
         return rssiValue;
     }
 
+    public void setCalibratedValues(int[] calibratedValues){
+        minDistanceRssi = calibratedValues[0];
+        maxDistanceRssi = calibratedValues[1];
+    }
+
     BluetoothGatt getGatt() {
         return gatt;
     }
@@ -131,11 +203,46 @@ public class Penguin {
         return device;
     }
 
+    public void readRssi(){
+        gatt.readRemoteRssi();
+    }
+
     public String getAddress() {
         return address;
     }
+
     private void debug(String msg) {
         Log.d("PenguinClass", msg);
     }
 
+    int getNotificationId(){
+        return (GuardService.ALARM_NOTIFICATION_ID + getAddress()).hashCode();
+    }
+
+    void setUserNotifiedOfMissing(boolean userNotifiedOfMissing){
+        this.userNotifiedOfMissing = userNotifiedOfMissing;
+    }
+
+    boolean isUserNotifiedOfMissing() {
+        return userNotifiedOfMissing;
+    }
+
+    // Returns true iff there is a guardian who sees the penguin and that we have communicated with recently, OR if we see the penguin ourselves.
+    boolean isSeenByAnyone() {
+        for (Guardian g : seenBy){
+            if (!g.isGuardianMissing()) {
+                return true;
+            }
+        }
+        return isSeen();
+    }
+
+    private void updateTimestamp() {
+        lastSeenTimestamp = System.currentTimeMillis();
+        if (seenCallback != null) {
+            seenCallback.penguinRediscovered(Penguin.this);
+        }
+        setUserNotifiedOfMissing(false);
+        debug("Last seen: " + (System.currentTimeMillis() - lastSeenTimestamp) / 1000.0 + " seconds ago");
+    }
 }

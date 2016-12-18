@@ -8,20 +8,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import java.util.Vector;
-
 class BluetoothThread extends Thread{
 
     private boolean running = true;
     private boolean paused = false;
 
     private final static int SCAN_INTERVAL_SECONDS = 5;
-    private final Vector<Penguin> penguins;
+    private final PenguinList penguins;
     private GuardService service;
     private BluetoothManager manager;
     private BluetoothBroadcastReceiver bluetoothBroadcastReceiver;
 
-    BluetoothThread(final Vector<Penguin> penguins, GuardService service) {
+    BluetoothThread(final PenguinList penguins, GuardService service) {
         this.penguins = penguins;
         this.service = service;
         this.manager = (BluetoothManager) service.getSystemService(Context.BLUETOOTH_SERVICE);
@@ -31,7 +29,6 @@ class BluetoothThread extends Thread{
     public void run() {
         while (running && !isInterrupted()) {
             if (!paused) {
-                //TODO this crashes hard if the user randomly disables bluetooth. See issue #22
                 for (Penguin p : penguins) {
                     if (paused) break;
 
@@ -46,7 +43,7 @@ class BluetoothThread extends Thread{
                     }
                     else {
                         debug("Initiating RSSI scan for penguin " + p.getName());
-                        p.getGatt().readRemoteRssi();
+                        p.readRssi();
                     }
                 }
             }

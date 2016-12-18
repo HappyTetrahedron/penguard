@@ -51,7 +51,14 @@ class PenguinServerProtocol:
 
     # =================== HANDLERS ===================
     def default_handler(self, msg, addr):
-        self.send_err('No handler found for this message type.', addr)
+        ip = msg.recipientIp
+        port = msg.recipientPort
+
+        if ip:
+            # Just forward what we received
+            self.send(msg, (ip, port))
+        else:
+            self.send_err('No handler found for this message type.', addr)
 
 
     def register_client(self, msg, addr):
@@ -122,10 +129,19 @@ class PenguinServerProtocol:
             # send to the requested guardian
             self.send(response, (guardian['ip'], guardian['port']))
 
-            print('Send merge request')
+            print('Send merge request to %s:%d' % (guardian['ip'], guardian['port']))
 
         else:
             self.send_err('User with this name has not been found.', addr)
+
+    
+    def group_info_forwarding(self, msg, addr):
+        ip = msg.groupInfo.recieverIP
+        port = msg.groupInfo.recieverPort
+
+        # Just forward what we received
+        self.send(msg, (ip, port))
+        
 
 
     # ============== helpers =================

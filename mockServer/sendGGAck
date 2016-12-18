@@ -1,0 +1,24 @@
+#!/bin/python3
+
+import msg_pb2
+import socket
+import sys
+from google.protobuf.internal import encoder
+
+theip = sys.argv[1]
+theport = int(sys.argv[2])
+
+print(theip)
+print(str(sys.argv))
+
+msg = msg_pb2.PGPMessage()
+msg.type = msg_pb2.PGPMessage.GG_ACK
+
+
+msgs = msg.SerializeToString()
+msgl = encoder._VarintBytes(len(msgs))
+msgf = msgl + msgs
+
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.sendto(msgf, (theip, theport))
+

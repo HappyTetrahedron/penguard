@@ -3,13 +3,15 @@ package verteiltesysteme.penguard.guardianservice;
 
 import android.util.Log;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.util.Objects;
+
+import verteiltesysteme.penguard.protobuf.PenguardProto;
 
 public class Guardian {
 
-    private InetAddress address;
     private String ip;
+
+    private boolean hasBadNat = false;
 
     private int port;
 
@@ -17,10 +19,12 @@ public class Guardian {
 
     private long lastSeenTimestamp;
 
+    // Amount of seconds after which guardian is assumed as missing. This influences the penguin alarm behaviour.
+    private final double GUARDIAN_MISSING_THRESHOLD = 20;
+
     Guardian() {
         name = null;
         ip = null;
-        address = null;
         port = 0;
     }
 
@@ -28,40 +32,39 @@ public class Guardian {
         this.name = name;
         this.ip = ip;
         this.port = port;
-        try {
-            this.address = InetAddress.getByName(ip);
-        } catch (UnknownHostException e) {
-            debug("Unknown Host " + ip);
-        }
     }
 
-    Guardian(String name, InetAddress address, int port) {
-        this.name = name;
-        this.address = address;
-        this.port = port;
-        this.ip = address.getHostName();
+    boolean hasBadNat() {
+        return hasBadNat;
     }
 
+    void setBadNat(boolean badNat) {
+        hasBadNat = badNat;
+    }
+
+    PenguardProto.PGPGuardian toProto() {
+        PenguardProto.PGPGuardian pgpguardian = PenguardProto.PGPGuardian.newBuilder()
+                .setName(getName())
+                .setIp(getIp())
+                .setPort(getPort())
+                .setBadNat(hasBadNat())
+                .build();
+        return pgpguardian;
+    }
     void updateTime() {
         lastSeenTimestamp = System.currentTimeMillis();
     }
 
     void setIp(String ip) {
         this.ip = ip;
-        try {
-            this.address = InetAddress.getByName(ip);
-        } catch (UnknownHostException e) {
-            debug("Unknown Host " + ip);
-        }
     }
 
-    void setAddress(InetAddress address) {
-        this.address = address;
-        this.ip = address.getHostName();
+    public long getTimeStamp(){
+        return  this.lastSeenTimestamp;
     }
 
-    public InetAddress getAddress() {
-        return address;
+    public boolean equals(Guardian guardian){
+        return Objects.equals(this.getName(), guardian.getName());
     }
 
     public String getIp() {
@@ -82,6 +85,10 @@ public class Guardian {
 
     void setName(String name) {
         this.name = name;
+    }
+
+    boolean isGuardianMissing(){
+        return (System.currentTimeMillis() - lastSeenTimestamp) / 1000.0 > GUARDIAN_MISSING_THRESHOLD;
     }
 
     private void debug(String msg) {

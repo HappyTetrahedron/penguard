@@ -49,7 +49,7 @@ final class ListHelper {
      * @return The first penguin in the list with the given address. Null if no such penguin exists.
      */
     @Nullable
-    static Penguin getPenguinByAddress(List<Penguin> penguins, String mac) {
+    static Penguin getPenguinByAddress(PenguinList penguins, String mac) {
         if (penguins == null) return null; //corner case: can't find anything in null list
         for (Penguin penguin : penguins) {
             if (penguin.getAddress().equals(mac)) return penguin;
@@ -99,13 +99,28 @@ final class ListHelper {
     }
 
     /**
+     * Adds all members of a Vector of PGPGuardians to a vector of Guardians
+     * @param pgpGuardianVector Vector of which all members shall be added
+     * @param guardianVector Vector to which all members shall be added
+     */
+    static void addPGPGuardianListToGuardianList(Vector<PenguardProto.PGPGuardian> pgpGuardianVector, Vector<Guardian> guardianVector){
+        for (PenguardProto.PGPGuardian pgpGuardian : pgpGuardianVector) {
+            if (getGuardianByName(guardianVector, pgpGuardian.getName()) == null) { //No corresponding guardian in guardianList
+                guardianVector.add(new Guardian(pgpGuardian.getName(), pgpGuardian.getIp(), pgpGuardian.getPort()));
+            }
+        }
+    }
+
+
+
+    /**
      * Updates a list of Penguins to correspond to a list of PGPPenguins without entirely flushing
      * the list, i.e. penguins that are both in the old and new list are not removed and re-inserted.
      * Runs in O(N*M), use with care
      * @param penguinList The list of Penguins to copy to
      * @param protobufList The list of PGPPenguins to copy from
      */
-    static void copyPenguinListFromProtobufList(List<Penguin> penguinList, List<PenguardProto.PGPPenguin> protobufList) {
+    static void copyPenguinListFromProtobufList(PenguinList penguinList, List<PenguardProto.PGPPenguin> protobufList) {
         // first, delete all penguins from the list that are not in the protobuf
         for (int i = 0; i < penguinList.size(); i++) {
             Penguin penguin = penguinList.get(i);
@@ -123,18 +138,54 @@ final class ListHelper {
         }
     }
 
+    /**
+     * Returns a new list that contains all PGPGuardians both in A and B.
+     * @param a first PGPGuardian list
+     * @param b second PGPGuardian list
+     * @return Merged list of PGPGuardians
+     */
+    static List<PenguardProto.PGPGuardian> mergeGuardiansList(List<PenguardProto.PGPGuardian> a, List<PenguardProto.PGPGuardian> b) {
+        // Add all a's
+        List<PenguardProto.PGPGuardian> results = new Vector<>(a);
+        // Add all b's that aren't already present
+        for (PenguardProto.PGPGuardian g : b) {
+            if (getPGPGuardianByName(results, g.getName()) == null) {
+                results.add(g);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * Returns a new list that contains all PGPpenguins both in A and B.
+     * @param a first PGPPenguin list
+     * @param b second PGPPenguin list
+     * @return Merged list of PGPpenguins
+     */
+    static List<PenguardProto.PGPPenguin> mergePenguinLists(List<PenguardProto.PGPPenguin> a, List<PenguardProto.PGPPenguin> b) {
+        // Add all a's
+        List<PenguardProto.PGPPenguin> results = new Vector<>(a);
+        // Add all b's that aren't already present
+        for (PenguardProto.PGPPenguin p : b) {
+            if (getPGPPenguinByAddress(results, p.getMac()) == null) {
+                results.add(p);
+            }
+        }
+        return results;
+    }
 
     /**
      * Converts a Vector of Penguins in a Vector of PGPPenguins
      * @param penguinlist A Vector of Penguins
      * @return A new Vector of PGPPenguins
      */
-    static Vector<PenguardProto.PGPPenguin> convertToPGPPenguinList(Vector<Penguin> penguinlist){
+    static Vector<PenguardProto.PGPPenguin> convertToPGPPenguinList(PenguinList penguinlist){
         Vector<PenguardProto.PGPPenguin> pgppenguinlist = new Vector<>();
         for (Penguin p : penguinlist){
             PenguardProto.PGPPenguin pgppenguin = PenguardProto.PGPPenguin.newBuilder()
                     .setMac(p.getAddress())
                     .setName(p.getName())
+                    .setSeen(p.isSeen())
                     .build();
 
             pgppenguinlist.add(pgppenguin);
@@ -151,13 +202,7 @@ final class ListHelper {
     static Vector<PenguardProto.PGPGuardian> convertToPGPGuardianList(Vector<Guardian> guardianlist){
         Vector<PenguardProto.PGPGuardian> pgpguardianlist = new Vector<>();
         for (Guardian g : guardianlist){
-            PenguardProto.PGPGuardian pgpguardian = PenguardProto.PGPGuardian.newBuilder()
-                    .setName(g.getName())
-                    .setIp(g.getIp())
-                    .setPort(g.getPort())
-                    .build();
-
-            pgpguardianlist.add(pgpguardian);
+            pgpguardianlist.add(g.toProto());
         }
         return pgpguardianlist;
     }

@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class BluetoothDevicesAdapter extends ArrayAdapter<BluetoothDevice> {
@@ -18,9 +17,8 @@ public class BluetoothDevicesAdapter extends ArrayAdapter<BluetoothDevice> {
     private int layoutResource;
 
     public BluetoothDevicesAdapter(Context context, int layoutResource, List<BluetoothDevice> deviceList) {
-        //TODO delete layout from the arguments and make my own
-        super(context, layoutResource, deviceList);
-        this.layoutResource = layoutResource;
+        super(context, R.layout.penguin_search_list, deviceList);
+        this.layoutResource = R.layout.penguin_search_list;
     }
 
     @NonNull
@@ -34,10 +32,14 @@ public class BluetoothDevicesAdapter extends ArrayAdapter<BluetoothDevice> {
         BluetoothDevice device = getItem(position);
 
         if (device != null) {
-            TextView deviceNameTextView = (TextView) convertView.findViewById((android.R.id.text1));
+            TextView deviceNameTextView = (TextView) convertView.findViewById((R.id.textView8));
 
             if (deviceNameTextView != null) {
-                deviceNameTextView.setText(device.getName() + " " + device.getAddress());
+                if (device.getName()!=null) {
+                    deviceNameTextView.setText(device.getName() + " " + device.getAddress());
+                }else {
+                    deviceNameTextView.setText(device.getAddress());
+                }
             }
         }
 

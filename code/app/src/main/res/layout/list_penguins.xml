@@ -1,24 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="5dip" >
+
+    <!--  ListRow Left sied Thumbnail image -->
+    <LinearLayout android:id="@+id/thumbnail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="3dip"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="5dip">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="50dip"
+            android:layout_height="50dip"
+            android:src="@drawable/ic_penguin"/>
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/penguinName"
-        android:layout_width="match_parent"
-        android:layout_height="20pt"
-        android:text="Penguin"
-        android:textAppearance="@style/TextAppearance.AppCompat"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="10pt"
-        android:layout_marginTop="7pt"
-        tools:textColor="@android:color/black"
-        tools:textColorHighlight="@color/colorPrimaryDark"
-        tools:textColorHint="@color/darkorange"
-        android:textColor="@android:color/background_dark"
-        android:textColorHighlight="@color/colorPrimaryDark"
-        android:textColorHint="@color/colorAccent" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/thumbnail"
+        android:layout_toRightOf="@+id/thumbnail"
+        android:textColor="#040404"
+        android:typeface="sans"
+        android:textSize="15sp"
+        android:textStyle="bold"/>
 
+    <TextView
+        android:id="@+id/PenguinStatus"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/penguinName"
+        android:textColor="#343434"
+        android:textSize="10sp"
+        android:layout_marginTop="1dip"
+        android:layout_toRightOf="@+id/thumbnail" />
 </RelativeLayout>

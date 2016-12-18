@@ -2,29 +2,22 @@ package verteiltesysteme.penguard;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import verteiltesysteme.penguard.guardianservice.GroupJoinCallback;
 import verteiltesysteme.penguard.guardianservice.GuardService;
-import verteiltesysteme.penguard.guardianservice.GuardianServiceConnection;
 
-public class GGroupJoinActivity extends AppCompatActivity {
+public class GGroupJoinActivity extends PenguardActivity {
 
     Button btn;
     TextView textView;
     EditText editText;
 
-    GuardianServiceConnection guardianServiceConnection = new GuardianServiceConnection();
-
-    GGroupJoinCallback joinCallback;
+    GroupJoinCallback joinCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +29,7 @@ public class GGroupJoinActivity extends AppCompatActivity {
         editText = (EditText)findViewById(R.id.groupJoinET);
 
         Intent intent = new Intent(this, GuardService.class);
-        bindService(intent, guardianServiceConnection, Context.BIND_AUTO_CREATE);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,25 +38,37 @@ public class GGroupJoinActivity extends AppCompatActivity {
             }
         });
 
-        joinCallback = new GGroupJoinCallback() {
+        joinCallback = new GroupJoinCallback() {
             @Override
             public void joinSuccessful() {
-                toast("Join successful.");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        toast(getString(R.string.joinSuc));
+                    }
+                });
                 GGroupJoinActivity.this.finish();
             }
 
             @Override
             public void joinAccepted() {
-                toast("Your Join request was accepted. Updating group...");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        toast(getString(R.string.joinAcept));
+                    }
+                });
             }
 
             @Override
-            public void joinFailure(String error) {
-                toast(error);
+            public void joinFailure(final String error) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         btn.setEnabled(true); //reenable to button
+                        if (error.length() > 0) {
+                            toast(error);
+                        }
                     }
                 });
             }
@@ -73,7 +78,9 @@ public class GGroupJoinActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(guardianServiceConnection);
+        if (serviceConnection != null && serviceConnection.isConnected()) {
+            unbindService(serviceConnection);
+        }
     }
 
     private void groupJoin(){
@@ -85,38 +92,10 @@ public class GGroupJoinActivity extends AppCompatActivity {
         String groupUN = String.valueOf(editText.getText());
 
         //call the function in the serviceConnector
-        if (guardianServiceConnection.joinGroup(groupUN, joinCallback)){
-            //join started successful
-        } else {
-            //something went wrong
-            toast("Unable to join group");
-            btn.setEnabled(true); //reenable to button
+        if (! serviceConnection.joinGroup(groupUN, joinCallback)){
+            //something went wrong, so notify user and re-enable the button
+            joinCallback.joinFailure(getString(R.string.toast_merge_failed_progress));
+            btn.setEnabled(true);
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_settings, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case R.id.menu_settings:
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private void toast(String msg){
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-    }
-
-    private void debug(String msg) {
-        Log.d("GGroupJoin", msg);
     }
 }

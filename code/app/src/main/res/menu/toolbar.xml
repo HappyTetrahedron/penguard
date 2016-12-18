@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_add_penguin"
+        android:icon="@drawable/ic_action_add_penguin"
+        android:title="@string/action_add_penguin"
+        app:showAsAction="always" />
+    <item android:id="@+id/action_penguin_overview"
+        android:icon="@drawable/ic_action_penguin_overview"
+        android:title="@string/action_penguin_overview"
+        app:showAsAction="always" />
+    <item android:id="@+id/action_group_overview"
+        android:icon="@drawable/ic_action_group_overview"
+        android:title="@string/action_group_overview"
+        app:showAsAction="always" />
+    <item android:id="@+id/action_join_group"
+        android:icon="@drawable/ic_action_join_group"
+        android:title="@string/action_join_group"
+        app:showAsAction="always" />
+    <item android:id="@+id/action_login"
+        android:icon="@drawable/ic_action_login"
+        android:title="@string/action_login"
+        app:showAsAction="always" />
+</menu>
