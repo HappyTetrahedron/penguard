@@ -12,7 +12,7 @@ build:
  stage: build
  script:
   - cd code
-  - echo y | ./gradlew assembleDebug
+  - ./gradlew assembleDebug
 
 test:
  stage: test
