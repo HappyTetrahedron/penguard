@@ -365,7 +365,8 @@ public class GuardService extends Service implements ListenerCallback{
     private void checkPenguinTimeouts() {
         // Check if any penguins have gone missing. If so, ring the alarm.
         for (Penguin penguin : penguins) {
-            if (!penguin.isSeenByAnyone() && !penguin.isUserNotifiedOfMissing()) {
+            debug("Checking if penguin missing");
+            if (penguin.isMissing() && !penguin.isUserNotifiedOfMissing()) {
                 penguinGoneMissing(penguin);
             }
         }
