@@ -54,7 +54,7 @@ class PenguinServerProtocol:
         ip = msg.recipientIp
         port = msg.recipientPort
 
-        if ip != 0:
+        if ip:
             # Just forward what we received
             self.send(msg, (ip, port))
         else:
