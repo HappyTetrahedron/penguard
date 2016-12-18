@@ -106,16 +106,21 @@
     <string name="pref_key_server_port">port</string>
     <string name="pref_key_port">port</string>
     <string name="pref_key_uuid">uuid</string>
+    <string name="pref_key_username">username</string>
+    <string name="pref_key_penguin_missing_delay">penguin_missing_delay</string>
+    <string name="pref_title_display_name">Username</string>
+    <string name="pref_title_penguin_missing_delay">Delay until alarm is rung</string>
+
+    <string name="pref_default_display_name">username</string>
     <string name="pref_default_server_port">6789</string>
     <string name="pref_default_port">6789</string>
     <string name="pref_default_uuid"></string>
     <string name="pref_default_server">penguard.vsos.ethz.ch</string>
     <string name="pref_default_username" />
-    <string name="pref_key_username">username</string>
+    <string name="pref_default_penguin_missing_delay">10</string>
+
     <string name="please_logout_to_change">Please log out to change server settings.</string>
 
-    <string name="pref_title_display_name">Username</string>
-    <string name="pref_default_display_name">username</string>
 
 
 </resources>
