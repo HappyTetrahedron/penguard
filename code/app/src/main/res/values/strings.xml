@@ -81,7 +81,7 @@
     <!-- Strings related to calibration -->
     <string name="button_calibration_start">Start Calibration</string>
     <string name="button_calibration_end">End Calibration</string>
-    <string name="calibration_description">Bring the penguin as close as possible, then press Start</string>
+    <string name="calibration_description">Bring the penguin as close as possible, then press Start. After that, walk away slowly until you reach the desired distance, and press the button again.</string>
     <string name="calibrate">Calibrate</string>
     <string name="calibrationToggle">calibrationToggle</string>
 

@@ -73,14 +73,13 @@ public class Penguin {
                 updateTimestamp();
                 return;
             }
-            else{
+            else {
                 debug("minDistanceRssi: " + minDistanceRssi);
                 debug("maxDistanceRssi: " + maxDistanceRssi);
-            }
-
-            // distance threshold set
-            if (rssiValue >= Penguin.this.getRssiSeenThreshold()) {
-                updateTimestamp();
+                // distance threshold set
+                if (rssiValue >= Penguin.this.getRssiSeenThreshold()) {
+                    updateTimestamp();
+                }
             }
         }
     };
@@ -195,6 +194,7 @@ public class Penguin {
     public void setCalibratedValues(int[] calibratedValues){
         minDistanceRssi = calibratedValues[0];
         maxDistanceRssi = calibratedValues[1];
+        debug("Calibrating penguin " + name + " to values " + minDistanceRssi + ", " + maxDistanceRssi);
     }
 
     BluetoothGatt getGatt() {
