@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.util.Log;
 
+import java.security.Guard;
 import java.util.Date;
 import java.util.Vector;
 
@@ -40,20 +41,26 @@ public class Penguin {
     private class Seen {
         private boolean seen = false;
 
-        private void updateSeen(boolean seen){
-            this.seen = seen;
-            if (seen) {
+        private void updateSeen(boolean newSeenStatus){
+
+            // Update the timestamp
+            if(newSeenStatus){
                 updateTimestamp();
                 userNotifiedOfMissing = false;
             }
+            seen = newSeenStatus;
         }
 
         private boolean isSeen() {
             return seen;
         }
     }
-
     private Vector<Guardian> seenBy = new Vector<>();
+
+    /* A callback provided the GuardService, that gets executed every time the penguins status gets set to seen.
+     * This callback is used to cancel notifications and alarms.
+     */
+    private PenguinSeenCallback seenCallback;
 
     final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
         @Override
@@ -107,6 +114,9 @@ public class Penguin {
         this.address = address;
     }
 
+    public void registerSeenCallback(PenguinSeenCallback callback) {
+        seenCallback = callback;
+    }
 
     void initialize(BluetoothManager bm) {
         this.bluetoothManager = bm;
@@ -221,12 +231,21 @@ public class Penguin {
         return userNotifiedOfMissing;
     }
 
+    // Returns true iff there is a guardian who sees the penguin and that we have communicated with recently, OR if we see the penguin ourselves.
     boolean isSeenByAnyone() {
-        return !seenBy.isEmpty() || seen.isSeen();
+        for (Guardian g : seenBy){
+            if (!g.isGuardianMissing()) {
+                return true;
+            }
+        }
+        return seen.isSeen();
     }
 
     private void updateTimestamp() {
         lastSeenTimestamp = System.currentTimeMillis();
+        if(seenCallback != null){
+            seenCallback.penguinRediscovered(Penguin.this);
+        }
         debug("Last seen: " + (System.currentTimeMillis() - lastSeenTimestamp) / 1000.0);
     }
 }
