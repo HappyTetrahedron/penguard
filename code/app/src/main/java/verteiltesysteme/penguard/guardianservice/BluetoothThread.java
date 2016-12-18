@@ -45,7 +45,7 @@ class BluetoothThread extends Thread{
                     }
                     else {
                         debug("Initiating RSSI scan for penguin " + p.getName());
-                        p.getGatt().readRemoteRssi();
+                        p.readRssi();
                     }
                 }
             }
