@@ -6,11 +6,14 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+import android.content.Context;
 import android.util.Log;
 
 import java.security.Guard;
 import java.util.Date;
 import java.util.Vector;
+
+import verteiltesysteme.penguard.R;
 
 //this class is for the penguins
 
@@ -158,13 +161,18 @@ public class Penguin {
         return seen.isSeen();
     }
 
-    String getSeenByInfo(){
-        if (seenBy.size() == 0) return "Seen by noone else";
+    /** Returns a String that states which guardians see the penguin.
+     * @param context A context for retrieving strings from the resource files.
+     */
+    String getSeenByInfo(Context context){
+        if (seenBy.isEmpty()) return context.getString(R.string.seen_by);
 
-        String answer = "Seen by ";
+        String answer = context.getString(R.string.seen_by_no_one_else);
         for (Guardian g : seenBy) {
-            answer += g.getName();
-            answer += ", ";
+            if (!g.isGuardianMissing()) {
+                answer += g.getName();
+                answer += ", ";
+            }
         }
         answer = answer.substring(0, answer.length() - 2);
         return answer;

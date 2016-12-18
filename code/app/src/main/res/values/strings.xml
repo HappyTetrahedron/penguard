@@ -57,9 +57,14 @@
     <string name="penguinAddFailed">Penguin could not be added, please try again</string>
     <string name="removeSelf">You cannot remove yourself</string>
     <string name="pengSeenBySelf">is seen by you</string>
-    <string name="pengSeenByElse">seen by someone else</string>
-    <string name="pengNotSeen">not seen by anyone</string>
+    <string name="pengSeenByElse">Seen by someone else</string>
+    <string name="pengNotSeen">Not seen by anyone</string>
     <string name="no_penguins">You aren\'t guarding any penguins</string>
+
+    <!-- "seen by..."-strings in penguin overview listing. -->
+    <string name="seen_by_no_one_else">Seen by no one else.</string>
+    <string name="seen_by">Seen by</string>
+
 
     <!-- Penguin missing -->
     <string name="notification_penguin_missing_title">Penguin missing!</string>
